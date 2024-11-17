@@ -1,0 +1,46 @@
+[gd_scene load_steps=7 format=3 uid="uid://b5hth0y4tohf1"]
+
+[ext_resource type="Texture2D" uid="uid://blbpioha5whjf" path="res://scenes/environment/castle_zone/misc/firepot.png" id="1_buxk1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qf6s0"]
+atlas = ExtResource("1_buxk1")
+region = Rect2(0, 0, 24, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_annqr"]
+atlas = ExtResource("1_buxk1")
+region = Rect2(24, 0, 24, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h31xr"]
+atlas = ExtResource("1_buxk1")
+region = Rect2(48, 0, 24, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7qec1"]
+atlas = ExtResource("1_buxk1")
+region = Rect2(72, 0, 24, 34)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wppdc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qf6s0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_annqr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h31xr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7qec1")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 5.0
+}]
+
+[node name="firepot" type="AnimatedSprite2D"]
+z_index = 2
+sprite_frames = SubResource("SpriteFrames_wppdc")
+animation = &"new_animation"
+autoplay = "new_animation"
+frame_progress = 0.490831

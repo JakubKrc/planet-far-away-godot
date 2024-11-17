@@ -1,0 +1,100 @@
+[gd_scene load_steps=9 format=3 uid="uid://bsbbsbc1rea6q"]
+
+[ext_resource type="Script" path="res://scenes/characters/main_char/MainChar.gd" id="1_l5htb"]
+[ext_resource type="Texture2D" uid="uid://dgga4dq3amq0i" path="res://scenes/characters/main_char/main_char.png" id="2_0qewk"]
+[ext_resource type="PackedScene" uid="uid://6hwtnnuxg8mr" path="res://scenes/characters/main_char/healthBar.tscn" id="3_3r62a"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1xk83"]
+size = Vector2(14, 32)
+
+[sub_resource type="Animation" id="Animation_ry7py"]
+resource_name = "idle"
+length = 2.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13]
+}
+
+[sub_resource type="Animation" id="Animation_tqpcu"]
+resource_name = "walk_left"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0414516, 0.3, 0.5, 5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [40, 41, 42, 43, 0]
+}
+
+[sub_resource type="Animation" id="Animation_xw7ke"]
+resource_name = "walk_right"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.047769, 0.3, 0.5, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [20, 21, 22, 23, 24]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dsvt5"]
+_data = {
+"idle": SubResource("Animation_ry7py"),
+"walk_left": SubResource("Animation_tqpcu"),
+"walk_right": SubResource("Animation_xw7ke")
+}
+
+[node name="MainChar" type="CharacterBody2D" groups=["player"]]
+z_index = 1
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_l5htb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1xk83")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_0qewk")
+hframes = 20
+vframes = 3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_dsvt5")
+}
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HealthBar" parent="CanvasLayer" instance=ExtResource("3_3r62a")]
+z_index = 10
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 23.0
+offset_top = -21.0
+offset_right = 102.0
+offset_bottom = -15.0
+grow_vertical = 0
+
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

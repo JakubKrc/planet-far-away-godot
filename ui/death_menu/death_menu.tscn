@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://wf5gmejaffhe"]
+
+[ext_resource type="Texture2D" uid="uid://c0oirbmx8ti2d" path="res://ui/death_menu/death_menu.png" id="1_2036o"]
+[ext_resource type="Script" path="res://ui/death_menu/death_menu.gd" id="1_otx5s"]
+
+[node name="DeathMenu" type="CanvasLayer"]
+process_mode = 2
+script = ExtResource("1_otx5s")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 25
+position = Vector2(160, 56)
+texture = ExtResource("1_2036o")

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://e0yr6koajp1a"]
+
+[ext_resource type="Texture2D" uid="uid://bjx1q43rgfnwl" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simplebullet.png" id="1_141jj"]
+[ext_resource type="Script" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleBullet.gd" id="1_gao1c"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6myer"]
+size = Vector2(2, 2)
+
+[node name="SimpleBullet" type="Area2D"]
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_gao1c")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_141jj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_6myer")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
