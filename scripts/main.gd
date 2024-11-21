@@ -2,20 +2,26 @@ extends Node2D
 
 @onready var main2D = $main2D
 @onready var spawn = $Spawn
+@onready var testLabel = $CanvasLayerForTestLabel/TestLabel
 
 var level_instance = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	Global.main = self
+	testLabel.text = OS.get_name()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	if Input.is_action_just_pressed("escape"):
-		await get_tree().process_frame
+	if Input.is_action_just_pressed("escape")  or Input.is_action_just_pressed("pause"):
+		if Global.game_state == Global.GameState.MAIN_MENU:
+			return;
+		if Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() == "Web":
+			return;
+		await get_tree().process_frame;
 		Global.pause_menu.selection = 0;
 		Global.pause_menu.show();
 		Global.game_state = Global.GameState.PAUSE_MENU
-		get_tree().paused = true
+		get_tree().paused = true;
 
 func unload_level():
 	for child in main2D.get_children():

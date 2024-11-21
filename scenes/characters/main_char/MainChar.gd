@@ -66,11 +66,11 @@ func _physics_process(delta):
 		addToWasOnGround(true)
 
 	# Handle Jump.
-	if Input.is_action_just_pressed("ui_accept") and true in wasOnGround:
+	if Input.is_action_just_pressed("jump") and true in wasOnGround:
 		setDefaultSprite()
 		velocity.y = JUMP_VELOCITY
 		
-	if Input.is_action_just_released("ui_accept") and velocity.y < 0:
+	if Input.is_action_just_released("jump") and velocity.y < 0:
 		velocity.y = JUMP_VELOCITY / 4
 
 	# Get the input direction and handle the movement/deceleration.

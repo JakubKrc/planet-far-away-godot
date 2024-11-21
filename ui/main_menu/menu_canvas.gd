@@ -35,5 +35,5 @@ func _process(_delta):
 		get_tree().paused = false
 	
 	if ((Input.is_action_just_pressed("ui_accept") and selection == 1) or
-		Input.is_action_just_pressed("escape")):
+		(Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() != "Web")):
 		get_tree().quit();

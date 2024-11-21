@@ -90,4 +90,4 @@ level_to_load = "res://scenes/environment/castle_zone/rooms/room1.tscn"
 door_to_spam = "to_level2"
 
 [node name="simpleRobot" parent="." instance=ExtResource("3_1e0ut")]
-position = Vector2(71, 157)
+position = Vector2(70, 184)

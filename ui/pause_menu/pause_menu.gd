@@ -25,7 +25,9 @@ func _process(_delta):
 	locator.position.y = 98 + (selection*22)
 	
 	if((Input.is_action_just_pressed("ui_accept") and selection==0) 
-	or Input.is_action_just_pressed("escape") ):
+	or Input.is_action_just_pressed("escape") or Input.is_action_just_pressed('pause') ):
+		if Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() == "Web":
+			return;
 		go_back_to_game()
 		
 	if(Input.is_action_just_pressed("ui_accept") and selection==1):
