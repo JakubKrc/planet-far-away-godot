@@ -27,17 +27,22 @@ func _process(_delta):
 func load_mainchar(where_to_set_character: Vector2):
 	var character = get_tree().get_first_node_in_group("player")
 	character.global_position = where_to_set_character;
+	character.visible=true
 	character.velocity = Vector2.ZERO
 	character.get_node('Camera2D').position_smoothing_enabled = false
 	character.get_node('Camera2D').global_position = where_to_set_character;
 	await get_tree().process_frame
 	character.get_node('Camera2D').position_smoothing_enabled = true
 	
-func load_level(level_path : String, door_name : String):
+func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1):
 	
 	if not ResourceLoader.exists(level_path):
 		print("Level %s dont exist." % level_path);
 		return
+		
+	var didFadeInTransitionHappened = TransitionScreen.transition(fadeIn, fadeOut)
+	if didFadeInTransitionHappened:
+		await TransitionScreen.on_transition_finished
 		
 	var level_resource := load(level_path)
 	if (level_resource):
@@ -45,6 +50,18 @@ func load_level(level_path : String, door_name : String):
 		level_instance = level_resource.instantiate()
 		main2D.call_deferred("add_child",level_instance)
 		await get_tree().process_frame
+				
+	var doors = get_tree().get_nodes_in_group("door")
+	var print_warning: bool = true
+	for door in doors:
+		if door.door_name == door_name:
+			door.need_to_be_exited_before_activating = true;
+			load_mainchar(door.global_position)
+			print_warning = false
+			break
+
+	if  print_warning:
+		print("Portal %s are not in the level %s" % [door_name, level_path])
 		
 	var levelMusic = get_tree().get_nodes_in_group('backgroundmusic')
 	if levelMusic.size() == 0:
@@ -54,14 +71,7 @@ func load_level(level_path : String, door_name : String):
 	else:
 		backgroundMusicPlayer.playMusic(levelMusic[0].song, 0)
 			
-	var doors = get_tree().get_nodes_in_group("door")
-	for door in doors:
-		if door.door_name == door_name:
-			door.need_to_be_exited_before_activating = true;
-			load_mainchar(door.global_position)
-			return
-		
-	print("Portal %s are not in the level %s" % [door_name, level_path])
+
 
 func unload_level(): 
 	for child in main2D.get_children():

@@ -6,4 +6,5 @@ extends Node
 
 func spawn() -> void:
 	var character = load(CHARACTER).instantiate()
+	character.visible = false
 	main.add_child(character)

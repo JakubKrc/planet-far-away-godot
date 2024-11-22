@@ -22,6 +22,7 @@ buses/default_bus_layout=""
 [autoload]
 
 Global="*res://scripts/Global.gd"
+TransitionScreen="*res://scenes/common/transition_screen.tscn"
 
 [display]
 

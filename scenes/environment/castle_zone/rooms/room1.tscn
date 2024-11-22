@@ -139,7 +139,7 @@ door_to_spam = "to_level1"
 position = Vector2(508, 823)
 
 [node name="portal" parent="." instance=ExtResource("4_hribm")]
-position = Vector2(140, 165)
+position = Vector2(136, 208)
 door_name = "game_start_portal"
 
 [node name="portal2" parent="." instance=ExtResource("4_hribm")]
