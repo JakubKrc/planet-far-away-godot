@@ -16,3 +16,5 @@ mono_crash.*.json
 
 audio/
 *.png
+*.zip
+*.png.import
