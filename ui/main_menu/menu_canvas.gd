@@ -2,6 +2,7 @@ extends CanvasLayer
 
 @onready var selector = $selector
 @onready var timer = $Timer
+@onready var musicPlayer = $MenuStreamPlayer
 
 var selection = 0
 # Called when the node enters the scene tree for the first time.
@@ -33,6 +34,7 @@ func _process(_delta):
 		Global.main.load_level("res://scenes/environment/castle_zone/rooms/room1.tscn",'game_start_portal')
 		Global.main.spawn.spawn()
 		get_tree().paused = false
+		musicPlayer.stop()
 	
 	if ((Input.is_action_just_pressed("ui_accept") and selection == 1) or
 		(Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() != "Web")):

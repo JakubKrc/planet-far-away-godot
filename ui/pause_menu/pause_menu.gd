@@ -48,6 +48,8 @@ func go_to_main_menu():
 	Global.game_state=Global.GameState.MAIN_MENU
 	get_tree().paused = false
 	self.hide()
+	Global.main_menu.musicPlayer.play()
+	Global.main.backgroundMusicPlayer.playMusic(null, 0)
 
 func _on_return_to_mm_pressed():
 	go_to_main_menu()

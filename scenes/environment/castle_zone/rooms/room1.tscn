@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=4 uid="uid://cmfspcmyrs45p"]
+[gd_scene load_steps=11 format=4 uid="uid://cmfspcmyrs45p"]
 
 [ext_resource type="Texture2D" uid="uid://d3g0t17agsqde" path="res://scenes/environment/castle_zone/sprites/tilesbrick.png" id="1_7s4rc"]
 [ext_resource type="Texture2D" uid="uid://cclylt5e7qjgk" path="res://scenes/environment/castle_zone/sprites/testtiles.png" id="2_56b7e"]
 [ext_resource type="PackedScene" uid="uid://b5hth0y4tohf1" path="res://scenes/environment/castle_zone/misc/firepot.tscn" id="3_loh4q"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="4_hribm"]
 [ext_resource type="PackedScene" uid="uid://ch0qojlyeh1fm" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simple_robot.tscn" id="5_24f11"]
+[ext_resource type="PackedScene" uid="uid://c6naps2b2bqa4" path="res://scenes/common/backgroundmusic.tscn" id="6_8ns0c"]
+[ext_resource type="AudioStream" uid="uid://cnyp4fhd7uuqa" path="res://audio/music/kubogametest.mp3" id="7_12l3o"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5kf42"]
 texture = ExtResource("1_7s4rc")
@@ -145,3 +147,6 @@ position = Vector2(326, 197)
 door_name = "to_level_3"
 level_to_load = "res://scenes/environment/castle_zone/rooms/room3.tscn"
 door_to_spam = "level_3"
+
+[node name="backgroundmusic" parent="." instance=ExtResource("6_8ns0c")]
+song = ExtResource("7_12l3o")

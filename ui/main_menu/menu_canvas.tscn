@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://quek18lwasfk"]
+[gd_scene load_steps=5 format=3 uid="uid://quek18lwasfk"]
 
 [ext_resource type="Script" path="res://ui/main_menu/menu_canvas.gd" id="1_5rqr2"]
 [ext_resource type="Texture2D" uid="uid://b7wq0m2shupvc" path="res://ui/main_menu/menubg.png" id="2_2tvq0"]
 [ext_resource type="Texture2D" uid="uid://ddgi6gibnk0xc" path="res://ui/pointer.png" id="3_s2pw5"]
+[ext_resource type="AudioStream" uid="uid://cc5y11q57mij3" path="res://audio/music/gamemenu.mp3" id="5_gjsov"]
 
 [node name="main_menu_canvas" type="CanvasLayer"]
 process_mode = 2
@@ -18,5 +19,10 @@ texture = ExtResource("3_s2pw5")
 
 [node name="Timer" type="Timer" parent="."]
 one_shot = true
+
+[node name="MenuStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_gjsov")
+volume_db = 13.0
+autoplay = true
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
