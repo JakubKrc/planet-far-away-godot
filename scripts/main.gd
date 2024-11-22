@@ -36,10 +36,13 @@ func load_mainchar(where_to_set_character: Vector2):
 	
 func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1):
 	
+	if level_path=='':
+		return
+		
 	if not ResourceLoader.exists(level_path):
 		print("Level %s dont exist." % level_path);
 		return
-		
+			
 	var didFadeInTransitionHappened = TransitionScreen.transition(fadeIn, fadeOut)
 	if didFadeInTransitionHappened:
 		await TransitionScreen.on_transition_finished

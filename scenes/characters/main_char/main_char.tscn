@@ -85,9 +85,9 @@ libraries = {
 position_smoothing_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 0
 
 [node name="HealthBar" parent="CanvasLayer" instance=ExtResource("3_3r62a")]
-z_index = 10
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0

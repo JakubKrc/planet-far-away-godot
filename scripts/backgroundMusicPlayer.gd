@@ -8,5 +8,3 @@ func playMusic(music: AudioStream, volume = 0):
 	stream = music
 	volume_db = volume
 	play(0.0)
-	
-	print(music)
