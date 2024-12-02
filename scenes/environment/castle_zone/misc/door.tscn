@@ -1,6 +1,5 @@
-[gd_scene load_steps=4 format=3 uid="uid://bfnj6k4i271ee"]
+[gd_scene load_steps=3 format=3 uid="uid://bfnj6k4i271ee"]
 
-[ext_resource type="Texture2D" uid="uid://bu5yxyr086s3c" path="res://scenes/environment/castle_zone/misc/door.png" id="1_1gs0u"]
 [ext_resource type="Script" path="res://scenes/environment/castle_zone/misc/portal.gd" id="1_7fih2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_efdxy"]
@@ -11,9 +10,6 @@ collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_7fih2")
 door_name = ""
-
-[node name="Area2D" type="Sprite2D" parent="."]
-texture = ExtResource("1_1gs0u")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_efdxy")

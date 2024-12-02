@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=4 uid="uid://clr15t64hymoc"]
+[gd_scene load_steps=8 format=4 uid="uid://clr15t64hymoc"]
 
 [ext_resource type="Texture2D" uid="uid://cclylt5e7qjgk" path="res://scenes/environment/castle_zone/sprites/testtiles.png" id="1_u7b2h"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_l1wea"]
+[ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="3_pihpe"]
 [ext_resource type="Texture2D" uid="uid://yv72o83de20y" path="res://scenes/environment/castle_zone/rooms/bglvl1.png" id="3_uu55f"]
 [ext_resource type="Texture2D" uid="uid://vqgic4qa7ud5" path="res://scenes/environment/castle_zone/rooms/cloud1.png" id="4_4qtrf"]
 
@@ -45,10 +46,14 @@ tile_map_data = PackedByteArray("AAACAAgAAAABAAEAAAADAAgAAAABAAEAAAAEAAgAAAABAAE
 tile_set = SubResource("TileSet_2t10n")
 
 [node name="portal" parent="." instance=ExtResource("2_l1wea")]
-position = Vector2(106, 91)
+position = Vector2(50, 96)
 door_name = "level_3"
 level_to_load = "res://scenes/environment/castle_zone/rooms/room1.tscn"
 door_to_spam = "to_level_3"
+
+[node name="Sprite2D" type="Sprite2D" parent="portal"]
+position = Vector2(0, -2)
+texture = ExtResource("3_pihpe")
 
 [node name="Parallax2D" type="Parallax2D" parent="."]
 z_index = -1

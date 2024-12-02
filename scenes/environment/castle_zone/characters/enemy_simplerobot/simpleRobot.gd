@@ -6,6 +6,7 @@ class_name simpleRobot
 @onready var shoot = $shoot
 
 @onready var rayCastSight = $RayCastSight
+@onready var rayCastEdges = $RayCastEdges
 @onready var player = get_tree().get_first_node_in_group('player')
 
 var speed = 1200
@@ -28,20 +29,25 @@ var is_roaming: bool = true
 var player_in_area = false
 
 func _ready():
+	pass
 	#self.current_state = 0#States.IDLE
-	print(player)
 
 func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 		velocity.x = 0
 	ai(delta)
-	handle_animation()
 	collisions()
 	shoot.shoot()
+	handle_animation()
 	move_and_slide()
 	
 func collisions():
+	if !rayCastEdges.is_colliding() and !is_robot_chase:
+		direction = direction.normalized() * -1
+		velocity.x=0
+		return
+		
 	if rayCastSight.is_colliding():
 		
 		if rayCastSight.get_collider().is_in_group('player'):
@@ -64,8 +70,16 @@ func ai(delta):
 			#velocity += direction * speed * delta
 			velocity = direction * speed * delta
 		elif is_robot_chase and !taking_damage:
-			direction.x = (position.direction_to(player.position).normalized()).x
-			velocity.x = direction.x * speed * delta
+			var dir_x = sign(position.direction_to(player.position).normalized()).x
+			if abs(dir_x) > 0.1:
+				direction.x = dir_x
+			#else:
+				#direction.x = 0 
+			if !rayCastEdges.is_colliding():
+				velocity.x = 0
+			else:
+				#velocity.x = direction.x * speed * delta
+				velocity = direction * speed * delta
 		elif taking_damage:
 			var knockback_dir = position.direction_to(player.position) * knockback_force
 			velocity.x = knockback_dir.x
@@ -90,6 +104,7 @@ func handle_animation():
 func _set_direction(_value: Vector2):
 	_direction = _value;
 	rayCastSight.target_position = direction.normalized() * abs(rayCastSight.target_position.x)
+	rayCastEdges.target_position.x = (direction.normalized() * abs(rayCastEdges.target_position.x)).x
 	
 func _get_direction() -> Vector2:
 	return _direction;
