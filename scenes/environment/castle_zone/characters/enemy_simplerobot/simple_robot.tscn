@@ -1,9 +1,9 @@
 [gd_scene load_steps=24 format=3 uid="uid://ch0qojlyeh1fm"]
 
-[ext_resource type="Script" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleRobot.gd" id="1_nc5f5"]
+[ext_resource type="Script" uid="uid://ygh15rfsw2k7" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleRobot.gd" id="1_nc5f5"]
 [ext_resource type="Texture2D" uid="uid://d1fc4s4yyywgb" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simplerobot.png" id="2_278vj"]
-[ext_resource type="PackedScene" uid="uid://cudss1urvjc5f" path="res://scripts/shoot.tscn" id="3_rhmkw"]
-[ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/state.tscn" id="4_qby4o"]
+[ext_resource type="PackedScene" uid="uid://cudss1urvjc5f" path="res://scripts/components/shoot.tscn" id="3_rhmkw"]
+[ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/components/state.tscn" id="4_qby4o"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0b75d"]
 atlas = ExtResource("2_278vj")

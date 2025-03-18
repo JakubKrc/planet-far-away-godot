@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cee5qeljbyaec"]
+
+[ext_resource type="Script" uid="uid://dc5or55oatsw3" path="res://scripts/components/die.gd" id="1_31nfn"]
+
+[node name="Die" type="Node" groups=["component"]]
+script = ExtResource("1_31nfn")

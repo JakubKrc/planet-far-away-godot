@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgpvgu0wvcwcv"]
+
+[ext_resource type="Script" uid="uid://bcdtgyfo0slgw" path="res://scripts/components/movex_controlled.gd" id="1_nbtxx"]
+
+[node name="MovexControlled" type="Node" groups=["component"]]
+script = ExtResource("1_nbtxx")

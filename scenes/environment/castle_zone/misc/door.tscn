@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bfnj6k4i271ee"]
 
-[ext_resource type="Script" path="res://scenes/environment/castle_zone/misc/portal.gd" id="1_7fih2"]
+[ext_resource type="Script" uid="uid://bs08ibe8pctrs" path="res://scenes/environment/castle_zone/misc/portal.gd" id="1_7fih2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_efdxy"]
 size = Vector2(16, 32)

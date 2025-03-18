@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://e0yr6koajp1a"]
 
 [ext_resource type="Texture2D" uid="uid://bjx1q43rgfnwl" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simplebullet.png" id="1_141jj"]
-[ext_resource type="Script" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleBullet.gd" id="1_gao1c"]
+[ext_resource type="Script" uid="uid://8aywskuwd812" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleBullet.gd" id="1_gao1c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6myer"]
 size = Vector2(2, 2)

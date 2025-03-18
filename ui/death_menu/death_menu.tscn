@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://wf5gmejaffhe"]
 
 [ext_resource type="Texture2D" uid="uid://c0oirbmx8ti2d" path="res://ui/death_menu/death_menu.png" id="1_2036o"]
-[ext_resource type="Script" path="res://ui/death_menu/death_menu.gd" id="1_otx5s"]
+[ext_resource type="Script" uid="uid://bs5lvw7m7rkwi" path="res://ui/death_menu/death_menu.gd" id="1_otx5s"]
 
 [node name="DeathMenu" type="CanvasLayer"]
 process_mode = 2

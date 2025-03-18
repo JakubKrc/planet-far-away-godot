@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dibegh5aifauk"]
+
+[ext_resource type="Script" uid="uid://c33eb525bc7v6" path="res://scripts/components/falling.gd" id="1_kh26d"]
+
+[node name="Falling" type="Node" groups=["component"]]
+script = ExtResource("1_kh26d")

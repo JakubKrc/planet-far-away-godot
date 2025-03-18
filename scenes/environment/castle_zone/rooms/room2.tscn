@@ -1,10 +1,10 @@
 [gd_scene load_steps=9 format=4 uid="uid://4wl2fd3oq41l"]
 
-[ext_resource type="Texture2D" uid="uid://d3g0t17agsqde" path="res://scenes/environment/castle_zone/sprites/tilesbrick.png" id="1_q5ksc"]
+[ext_resource type="Texture2D" uid="uid://d3g0t17agsqde" path="res://scenes/environment/castle_zone/tilesets/tilesbrick.png" id="1_q5ksc"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_ggesn"]
 [ext_resource type="PackedScene" uid="uid://ch0qojlyeh1fm" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simple_robot.tscn" id="3_1e0ut"]
 [ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="3_g6gj7"]
-[ext_resource type="PackedScene" uid="uid://c6naps2b2bqa4" path="res://scenes/common/backgroundmusic.tscn" id="4_25f15"]
+[ext_resource type="PackedScene" uid="uid://c6naps2b2bqa4" path="res://audio/music/technical/backgroundmusic.tscn" id="4_25f15"]
 [ext_resource type="AudioStream" uid="uid://cnyp4fhd7uuqa" path="res://audio/music/kubogametest.mp3" id="5_1467s"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jcil4"]

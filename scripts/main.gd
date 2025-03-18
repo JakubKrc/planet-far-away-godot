@@ -26,13 +26,14 @@ func _process(_delta):
 	
 func load_mainchar(where_to_set_character: Vector2):
 	var character = get_tree().get_first_node_in_group("player")
+	Global.controlled_char = character
 	character.global_position = where_to_set_character;
 	character.visible=true
 	character.velocity = Vector2.ZERO
-	character.get_node('Camera2D').position_smoothing_enabled = false
-	character.get_node('Camera2D').global_position = where_to_set_character;
+	Global.camera.position_smoothing_enabled = false
+	Global.camera.global_position = where_to_set_character;
 	await get_tree().process_frame
-	character.get_node('Camera2D').position_smoothing_enabled = true
+	Global.camera.position_smoothing_enabled = true
 	
 func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1):
 	

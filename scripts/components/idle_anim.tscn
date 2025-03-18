@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2o3sgkurxf08"]
+
+[ext_resource type="Script" uid="uid://c57rgfl4rxiev" path="res://scripts/components/idle_anim.gd" id="1_pdvr8"]
+
+[node name="IdleAnim" type="Node" groups=["component"]]
+script = ExtResource("1_pdvr8")

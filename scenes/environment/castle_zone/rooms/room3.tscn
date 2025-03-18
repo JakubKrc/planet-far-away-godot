@@ -1,10 +1,10 @@
 [gd_scene load_steps=8 format=4 uid="uid://clr15t64hymoc"]
 
-[ext_resource type="Texture2D" uid="uid://cclylt5e7qjgk" path="res://scenes/environment/castle_zone/sprites/testtiles.png" id="1_u7b2h"]
+[ext_resource type="Texture2D" uid="uid://cclylt5e7qjgk" path="res://scenes/environment/castle_zone/tilesets/testtiles.png" id="1_u7b2h"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_l1wea"]
 [ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="3_pihpe"]
-[ext_resource type="Texture2D" uid="uid://yv72o83de20y" path="res://scenes/environment/castle_zone/rooms/bglvl1.png" id="3_uu55f"]
-[ext_resource type="Texture2D" uid="uid://vqgic4qa7ud5" path="res://scenes/environment/castle_zone/rooms/cloud1.png" id="4_4qtrf"]
+[ext_resource type="Texture2D" uid="uid://yv72o83de20y" path="res://scenes/environment/castle_zone/backgrounds/bglvl1.png" id="3_uu55f"]
+[ext_resource type="Texture2D" uid="uid://vqgic4qa7ud5" path="res://scenes/environment/castle_zone/backgrounds/cloud1.png" id="4_4qtrf"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_n73uc"]
 texture = ExtResource("1_u7b2h")
