@@ -7,7 +7,7 @@ enum GameState {
 	MAIN_MENU, 
 	PLAYING, 
 	PAUSE_MENU, 
-	GAME_OVER
+	GAME_OVER,
 }
 const game_state_names = ['MAIN_MENU','PLAYING','PAUSE_MENU','GAME_OVER']
 

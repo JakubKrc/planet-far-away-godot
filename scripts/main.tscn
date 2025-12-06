@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://ddicd47q4hmh2"]
+[gd_scene load_steps=11 format=3 uid="uid://ddicd47q4hmh2"]
 
 [ext_resource type="PackedScene" uid="uid://quek18lwasfk" path="res://ui/main_menu/menu.tscn" id="1_gvia5"]
 [ext_resource type="Script" uid="uid://bw4q1c5l4f44l" path="res://scripts/main.gd" id="1_i11qp"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://qcwlt0ntlcm0" path="res://audio/music/technical/backgroundMusicPlayer.gd" id="6_yfde7"]
 [ext_resource type="PackedScene" uid="uid://lcqsxiferq0r" path="res://ui/ingame_ui/healthBar.tscn" id="7_bytmo"]
 [ext_resource type="Script" uid="uid://ci14ev7t0tx61" path="res://scripts/camera_2d.gd" id="8_gl0lg"]
+[ext_resource type="Script" uid="uid://cnc1aeltoe71v" path="res://scripts/focus_manager.gd" id="9_ragmj"]
 
 [sub_resource type="AudioStreamInteractive" id="AudioStreamInteractive_5dr1j"]
 
@@ -71,3 +72,26 @@ offset_bottom = 233.0
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true
 script = ExtResource("8_gl0lg")
+
+[node name="FocusManager" type="Node2D" parent="."]
+process_mode = 2
+script = ExtResource("9_ragmj")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="FocusManager"]
+layer = 2
+
+[node name="ColorRect" type="ColorRect" parent="FocusManager/CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.53333336)
+
+[node name="Focus_Message" type="Label" parent="FocusManager/CanvasLayer/ColorRect"]
+layout_mode = 0
+offset_left = 37.0
+offset_top = 108.0
+offset_right = 292.0
+offset_bottom = 131.0
+text = "Click with mouse to regain focus."
