@@ -18,3 +18,5 @@ audio/
 *.png
 *.zip
 *.png.import
+
+.vscode
