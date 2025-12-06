@@ -5,9 +5,10 @@ extends Node
 @export var jump_velocity: int
 
 func jump():
-	if 'wasOnFloor' in parent:
-		if !true in parent.wasOnFloor:
-			return	
+	if 'falling' in parent:
+		if 'wasOnFloor' in parent.falling:
+			if not true in parent.falling.wasOnFloor:
+				return	
 			
 	parent.velocity.y = jump_velocity
 			

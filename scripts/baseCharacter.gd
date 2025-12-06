@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 @onready var animation_player = $AnimationPlayer
 @onready var state = $State
+@onready var falling = $Falling
 
 var health = 100 : set = _set_health	
 func _set_health(new_health):
