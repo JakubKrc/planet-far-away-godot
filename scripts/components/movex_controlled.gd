@@ -9,9 +9,11 @@ func move(params : Dictionary):
 	if params['x_axis_input']==1:
 		parent.animation_player.play("walk_right")
 		direction = "right"
+		parent.state.state = Global.States.MOVING_RIGHT
 	if params['x_axis_input']==-1:
 		parent.animation_player.play("walk_left")
 		direction = "left"
+		parent.state.state = Global.States.MOVING_LEFT
 		
 func stop_moving():
 	if (parent.velocity.x != 0):

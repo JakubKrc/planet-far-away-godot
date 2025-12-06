@@ -29,16 +29,28 @@ visible = false
 CHARACTER = "res://scenes/common/characters/main_char/main_char.tscn"
 
 [node name="CanvasLayerForTestLabel" type="CanvasLayer" parent="."]
-visible = false
 
-[node name="TestLabel" type="Label" parent="CanvasLayerForTestLabel"]
+[node name="OSTestLabel" type="Label" parent="CanvasLayerForTestLabel"]
+visible = false
 z_index = 50
-offset_left = 42.0
-offset_top = 84.0
-offset_right = 116.0
-offset_bottom = 107.0
-theme_override_colors/font_color = Color(0, 0.870588, 0, 1)
-text = "TestLabel"
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 17.0
+offset_bottom = 15.0
+theme_override_colors/font_color = Color(0.595706, 0.118168, 0, 1)
+theme_override_font_sizes/font_size = 10
+text = "OS"
+
+[node name="G_STAT_TestLabel" type="Label" parent="CanvasLayerForTestLabel"]
+visible = false
+z_index = 50
+offset_left = 1.0
+offset_top = 14.0
+offset_right = 17.0
+offset_bottom = 28.0
+theme_override_colors/font_color = Color(0.595706, 0.118168, 0, 1)
+theme_override_font_sizes/font_size = 10
+text = "G_STAT"
 
 [node name="AudioManager" type="Node" parent="."]
 

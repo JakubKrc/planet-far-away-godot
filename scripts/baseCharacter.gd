@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 @onready var animation_player = $AnimationPlayer
+@onready var state = $State
 
 var health = 100 : set = _set_health	
 func _set_health(new_health):
@@ -13,6 +14,8 @@ func _set_health(new_health):
 var components = []
 func _ready():
 	components = get_tree().get_nodes_in_group('component')
+	if Global.isTest == true:
+		$"TestStatus".visible = true
 
 func _physics_process(delta):
 	

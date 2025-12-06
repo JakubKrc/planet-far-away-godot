@@ -1,9 +1,8 @@
-[gd_scene load_steps=24 format=3 uid="uid://ch0qojlyeh1fm"]
+[gd_scene load_steps=23 format=3 uid="uid://ch0qojlyeh1fm"]
 
 [ext_resource type="Script" uid="uid://ygh15rfsw2k7" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleRobot.gd" id="1_nc5f5"]
 [ext_resource type="Texture2D" uid="uid://d1fc4s4yyywgb" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simplerobot.png" id="2_278vj"]
 [ext_resource type="PackedScene" uid="uid://cudss1urvjc5f" path="res://scripts/components/shoot.tscn" id="3_rhmkw"]
-[ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/components/state.tscn" id="4_qby4o"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0b75d"]
 atlas = ExtResource("2_278vj")
@@ -158,6 +157,16 @@ size = Vector2(16, 16)
 [node name="simpleRobot" type="CharacterBody2D"]
 script = ExtResource("1_nc5f5")
 
+[node name="TestStatus" type="Label" parent="."]
+visible = false
+offset_left = -17.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = -13.0
+theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Status"
+
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_a2spc")
 animation = &"death"
@@ -180,8 +189,6 @@ wait_time = 5.0
 one_shot = true
 
 [node name="shoot" parent="." instance=ExtResource("3_rhmkw")]
-
-[node name="State" parent="." instance=ExtResource("4_qby4o")]
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
 [connection signal="timeout" from="DirectionTimer" to="." method="_on_direction_change_timer_timeout"]

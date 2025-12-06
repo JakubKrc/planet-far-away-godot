@@ -1,12 +1,13 @@
-[gd_scene load_steps=13 format=3 uid="uid://bsbbsbc1rea6q"]
+[gd_scene load_steps=14 format=3 uid="uid://bsbbsbc1rea6q"]
 
-[ext_resource type="Script" uid="uid://cqkl5sumauiin" path="res://scenes/common/characters/main_char/MainChar.gd" id="1_l5htb"]
+[ext_resource type="Script" uid="uid://clv6lkas8yiyj" path="res://scripts/baseCharacter.gd" id="1_4oagx"]
 [ext_resource type="Texture2D" uid="uid://dgga4dq3amq0i" path="res://scenes/common/characters/main_char/main_char.png" id="2_0qewk"]
 [ext_resource type="PackedScene" uid="uid://ddfljsgtcdgkn" path="res://scripts/components/jump_controlled.tscn" id="3_1vya5"]
 [ext_resource type="PackedScene" uid="uid://bgpvgu0wvcwcv" path="res://scripts/components/movex_controlled.tscn" id="4_57ehd"]
 [ext_resource type="PackedScene" uid="uid://d2o3sgkurxf08" path="res://scripts/components/idle_anim.tscn" id="5_a6tec"]
 [ext_resource type="PackedScene" uid="uid://dibegh5aifauk" path="res://scripts/components/falling.tscn" id="6_vpm0n"]
 [ext_resource type="PackedScene" uid="uid://cee5qeljbyaec" path="res://scripts/components/die.tscn" id="7_lqqp7"]
+[ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/components/state.tscn" id="8_em1km"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1xk83"]
 size = Vector2(14, 32)
@@ -70,7 +71,17 @@ _data = {
 z_index = 1
 collision_layer = 2
 collision_mask = 5
-script = ExtResource("1_l5htb")
+script = ExtResource("1_4oagx")
+
+[node name="TestStatus" type="Label" parent="."]
+visible = false
+offset_left = -17.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = -13.0
+theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Status"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1xk83")
@@ -98,5 +109,7 @@ idle_animation_random = 4.0
 speed = 120
 
 [node name="Die" parent="." instance=ExtResource("7_lqqp7")]
+
+[node name="State" parent="." groups=["component"] instance=ExtResource("8_em1km")]
 
 [connection signal="animation_finished" from="AnimationPlayer" to="IdleAnim" method="_on_animation_player_animation_finished"]

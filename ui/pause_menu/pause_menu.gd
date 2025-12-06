@@ -38,6 +38,7 @@ func _process(_delta):
 
 func go_back_to_game():
 	self.hide()
+	Global.game_state=Global.GameState.PLAYING
 	get_tree().paused = false
 	
 func go_to_main_menu():

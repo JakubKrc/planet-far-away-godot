@@ -1,9 +1,11 @@
 class_name State extends Node
 
-var current_state : Global.States :
+@onready var label_test_status = $"../TestStatus"
+
+var state : Global.States :
 	set (setting_state):
-		if (current_state != setting_state):
-			current_state = setting_state
-			print(Global.states_names[current_state])
+		if (state != setting_state):
+			state = setting_state
+			label_test_status.text = Global.states_names[state]
 	get:
-		return current_state
+		return state

@@ -1,20 +1,35 @@
 extends Node
 
-enum GameState {MAIN_MENU, PLAYING, PAUSE_MENU, GAME_OVER}
+var G_STAT_TestLabel
+var isTest = false
+
+enum GameState {
+	MAIN_MENU, 
+	PLAYING, 
+	PAUSE_MENU, 
+	GAME_OVER
+}
+const game_state_names = ['MAIN_MENU','PLAYING','PAUSE_MENU','GAME_OVER']
 
 enum States {
 	IDLE,
-	MOVING,
+	MOVING_RIGHT,
+	MOVING_LEFT,
 	JUMPING,
 	FALLING,
 	SHOOTING,
 	CHASING
 }
-
-const states_names = ['IDLE','MOVING','JUMPING','FALLING','SHOOTING','CHASING']
+const states_names = ['IDLE','MOVING_RIGHT','MOVING_LEFT','JUMPING','FALLING','SHOOTING','CHASING']
 	
 var main
-var game_state = GameState.MAIN_MENU;
+var game_state = GameState.MAIN_MENU :
+	set (value):
+		game_state = value
+		if G_STAT_TestLabel != null:
+			G_STAT_TestLabel.text = game_state_names[game_state]
+	get:
+		return game_state
 var main_menu
 var pause_menu
 var death_menu

@@ -2,7 +2,6 @@ extends CharacterBody2D
 
 class_name simpleRobot
 
-@onready var state = $State
 @onready var shoot = $shoot
 
 @onready var rayCastSight = $RayCastSight
@@ -29,7 +28,8 @@ var is_roaming: bool = true
 var player_in_area = false
 
 func _ready():
-	pass
+	if Global.isTest == true:
+		$"TestStatus".visible = true
 	#self.current_state = 0#States.IDLE
 
 func _physics_process(delta):
@@ -52,7 +52,6 @@ func collisions():
 		
 		if rayCastSight.get_collider().is_in_group('player'):
 			is_robot_chase = true
-			state.current_state = Global.States.CHASING
 			$CanSeePlayerTimer.stop()
 			return
 		if rayCastSight.get_collider().is_in_group('world'):

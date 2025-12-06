@@ -2,16 +2,20 @@ extends Node2D
 
 @onready var main2D = $main2D
 @onready var spawn = $Spawn
-@onready var testLabel = $CanvasLayerForTestLabel/TestLabel
+@onready var OStestLabel = $CanvasLayerForTestLabel/OSTestLabel
 @onready var backgroundMusicPlayer = $AudioManager/BackgroundMusicPlayer
 
 var level_instance = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	Global.main = self
-	testLabel.text = OS.get_name()
+	if Global.isTest==true:
+		OStestLabel.visible = true
+		OStestLabel.text = OS.get_name()
+		Global.G_STAT_TestLabel = $CanvasLayerForTestLabel/G_STAT_TestLabel
+		Global.G_STAT_TestLabel.visible = true
+		Global.G_STAT_TestLabel.text = Global.game_state_names[Global.game_state]
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	if Input.is_action_just_pressed("escape")  or Input.is_action_just_pressed("pause"):
 		if Global.game_state == Global.GameState.MAIN_MENU:
