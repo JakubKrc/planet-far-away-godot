@@ -57,6 +57,10 @@ func handle_ingame_input():
 			call_method_on_target(controlled_char.components, 'move',{'x_axis_input':x_axis_input})
 		else:	
 			call_method_on_target(controlled_char.components, 'stop_moving')
+			
+	if(is_method_on_target(controlled_char.components, 'fall')):
+		if Input.is_action_just_pressed("down"):
+			call_method_on_target(controlled_char.components, 'fall')
 	
 func call_method_on_target(components, method_name, params: Dictionary = {}):
 	var has_component:bool = false
