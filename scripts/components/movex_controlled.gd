@@ -2,7 +2,7 @@ extends Node
 
 @onready var parent = get_parent()
 
-@export var speed: int
+@export var speed: float
 
 func move(params : Dictionary):
 	parent.velocity.x = params['x_axis_input'] * speed
@@ -14,6 +14,8 @@ func move(params : Dictionary):
 		parent.animation_player.play("walk_left")
 		direction = "left"
 		parent.state.state = Global.States.MOVING_LEFT
+	if !parent.is_actually_moving:
+		parent.animation_player.stop()
 		
 func stop_moving():
 	if (parent.velocity.x != 0):
@@ -23,8 +25,8 @@ func stop_moving():
 var direction = "right"
 func setDefaultSprite():
 	if (direction == 'right'):
-			parent.animation_player.play("walk_right")
+			parent.animation_player.play("stand")
+			parent.animation_player.stop()
 	else:
-		parent.animation_player.play("walk_left")
-					
-	parent.animation_player.stop()
+		parent.animation_player.play("stand")
+		parent.animation_player.seek(0.20)

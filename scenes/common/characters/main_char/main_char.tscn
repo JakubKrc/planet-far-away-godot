@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bsbbsbc1rea6q"]
+[gd_scene load_steps=17 format=3 uid="uid://bsbbsbc1rea6q"]
 
 [ext_resource type="Script" uid="uid://clv6lkas8yiyj" path="res://scripts/baseCharacter.gd" id="1_4oagx"]
 [ext_resource type="Texture2D" uid="uid://dgga4dq3amq0i" path="res://scenes/common/characters/main_char/main_char.png" id="2_0qewk"]
@@ -13,8 +13,23 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1xk83"]
 size = Vector2(14, 32)
 
-[sub_resource type="Animation" id="Animation_ry7py"]
-resource_name = "idle"
+[sub_resource type="Animation" id="Animation_rn70l"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [80]
+}
+
+[sub_resource type="Animation" id="Animation_rx7st"]
+resource_name = "new_animation"
 length = 2.6
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -23,13 +38,29 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4),
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4000001, 1.6000001, 1.8000001, 2, 2.2, 2.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13]
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 }
 
-[sub_resource type="Animation" id="Animation_tqpcu"]
+[sub_resource type="Animation" id="Animation_iq7r4"]
+resource_name = "stand"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.20000002),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [20, 21]
+}
+
+[sub_resource type="Animation" id="Animation_em1km"]
 resource_name = "walk_left"
 length = 0.6
 tracks/0/type = "value"
@@ -39,15 +70,15 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.0414516, 0.3, 0.5, 5),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.20000002, 0.40000004),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [40, 41, 42, 43, 0]
+"values": [60, 61, 62]
 }
 
-[sub_resource type="Animation" id="Animation_xw7ke"]
+[sub_resource type="Animation" id="Animation_xxngs"]
 resource_name = "walk_right"
-length = 0.8
+length = 0.6
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -55,17 +86,19 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.047769, 0.3, 0.5, 0.7),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.2, 0.40000004),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [20, 21, 22, 23, 24]
+"values": [40, 41, 42]
 }
 
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_dsvt5"]
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xxngs"]
 _data = {
-&"idle": SubResource("Animation_ry7py"),
-&"walk_left": SubResource("Animation_tqpcu"),
-&"walk_right": SubResource("Animation_xw7ke")
+&"RESET": SubResource("Animation_rn70l"),
+&"idle": SubResource("Animation_rx7st"),
+&"stand": SubResource("Animation_iq7r4"),
+&"walk_left": SubResource("Animation_em1km"),
+&"walk_right": SubResource("Animation_xxngs")
 }
 
 [node name="MainChar" type="CharacterBody2D" groups=["player"]]
@@ -90,12 +123,14 @@ shape = SubResource("RectangleShape2D_1xk83")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_0qewk")
 hframes = 20
-vframes = 3
+vframes = 5
+frame = 80
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-&"": SubResource("AnimationLibrary_dsvt5")
+&"": SubResource("AnimationLibrary_xxngs")
 }
+autoplay = "stand"
 
 [node name="JumpControlled" parent="." instance=ExtResource("3_1vya5")]
 jump_velocity = -300
@@ -107,7 +142,7 @@ idle_animation_random = 4.0
 [node name="Falling" parent="." instance=ExtResource("6_vpm0n")]
 
 [node name="MovexControlled" parent="." instance=ExtResource("4_57ehd")]
-speed = 120
+speed = 150.0
 
 [node name="Die" parent="." instance=ExtResource("7_lqqp7")]
 

@@ -4,6 +4,8 @@ extends CharacterBody2D
 @onready var state = $State
 @onready var falling = $Falling
 
+var is_actually_moving = false
+
 var health = 100 : set = _set_health	
 func _set_health(new_health):
 	
@@ -25,3 +27,4 @@ func _physics_process(delta):
 	if (Global.is_method_on_target(components, 'falling_and_floor_memory')):
 		Global.call_method_on_target(components, 'falling_and_floor_memory', {'delta':delta} )
 	move_and_slide()
+	is_actually_moving = get_position_delta().length() > 0.1

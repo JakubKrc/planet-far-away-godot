@@ -47,10 +47,14 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 	if not ResourceLoader.exists(level_path):
 		print("Level %s dont exist." % level_path);
 		return
-			
+				
+	Global.level_transition_started.emit()
+	
 	var didFadeInTransitionHappened = TransitionScreen.transition(fadeIn, fadeOut)
 	if didFadeInTransitionHappened:
 		await TransitionScreen.on_transition_finished
+		
+	Global.level_transition_finished.emit()
 		
 	var level_resource := load(level_path)
 	if (level_resource):

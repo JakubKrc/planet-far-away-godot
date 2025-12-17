@@ -3,6 +3,9 @@ extends Node
 var G_STAT_TestLabel
 var isTest = false
 
+signal level_transition_started
+signal level_transition_finished
+
 enum GameState {
 	MAIN_MENU, 
 	PLAYING, 
@@ -34,14 +37,31 @@ var main_menu
 var pause_menu
 var death_menu
 var camera
+var can_player_move = true
 
 var controlled_char : Node
+
+func _ready():
+	level_transition_started.connect(_on_transition_started)
+	level_transition_finished.connect(_on_transition_finished)
+
+func _on_transition_started():
+	can_player_move = false
+
+func _on_transition_finished():
+	can_player_move = true
 
 func _process(_delta):
 	handle_ingame_input()
 
 func handle_ingame_input():
+		
 	if (controlled_char == null):
+		return
+		
+	if (!can_player_move):
+		controlled_char.velocity = Vector2.ZERO
+		controlled_char.animation_player.stop()
 		return
 	
 	if(is_method_on_target(controlled_char.components, 'jump')):
