@@ -6,8 +6,8 @@ extends Node
 @export var jump_velocity: float = -300
 
 func jump():
-	if 'wasOnFloor' in parent.components.get("Falling"):
-		if not true in parent.components.get("Falling").wasOnFloor:
+	if 'wasOnFloor' in parent.components.get(Falling):
+		if not true in parent.components.get(Falling).wasOnFloor:
 			return
 		
 	parent.velocity.y = jump_velocity

@@ -25,7 +25,7 @@ var components = {}
 func _ready():
 	for c in get_children():
 		if c.is_in_group("component"):
-			components[c.get_script().get_global_name()] = c
+			components[c.get_script()] = c
 	if Global.isTest == true:
 		$"TestStatus".visible = true
 

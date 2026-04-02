@@ -5,7 +5,7 @@ extends Node
 
 func die():
 	if Global.controlled_char != parent:
-		parent.components.get("State").state = Global.States.DEATH
+		parent.components.get(State).state = Global.States.DEATH
 		parent.velocity.x = 0
 		parent.z_index = 1
 		parent.collision_layer = 0
