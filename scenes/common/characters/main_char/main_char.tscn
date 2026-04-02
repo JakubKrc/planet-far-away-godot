@@ -1,6 +1,6 @@
-[gd_scene load_steps=17 format=3 uid="uid://bsbbsbc1rea6q"]
+[gd_scene load_steps=19 format=3 uid="uid://bsbbsbc1rea6q"]
 
-[ext_resource type="Script" uid="uid://clv6lkas8yiyj" path="res://scripts/baseCharacter.gd" id="1_4oagx"]
+[ext_resource type="Script" uid="uid://ul4mmbvyyrp6" path="res://scripts/components/character_base_script.gd" id="1_em1km"]
 [ext_resource type="Texture2D" uid="uid://dgga4dq3amq0i" path="res://scenes/common/characters/main_char/main_char.png" id="2_0qewk"]
 [ext_resource type="PackedScene" uid="uid://ddfljsgtcdgkn" path="res://scripts/components/jump_controlled.tscn" id="3_1vya5"]
 [ext_resource type="PackedScene" uid="uid://bgpvgu0wvcwcv" path="res://scripts/components/movex_controlled.tscn" id="4_57ehd"]
@@ -11,7 +11,10 @@
 [ext_resource type="PackedScene" uid="uid://cv0fnts61o11r" path="res://scripts/components/fall_through_platform.tscn" id="9_em1km"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1xk83"]
-size = Vector2(14, 32)
+size = Vector2(14, 31)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_em1km"]
+size = Vector2(14, 31)
 
 [sub_resource type="Animation" id="Animation_rn70l"]
 length = 0.001
@@ -44,9 +47,8 @@ tracks/0/keys = {
 "values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 }
 
-[sub_resource type="Animation" id="Animation_iq7r4"]
-resource_name = "stand"
-length = 0.4
+[sub_resource type="Animation" id="Animation_l0pgx"]
+length = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -54,10 +56,26 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.20000002),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [20, 21]
+"values": [21]
+}
+
+[sub_resource type="Animation" id="Animation_iq7r4"]
+resource_name = "stand"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [20]
 }
 
 [sub_resource type="Animation" id="Animation_em1km"]
@@ -96,29 +114,29 @@ tracks/0/keys = {
 _data = {
 &"RESET": SubResource("Animation_rn70l"),
 &"idle": SubResource("Animation_rx7st"),
-&"stand": SubResource("Animation_iq7r4"),
+&"stand_left": SubResource("Animation_l0pgx"),
+&"stand_right": SubResource("Animation_iq7r4"),
 &"walk_left": SubResource("Animation_em1km"),
 &"walk_right": SubResource("Animation_xxngs")
 }
 
-[node name="MainChar" type="CharacterBody2D" groups=["player"]]
-z_index = 1
+[node name="MainChar" type="CharacterBody2D" groups=["main_char", "player", "save"]]
+z_index = 10
 collision_layer = 2
-collision_mask = 5
-script = ExtResource("1_4oagx")
-
-[node name="TestStatus" type="Label" parent="."]
-visible = false
-offset_left = -17.0
-offset_top = -30.0
-offset_right = 20.0
-offset_bottom = -13.0
-theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
-theme_override_font_sizes/font_size = 12
-text = "Status"
+collision_mask = 13
+script = ExtResource("1_em1km")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_1xk83")
+
+[node name="InteractArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_em1km")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_0qewk")
@@ -130,10 +148,19 @@ frame = 80
 libraries = {
 &"": SubResource("AnimationLibrary_xxngs")
 }
-autoplay = "stand"
+autoplay = "stand_right"
+
+[node name="TestStatus" type="Label" parent="."]
+visible = false
+offset_left = -17.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = -13.0
+theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Status"
 
 [node name="JumpControlled" parent="." instance=ExtResource("3_1vya5")]
-jump_velocity = -300
 
 [node name="IdleAnim" parent="." instance=ExtResource("5_a6tec")]
 idle_animation_time = 3.0
@@ -148,6 +175,6 @@ speed = 150.0
 
 [node name="State" parent="." groups=["component"] instance=ExtResource("8_em1km")]
 
-[node name="fall_through_platform" parent="." groups=["component"] instance=ExtResource("9_em1km")]
+[node name="FallTroughPlatform" parent="." groups=["component"] instance=ExtResource("9_em1km")]
 
 [connection signal="animation_finished" from="AnimationPlayer" to="IdleAnim" method="_on_animation_player_animation_finished"]

@@ -1,0 +1,65 @@
+[gd_scene load_steps=9 format=3 uid="uid://cytulr2jwc4pq"]
+
+[ext_resource type="Texture2D" uid="uid://6yu1khk00foq" path="res://scenes/common/damage_area/damages.png" id="1_3wn2w"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_17ti5"]
+atlas = ExtResource("1_3wn2w")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_woagk"]
+atlas = ExtResource("1_3wn2w")
+region = Rect2(16, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qwqj0"]
+atlas = ExtResource("1_3wn2w")
+region = Rect2(32, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3wn2w"]
+atlas = ExtResource("1_3wn2w")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d38v0"]
+atlas = ExtResource("1_3wn2w")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nd3vw"]
+atlas = ExtResource("1_3wn2w")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_17ti5"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_17ti5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_woagk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qwqj0")
+}],
+"loop": true,
+"name": &"electric_damage",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3wn2w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d38v0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nd3vw")
+}],
+"loop": true,
+"name": &"fire_damage",
+"speed": 5.0
+}]
+
+[node name="Visual" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -8)
+sprite_frames = SubResource("SpriteFrames_17ti5")
+animation = &"electric_damage"

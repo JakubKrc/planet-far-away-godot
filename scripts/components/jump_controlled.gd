@@ -1,15 +1,15 @@
+class_name JumpControlled
 extends Node
 
 @onready var parent = get_parent()
 
-@export var jump_velocity: int
+@export var jump_velocity: float = -300
 
 func jump():
-	if 'falling' in parent:
-		if 'wasOnFloor' in parent.falling:
-			if not true in parent.falling.wasOnFloor:
-				return	
-			
+	if 'wasOnFloor' in parent.components.get("Falling"):
+		if not true in parent.components.get("Falling").wasOnFloor:
+			return
+		
 	parent.velocity.y = jump_velocity
 			
 func stop_jump():

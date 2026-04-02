@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ddo5onxh0ebwn"]
+
+[ext_resource type="Script" uid="uid://dx5x2wx6otctl" path="res://scripts/components/ai/idle.gd" id="1_sfx4t"]
+
+[node name="Idle" type="Node" groups=["component"]]
+script = ExtResource("1_sfx4t")

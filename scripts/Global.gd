@@ -21,9 +21,30 @@ enum States {
 	JUMPING,
 	FALLING,
 	SHOOTING,
-	CHASING
+	CHASING,
+	FLYING,
+	DEATH,
 }
-const states_names = ['IDLE','MOVING_RIGHT','MOVING_LEFT','JUMPING','FALLING','SHOOTING','CHASING']
+const states_names = ['IDLE','MOVING_RIGHT','MOVING_LEFT','JUMPING','FALLING','SHOOTING','CHASING','FLYING','DEATH']
+	
+enum BehaviorStates {
+	IDLE,
+	CHASE,
+}
+const behavior_states_names = ['IDLE','CHASE']
+
+enum ActionStates {
+	ATTACK,
+}
+const action_states_names = ['ATTACK']
+
+enum CollisionLayer {
+	WORLD = 1,
+	PLAYER = 2,
+	PORTAL = 3,
+	ENEMY = 4,
+	DECORATION = 5,
+}
 	
 var main
 var game_state = GameState.MAIN_MENU :
@@ -40,6 +61,10 @@ var camera
 var can_player_move = true
 
 var controlled_char : Node
+var current_level : String
+
+var per_level_save : Dictionary
+#var saved_char_states : Dictionary
 
 func _ready():
 	level_transition_started.connect(_on_transition_started)
@@ -81,10 +106,14 @@ func handle_ingame_input():
 	if(is_method_on_target(controlled_char.components, 'fall')):
 		if Input.is_action_just_pressed("down"):
 			call_method_on_target(controlled_char.components, 'fall')
+			
+	if(is_method_on_target(controlled_char.components, 'attack')):
+		if Input.is_action_pressed("attack"):
+			call_method_on_target(controlled_char.components, 'attack')
 	
 func call_method_on_target(components, method_name, params: Dictionary = {}):
 	var has_component:bool = false
-	for component in components:
+	for component in components.values():
 		if component.has_method(method_name):
 			has_component = true
 			if params.is_empty():
@@ -94,9 +123,9 @@ func call_method_on_target(components, method_name, params: Dictionary = {}):
 	if !has_component:
 		push_error('Component dont have method %s' %method_name)
 		get_tree().quit()
-
-func is_method_on_target(components, method_name):
-	for component in components:
+			
+func is_method_on_target(components: Dictionary, method_name: String) -> bool:
+	for component in components.values():
 		if component.has_method(method_name):
 			return true
 		

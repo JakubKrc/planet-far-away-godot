@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://chtopiyixy2ko"]
+
+[ext_resource type="Script" uid="uid://br8rpkiijr7ar" path="res://scripts/components/ai/ai_controller.gd" id="1_hctx8"]
+
+[node name="AiController" type="Node" groups=["component"]]
+script = ExtResource("1_hctx8")

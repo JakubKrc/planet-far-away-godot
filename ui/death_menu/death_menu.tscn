@@ -5,6 +5,7 @@
 
 [node name="DeathMenu" type="CanvasLayer"]
 process_mode = 2
+visible = false
 script = ExtResource("1_otx5s")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

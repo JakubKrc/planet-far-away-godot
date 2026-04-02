@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dyrvc2igh8qcr"]
+
+[ext_resource type="Script" uid="uid://b8s8hlwomfeqv" path="res://scripts/components/ai/sight.gd" id="1_tccmo"]
+
+[node name="Sight" type="Node" groups=["component"]]
+script = ExtResource("1_tccmo")

@@ -1,3 +1,4 @@
+class_name FallTgroughPlatform
 extends Node
 
 @onready var parent = get_parent()
@@ -12,7 +13,6 @@ func fall():
 		return
 
 	var collider = collision.get_collider()
-	print(collider)
 	if not collider.is_in_group("fall_through_platform"):
 		return
 

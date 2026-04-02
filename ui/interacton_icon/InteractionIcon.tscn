@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://cq6ag3h3mgvqn"]
+
+[ext_resource type="Texture2D" uid="uid://7lokjmjivmro" path="res://ui/interacton_icon/use.png" id="1_1qx8d"]
+
+[node name="InteractIcon" type="Node2D"]
+
+[node name="Icon" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(49, 28)
+texture = ExtResource("1_1qx8d")

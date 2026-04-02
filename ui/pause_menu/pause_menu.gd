@@ -43,6 +43,7 @@ func go_back_to_game():
 	
 func go_to_main_menu():
 	get_tree().get_first_node_in_group('player').queue_free()
+	get_tree().get_first_node_in_group('main_char').queue_free()
 	Global.main.unload_level()
 	Global.main_menu.selection=0
 	Global.main_menu.show()

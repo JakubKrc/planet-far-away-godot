@@ -1,0 +1,170 @@
+[gd_scene load_steps=17 format=3 uid="uid://c0rxygo0mnmuj"]
+
+[ext_resource type="Script" uid="uid://ul4mmbvyyrp6" path="res://scripts/components/character_base_script.gd" id="1_siuox"]
+[ext_resource type="Texture2D" uid="uid://dkj16op0ywgqb" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.png" id="1_vog53"]
+[ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/components/state.tscn" id="3_shsi1"]
+[ext_resource type="PackedScene" uid="uid://bgpvgu0wvcwcv" path="res://scripts/components/movex_controlled.tscn" id="4_bj0jq"]
+[ext_resource type="PackedScene" uid="uid://dibegh5aifauk" path="res://scripts/components/falling.tscn" id="5_siuox"]
+[ext_resource type="PackedScene" uid="uid://deoosjyp6kqqw" path="res://scripts/components/jump_controlled_fly.tscn" id="6_jvdeg"]
+[ext_resource type="PackedScene" uid="uid://cee5qeljbyaec" path="res://scripts/components/die.tscn" id="7_nr1h3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hegqk"]
+size = Vector2(10, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nr1h3"]
+size = Vector2(10, 30)
+
+[sub_resource type="Animation" id="Animation_siuox"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_7yfwn"]
+resource_name = "fly"
+length = 0.6
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.20000002, 0.40000004),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [3, 4, 5]
+}
+
+[sub_resource type="Animation" id="Animation_oap13"]
+resource_name = "stand_left"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_nr1h3"]
+resource_name = "stand"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_bj0jq"]
+resource_name = "walk_left"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_jvdeg"]
+resource_name = "walk_right"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_jvdeg"]
+_data = {
+&"RESET": SubResource("Animation_siuox"),
+&"fly": SubResource("Animation_7yfwn"),
+&"stand_left": SubResource("Animation_oap13"),
+&"stand_right": SubResource("Animation_nr1h3"),
+&"walk_left": SubResource("Animation_bj0jq"),
+&"walk_right": SubResource("Animation_jvdeg")
+}
+
+[node name="PlayableRobot" type="CharacterBody2D" groups=["save"]]
+z_index = 3
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_siuox")
+health = 50
+max_health = 50
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -3)
+shape = SubResource("RectangleShape2D_hegqk")
+
+[node name="InteractArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+position = Vector2(0, -3)
+shape = SubResource("RectangleShape2D_nr1h3")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_vog53")
+hframes = 3
+vframes = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_jvdeg")
+}
+
+[node name="TestStatus" type="Label" parent="."]
+visible = false
+offset_left = -17.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = -13.0
+theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Status"
+
+[node name="State" parent="." groups=["component"] instance=ExtResource("3_shsi1")]
+
+[node name="MovexControlled" parent="." instance=ExtResource("4_bj0jq")]
+
+[node name="Falling" parent="." instance=ExtResource("5_siuox")]
+
+[node name="JumpControlledFly" parent="." instance=ExtResource("6_jvdeg")]
+jump_velocity = -100.0
+
+[node name="Die" parent="." instance=ExtResource("7_nr1h3")]

@@ -8,5 +8,5 @@ func _physics_process(delta):
 
 func _on_body_entered(body):
 	queue_free()
-	if body.is_in_group('player'):
+	if "health" in body:
 		body.health -= 10

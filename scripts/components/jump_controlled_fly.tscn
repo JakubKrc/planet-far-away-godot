@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://deoosjyp6kqqw"]
+
+[ext_resource type="Script" uid="uid://dwhlvnuge1rob" path="res://scripts/components/jump_controlled_fly.gd" id="1_j3gbg"]
+
+[node name="JumpControlledFly" type="Node" groups=["component"]]
+script = ExtResource("1_j3gbg")
+jump_velocity = -200.0

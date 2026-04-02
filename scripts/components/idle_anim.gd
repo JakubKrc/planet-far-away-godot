@@ -1,3 +1,4 @@
+class_name IdleAnim
 extends Node
 
 @onready var parent = get_parent()
@@ -6,7 +7,7 @@ extends Node
 @export var idle_animation_random: float
 var time_since_last_action: float = 0.0
 			
-func idle(params : Dictionary ):
+func idle_anim(params : Dictionary ):
 	if (parent.velocity.x == 0):
 		time_since_last_action += params['delta']
 		if time_since_last_action >= idle_animation_time:

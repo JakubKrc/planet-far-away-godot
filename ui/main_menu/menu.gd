@@ -6,14 +6,16 @@ extends CanvasLayer
 @onready var animationPlayer = $AnimationPlayer
 @onready var colorRect = $ColorRect
 
+@export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room1.tscn"
+@export var start_level_portal_name: String = 'game_start_portal'
+@export var run_instantly : bool = false
 
 var selection = 0
-# Called when the node enters the scene tree for the first time.
+
 func _ready():
 	Global.main_menu = self
-	animationPlayer.play_backwards("fade_out")
+	animationPlayer.play_backwards("fade_out") 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	
 	if Global.game_state!=Global.GameState.MAIN_MENU:
@@ -32,10 +34,12 @@ func _process(_delta):
 
 	selector.position.y = 150 + (selection*40)
 	
-	if Input.is_action_just_pressed("ui_accept") and selection == 0:
+	if (Input.is_action_just_pressed("ui_accept") and selection == 0) || run_instantly:
 		Global.game_state = Global.GameState.PLAYING
-		Global.main.load_level("res://scenes/environment/castle_zone/rooms/room1.tscn",'game_start_portal', 10000, 0.1)
+		Global.per_level_save.clear()
+		Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1)
 		Global.main.spawn.spawn()
+		#Global.main.spawn2.spawn()
 		get_tree().paused = false
 		animationPlayer.play("fade_out")
 		await animationPlayer.animation_finished

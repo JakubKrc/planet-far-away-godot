@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://cwmsp2t8tgg5x"]
+
+[ext_resource type="Script" uid="uid://cgy153c3b3t0e" path="res://scenes/environment/castle_zone/misc/switch.gd" id="1_qhcdf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ngpbo"]
+size = Vector2(4, 11)
+
+[node name="Switch" type="Node2D"]
+script = ExtResource("1_qhcdf")
+
+[node name="Switch_area" type="Area2D" parent="." groups=["interactable"]]
+collision_layer = 4
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Switch_area"]
+position = Vector2(0, 4.5)
+shape = SubResource("RectangleShape2D_ngpbo")

@@ -2,9 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dhtnlafws2s1y" path="res://scripts/components/shoot.gd" id="1_5fcul"]
 
-[node name="shoot" type="Node"]
+[node name="shoot" type="Node" groups=["component"]]
 script = ExtResource("1_5fcul")
 
 [node name="ShootTimer" type="Timer" parent="."]
+one_shot = true
 
 [connection signal="timeout" from="ShootTimer" to="." method="_on_shoot_timer_timeout"]

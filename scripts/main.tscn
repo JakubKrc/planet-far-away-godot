@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://ddicd47q4hmh2"]
+[gd_scene load_steps=12 format=3 uid="uid://ddicd47q4hmh2"]
 
 [ext_resource type="PackedScene" uid="uid://quek18lwasfk" path="res://ui/main_menu/menu.tscn" id="1_gvia5"]
 [ext_resource type="Script" uid="uid://bw4q1c5l4f44l" path="res://scripts/main.gd" id="1_i11qp"]
@@ -8,26 +8,29 @@
 [ext_resource type="Script" uid="uid://qcwlt0ntlcm0" path="res://audio/music/technical/backgroundMusicPlayer.gd" id="6_yfde7"]
 [ext_resource type="PackedScene" uid="uid://lcqsxiferq0r" path="res://ui/ingame_ui/healthBar.tscn" id="7_bytmo"]
 [ext_resource type="Script" uid="uid://ci14ev7t0tx61" path="res://scripts/camera_2d.gd" id="8_gl0lg"]
+[ext_resource type="PackedScene" uid="uid://cq6ag3h3mgvqn" path="res://ui/interacton_icon/InteractionIcon.tscn" id="8_o4va5"]
 [ext_resource type="Script" uid="uid://cnc1aeltoe71v" path="res://scripts/focus_manager.gd" id="9_ragmj"]
 
 [sub_resource type="AudioStreamInteractive" id="AudioStreamInteractive_5dr1j"]
 
 [node name="main" type="Node2D"]
+texture_filter = 1
 script = ExtResource("1_i11qp")
 
 [node name="main2D" type="Node2D" parent="."]
 
 [node name="main_menu" parent="." instance=ExtResource("1_gvia5")]
 process_mode = 0
+start_level_path = "uid://bc242uunchr16"
+start_level_portal_name = "portal_1"
 
 [node name="DeathMenu" parent="." instance=ExtResource("4_v0otc")]
-visible = false
 
 [node name="pause_menu" parent="." instance=ExtResource("3_mf4xh")]
 visible = false
 
 [node name="Spawn" parent="." instance=ExtResource("2_nhlsy")]
-CHARACTER = "res://scenes/common/characters/main_char/main_char.tscn"
+CHARACTER = "uid://bsbbsbc1rea6q"
 
 [node name="CanvasLayerForTestLabel" type="CanvasLayer" parent="."]
 
@@ -65,9 +68,19 @@ layer = 0
 
 [node name="HealthBar" parent="CanvasLayerForUi" instance=ExtResource("7_bytmo")]
 offset_left = 11.0
-offset_top = 229.0
+offset_top = 230.0
 offset_right = 61.0
-offset_bottom = 233.0
+offset_bottom = 234.0
+
+[node name="HealthBar2" parent="CanvasLayerForUi" instance=ExtResource("7_bytmo")]
+offset_left = 262.0
+offset_top = 230.0
+offset_right = 312.0
+offset_bottom = 234.0
+which_value = 1
+
+[node name="InteractIcon" parent="." instance=ExtResource("8_o4va5")]
+z_index = 4096
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true

@@ -3,15 +3,15 @@
 [ext_resource type="Script" uid="uid://bs08ibe8pctrs" path="res://scenes/environment/castle_zone/misc/portal.gd" id="1_7fih2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_efdxy"]
-size = Vector2(6, 32)
+size = Vector2(10, 26)
 
-[node name="portal" type="Area2D" groups=["door"]]
+[node name="portal" type="Area2D" groups=["door", "interactable"]]
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_7fih2")
-door_name = ""
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 3)
 shape = SubResource("RectangleShape2D_efdxy")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

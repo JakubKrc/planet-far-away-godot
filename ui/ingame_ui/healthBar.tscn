@@ -27,6 +27,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_alw5m")
 value = 60.0
 show_percentage = false
 script = ExtResource("1_bnyw6")
+use_timer = false
 
 [node name="DamageBar" type="ProgressBar" parent="."]
 z_index = -1
