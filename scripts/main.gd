@@ -25,7 +25,15 @@ func _on_item_thrown(item: ItemData, world_pos: Vector2):
 	gi.position = world_pos
 	main2D.add_child(gi)
 
+func _toggle_fullscreen():
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+
 func _process(_delta):
+	if Input.is_action_just_pressed("fullscreen"):
+		_toggle_fullscreen()
 	if Input.is_action_just_pressed("escape")  or Input.is_action_just_pressed("pause"):
 		if Global.game_state == Global.GameState.MAIN_MENU:
 			return;

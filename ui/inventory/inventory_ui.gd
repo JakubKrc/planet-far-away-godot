@@ -98,7 +98,7 @@ func _compute_layout():
 	else:
 		panel_w = PAD + eq_w + SEP + grid_w + PAD
 
-	var vp = Vector2(320, 240)
+	var vp = get_viewport().get_visible_rect().size
 	var pp = ((vp - Vector2(panel_w, panel_h)) / 2.0).floor()
 	_panel = Rect2(pp, Vector2(panel_w, panel_h))
 
@@ -536,8 +536,9 @@ func _draw_tooltip():
 		max_w = max(max_w, font.get_string_size(l, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x)
 	var tip_size = Vector2(max_w + 6, lines.size() * lh + 4)
 	var tip_pos  = _mouse + Vector2(10, -tip_size.y - 2)
-	tip_pos.x = clamp(tip_pos.x, 0, 320 - tip_size.x)
-	tip_pos.y = clamp(tip_pos.y, 0, 240 - tip_size.y)
+	var _vp = get_viewport().get_visible_rect().size
+	tip_pos.x = clamp(tip_pos.x, 0, _vp.x - tip_size.x)
+	tip_pos.y = clamp(tip_pos.y, 0, _vp.y - tip_size.y)
 	_control.draw_rect(Rect2(tip_pos, tip_size), C_TIP_BG)
 	_control.draw_rect(Rect2(tip_pos, tip_size), C_BORDER, false)
 	for i in lines.size():

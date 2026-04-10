@@ -7,9 +7,10 @@ layer = 10
 script = ExtResource("1_dlgui")
 
 [node name="Panel" type="Panel" parent="." unique_id=1891037868]
-offset_top = 158.0
-offset_right = 320.0
-offset_bottom = 240.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -82.0
 
 [node name="Margin" type="MarginContainer" parent="Panel" unique_id=699475793]
 layout_mode = 0

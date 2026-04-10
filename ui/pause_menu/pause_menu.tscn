@@ -38,6 +38,14 @@ offset_top = 133.0
 offset_right = 199.0
 offset_bottom = 151.0
 
+[node name="fullscreen_label" type="Label" parent="."]
+offset_left = 135.0
+offset_top = 161.0
+offset_right = 210.0
+offset_bottom = 179.0
+theme_override_font_sizes/font_size = 9
+text = "Fullscreen: OFF"
+
 [connection signal="pressed" from="resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="return_to_mm" to="." method="_on_return_to_mm_pressed"]
 [connection signal="pressed" from="exit" to="." method="_on_exit_pressed"]

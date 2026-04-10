@@ -15,8 +15,14 @@ extends CanvasLayer
 var selection = 0  # 0=Continue, 1=New Game, 2=Quit
 var has_save: bool = false
 
+var _cx: float = 0.0  # x offset to center 320px content
+
 func _ready():
 	Global.main_menu = self
+	var vp_w = get_viewport().get_visible_rect().size.x
+	_cx = floor((vp_w - 320.0) / 2.0)
+	$bg.scale.x = vp_w / 320.0
+	selector.position.x = 108 + _cx
 	animationPlayer.play_backwards("fade_out")
 	has_save = Global.has_save()
 	if not has_save:

@@ -1,16 +1,26 @@
 extends CanvasLayer
 
 @onready var locator = $locator
+@onready var fullscreen_label = $fullscreen_label
 
 var selection = 0;
 
-# Called when the node enters the scene tree for the first time.
+var _cx: float = 0.0
+
 func _ready():
 	Global.pause_menu = self
+	_cx = floor((get_viewport().get_visible_rect().size.x - 320.0) / 2.0)
+	$bg.position.x = _cx
+	locator.position.x = 132 + _cx
+	$fullscreen_label.position.x = 135 + _cx
+	_update_fullscreen_label()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _update_fullscreen_label():
+	var is_fs = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	fullscreen_label.text = "Fullscreen: " + ("ON" if is_fs else "OFF")
+
 func _process(_delta):
-	
+
 	if Global.game_state != Global.GameState.PAUSE_MENU:
 		return
 
@@ -18,22 +28,26 @@ func _process(_delta):
 		selection += 1
 	if(Input.is_action_just_pressed("ui_up")):
 		selection -= 1
-		
-	if(selection<0): selection=2
-	if(selection>2): selection=0
- 
+
+	if(selection<0): selection=3
+	if(selection>3): selection=0
+
 	locator.position.y = 98 + (selection*22)
-	
-	if((Input.is_action_just_pressed("ui_accept") and selection==0) 
+
+	if((Input.is_action_just_pressed("ui_accept") and selection==0)
 	or Input.is_action_just_pressed("escape") or Input.is_action_just_pressed('pause') ):
 		if Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() == "Web":
 			return;
 		go_back_to_game()
-		
+
 	if(Input.is_action_just_pressed("ui_accept") and selection==1):
 		go_to_main_menu()
-		
+
 	if(Input.is_action_just_pressed("ui_accept") and selection==2):
+		Global.main._toggle_fullscreen()
+		_update_fullscreen_label()
+
+	if(Input.is_action_just_pressed("ui_accept") and selection==3):
 		get_tree().quit()
 
 func go_back_to_game():
