@@ -16,7 +16,7 @@ func _set_health(new_health):
 	health = new_health
 	
 	if new_health <= 0:
-		Global.call_method_on_target(components, 'die')
+		do('die')
 		
 	if health>max_health:
 		health=max_health
@@ -25,12 +25,44 @@ var home_level: String = ""
 var is_default_char: bool = false
 
 var components = {}
+var method_cache: Dictionary = {}  # method_name -> [component, ...]
+
 func _ready():
 	for c in get_children():
 		if c.is_in_group("component"):
 			components[c.get_script()] = c
+	_build_method_cache()
 	if Global.isTest == true:
 		$"TestStatus".visible = true
+
+func _build_method_cache():
+	method_cache.clear()
+	for c in components.values():
+		var script = c.get_script()
+		while script != null:
+			for method in script.get_script_method_list():
+				var mn: String = method["name"]
+				if not method_cache.has(mn):
+					method_cache[mn] = []
+				if not method_cache[mn].has(c):
+					method_cache[mn].append(c)
+			script = script.get_base_script()
+
+func can_do(method_name: String) -> bool:
+	return method_cache.has(method_name)
+
+func do(method_name: String, params: Dictionary = {}):
+	for c in method_cache.get(method_name, []):
+		if params.is_empty():
+			c.call(method_name)
+		else:
+			c.call(method_name, params)
+
+func get_component(cls) -> Node:
+	var c = components.get(cls)
+	if c == null:
+		push_error("%s: missing component %s" % [name, cls])
+	return c
 
 func _physics_process(delta):
 	

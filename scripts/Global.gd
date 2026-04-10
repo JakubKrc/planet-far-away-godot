@@ -160,36 +160,35 @@ func _process(_delta):
 	handle_ingame_input()
 
 func handle_ingame_input():
-		
+
 	if (controlled_char == null):
 		return
-		
+
 	if (!can_player_move):
 		controlled_char.velocity = Vector2.ZERO
 		controlled_char.animation_player.stop()
 		return
-	
-	if(is_method_on_target(controlled_char.components, 'jump')):
+
+	if controlled_char.can_do('jump'):
 		if Input.is_action_just_pressed("jump"):
-			call_method_on_target(controlled_char.components, 'jump')
-
+			controlled_char.do('jump')
 		if Input.is_action_just_released("jump"):
-			call_method_on_target(controlled_char.components, 'stop_jump')
+			controlled_char.do('stop_jump')
 
-	if(is_method_on_target(controlled_char.components, 'move')):
+	if controlled_char.can_do('move'):
 		var x_axis_input = Input.get_axis("left", "right")
-		if x_axis_input!=0:
-			call_method_on_target(controlled_char.components, 'move',{'x_axis_input':x_axis_input})
-		else:	
-			call_method_on_target(controlled_char.components, 'stop_moving')
-			
-	if(is_method_on_target(controlled_char.components, 'fall')):
+		if x_axis_input != 0:
+			controlled_char.do('move', {'x_axis_input': x_axis_input})
+		else:
+			controlled_char.do('stop_moving')
+
+	if controlled_char.can_do('fall'):
 		if Input.is_action_just_pressed("down"):
-			call_method_on_target(controlled_char.components, 'fall')
-			
-	if(is_method_on_target(controlled_char.components, 'attack')):
+			controlled_char.do('fall')
+
+	if controlled_char.can_do('attack'):
 		if Input.is_action_pressed("attack"):
-			call_method_on_target(controlled_char.components, 'attack')
+			controlled_char.do('attack')
 	
 func call_method_on_target(components, method_name, params: Dictionary = {}):
 	var has_component:bool = false
@@ -201,8 +200,7 @@ func call_method_on_target(components, method_name, params: Dictionary = {}):
 			else:
 				component.call(method_name, params)
 	if !has_component:
-		push_error('Component dont have method %s' %method_name)
-		get_tree().quit()
+		push_error('Component dont have method %s' % method_name)
 			
 func is_method_on_target(components: Dictionary, method_name: String) -> bool:
 	for component in components.values():

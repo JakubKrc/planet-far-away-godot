@@ -17,9 +17,9 @@ func _physics_process(_delta):
 		parent.velocity.y = jump_velocity
 		current_fuel-=1
 		parent.animation_player.play("fly")
-		parent.components.get(State).state = Global.States.FLYING
-	if 'wasOnFloor' in parent.components.get(Falling):
-		if true in parent.components.get(Falling).wasOnFloor && current_fuel<max_fuel-1:
+		parent.get_component(State).state = Global.States.FLYING
+	if 'wasOnFloor' in parent.get_component(Falling):
+		if true in parent.get_component(Falling).wasOnFloor && current_fuel<max_fuel-1:
 			current_fuel+=1.2
 
 func jump():
@@ -27,4 +27,4 @@ func jump():
 			
 func stop_jump():
 	is_flying = false
-	parent.components.get(MovexControlled).setDefaultSprite()
+	parent.get_component(MovexControlled).setDefaultSprite()
