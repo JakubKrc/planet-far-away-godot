@@ -64,10 +64,8 @@ func _start_new_game():
 	self.hide()
 
 func _continue_game():
-	print("=== _continue_game ===")
 	var save = Global.load_game()
 	if save.is_empty():
-		print("  ERROR: save is empty, aborting")
 		return
 	Global.game_state = Global.GameState.PLAYING
 	get_tree().paused = false
@@ -76,17 +74,13 @@ func _continue_game():
 	var spawn_pos = Vector2(sp[0], sp[1])
 	var target_level: String = save["current_level"]
 	var home_level: String = save.get("possessed_char_home_level", "")
-	print("  target_level: ", target_level, " | home_level: ", home_level, " | possessed: ", possessed, " | spawn_pos: ", spawn_pos)
 	# Load the char's home level first (silently) so the char exists in the tree,
 	# then jump to the actual saved level if it's a different one.
 	if home_level != "" and home_level != target_level:
-		print("  loading home level first to get char: ", home_level)
 		await Global.main.load_level(home_level, "", 10000, 10000, possessed)
-		print("  home level loaded, now loading target level")
 		await Global.main.load_level(target_level, "", 10000, 0.1, "", spawn_pos)
 	else:
 		await Global.main.load_level(target_level, "", 10000, 0.1, possessed, spawn_pos)
-	print("  load_level done, playing fade_out")
 	animationPlayer.play("fade_out")
 	await animationPlayer.animation_finished
 	musicPlayer.stop()

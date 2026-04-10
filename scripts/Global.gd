@@ -68,6 +68,10 @@ var active_checkpoint_position: Vector2 = Vector2(INF, INF)
 
 var inventory: Dictionary = {}
 var dialogue
+var inventory_ui
+
+var _saved_inventory_data: Array = []
+var _saved_equipment_data: Array = []
 
 const SAVE_PATH = "user://save.json"
 
@@ -79,6 +83,15 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 	var char_home_level := ""
 	if controlled_char != null and "home_level" in controlled_char:
 		char_home_level = str(controlled_char.home_level)
+	var inv_data = []
+	var equip_data = []
+	if controlled_char != null:
+		var inv_comp = controlled_char.get_node_or_null("InventoryComponent")
+		if inv_comp:
+			inv_data = inv_comp.serialize()
+		var eq_comp = controlled_char.get_node_or_null("EquipmentComponent")
+		if eq_comp:
+			equip_data = eq_comp.serialize()
 	var data = {
 		"current_level": current_level,
 		"spawn_position": [spawn_position.x, spawn_position.y],
@@ -87,6 +100,8 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"possessed_char_home_level": char_home_level,
 		"per_level_save": _serialize_save(per_level_save),
 		"inventory": inventory,
+		"inventory_component": inv_data,
+		"equipment_component": equip_data,
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(data))
@@ -110,13 +125,30 @@ func load_game() -> Dictionary:
 	inventory = {}
 	for key in raw_inv:
 		inventory[key] = int(raw_inv[key])
+	# Stash component data; applied in apply_inventory_save() after char is in scene
+	_saved_inventory_data  = result.get("inventory_component", [])
+	_saved_equipment_data  = result.get("equipment_component", [])
 	return result
+
+func apply_inventory_save():
+	if controlled_char == null:
+		return
+	var inv_comp = controlled_char.get_node_or_null("InventoryComponent")
+	if inv_comp and _saved_inventory_data.size() > 0:
+		inv_comp.deserialize(_saved_inventory_data)
+		_saved_inventory_data = []
+	var eq_comp = controlled_char.get_node_or_null("EquipmentComponent")
+	if eq_comp and _saved_equipment_data.size() > 0:
+		eq_comp.deserialize(_saved_equipment_data)
+		_saved_equipment_data = []
 
 func inv_add(id: String, amount: int = 1):
 	inventory[id] = inventory.get(id, 0) + amount
+	print("[INV] +%d %s  (total: %d)" % [amount, id, inventory[id]])
 
 func inv_remove(id: String, amount: int = 1):
 	inventory[id] = max(0, inventory.get(id, 0) - amount)
+	print("[INV] -%d %s  (total: %d)" % [amount, id, inventory[id]])
 	if inventory[id] == 0:
 		inventory.erase(id)
 

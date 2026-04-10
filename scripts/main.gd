@@ -41,9 +41,9 @@ func load_mainchar(where_to_set_character: Vector2, direction_vector: Vector2):
 	Global.camera.global_position = where_to_set_character
 	await get_tree().process_frame
 	Global.camera.position_smoothing_enabled = true
-	
+	Global.apply_inventory_save()
+
 func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1, initial_possess_group: String = "", spawn_override: Vector2 = Vector2.ZERO):
-	print("=== load_level called: ", level_path, " | door: ", door_name, " | spawn_override: ", spawn_override)
 	# Normalize UID paths to file paths so keys are consistent
 	if level_path.begins_with("uid://"):
 		var uid_int = ResourceUID.text_to_id(level_path)
@@ -51,11 +51,10 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 			level_path = ResourceUID.get_id_path(uid_int)
 
 	if level_path=='':
-		print("  ERROR: level_path is empty, aborting")
 		return
 
 	if not ResourceLoader.exists(level_path):
-		print("  ERROR: Level %s dont exist." % level_path);
+		push_error("Level %s dont exist." % level_path)
 		return
 		
 	save_current_level()
@@ -88,13 +87,16 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 				if str(node.name) == initial_possess_group:
 					char_to_possess = node
 					break
-		print("  initial_possess_group '", initial_possess_group, "' -> ", char_to_possess)
 		if char_to_possess:
-			char_to_possess.add_to_group("player")
-			char_to_possess.is_default_char = true
-			Global.controlled_char = char_to_possess
-			char_to_possess.get_parent().remove_child(char_to_possess)
-			add_child(char_to_possess)
+			if not "is_default_char" in char_to_possess:
+				push_error("load_level: found '%s' for group '%s' but it is not a character (type: %s). Check the scene — InventoryComponent/EquipmentComponent children must be plain Node, not CharacterBody2D." % [char_to_possess.name, initial_possess_group, char_to_possess.get_class()])
+				char_to_possess = null
+			else:
+				char_to_possess.add_to_group("player")
+				char_to_possess.is_default_char = true
+				Global.controlled_char = char_to_possess
+				char_to_possess.get_parent().remove_child(char_to_possess)
+				add_child(char_to_possess)
 
 	restore_current_level()
 

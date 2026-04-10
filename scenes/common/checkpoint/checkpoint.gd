@@ -15,7 +15,6 @@ func _ready():
 func _input(event):
 	if player_inside and event.is_action_pressed("use") and Global.can_player_move:
 		Global.save_game(Global.controlled_char.global_position, global_position)
-		print("Checkpoint saved at ", global_position)
 		sprite_empty.visible = false
 		sprite_full.visible = true
 
