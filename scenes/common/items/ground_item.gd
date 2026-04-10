@@ -25,6 +25,7 @@ func _ready():
 	if Engine.is_editor_hint():
 		return
 	add_to_group("interactable")
+	add_to_group("ground_item")
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 

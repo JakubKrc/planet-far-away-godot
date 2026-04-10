@@ -333,12 +333,12 @@ func _throw(item: ItemData):
 	var feet_y = 0.0
 	var col = player.get_node_or_null("CollisionShape2D")
 	if col and col.shape is RectangleShape2D:
-		feet_y = (col.shape as RectangleShape2D).size.y / 2.0
+		feet_y = col.position.y + (col.shape as RectangleShape2D).size.y / 2.0
 	var item_half_h = 0.0
 	var tex = item.get_world_texture()
 	if tex:
 		item_half_h = tex.get_height() / 2.0
-	emit_signal("item_thrown", item, player.global_position + Vector2(0, feet_y - item_half_h + 2))
+	emit_signal("item_thrown", item, player.global_position + Vector2(0, feet_y - item_half_h + 1))
 
 # Right-click: drop item to ground
 func _rmb(mouse: Vector2):

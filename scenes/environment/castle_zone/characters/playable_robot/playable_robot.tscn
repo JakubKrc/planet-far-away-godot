@@ -1,6 +1,7 @@
 [gd_scene load_steps=17 format=3 uid="uid://c0rxygo0mnmuj"]
 
 [ext_resource type="Script" uid="uid://ul4mmbvyyrp6" path="res://scripts/components/character_base_script.gd" id="1_siuox"]
+[ext_resource type="PackedScene" uid="uid://bi3g5mk5xpocy" path="res://scripts/components/inventory_component.tscn" id="20_robot"]
 [ext_resource type="Texture2D" uid="uid://dkj16op0ywgqb" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.png" id="1_vog53"]
 [ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/components/state.tscn" id="3_shsi1"]
 [ext_resource type="PackedScene" uid="uid://bgpvgu0wvcwcv" path="res://scripts/components/movex_controlled.tscn" id="4_bj0jq"]
@@ -168,3 +169,5 @@ text = "Status"
 jump_velocity = -100.0
 
 [node name="Die" parent="." instance=ExtResource("7_nr1h3")]
+
+[node name="InventoryComponent" parent="." instance=ExtResource("20_robot")]

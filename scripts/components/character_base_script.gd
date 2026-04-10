@@ -6,6 +6,7 @@ extends CharacterBody2D
 
 @export var health = 100 : set = _set_health
 @export var max_health = 100
+@export var starting_items: Array[ItemData] = []
 
 var direction : Vector2 = Vector2.ZERO
 
@@ -32,6 +33,14 @@ func _ready():
 		if c.is_in_group("component"):
 			components[c.get_script()] = c
 	_build_method_cache()
+	if starting_items.size() > 0:
+		var inv = get_node_or_null("InventoryComponent") as InventoryComponent
+		if inv:
+			for item in starting_items:
+				if item:
+					var pos = inv.find_free_slot(item)
+					if pos != Vector2i(-1, -1):
+						inv.place(item, pos)
 	if Global.isTest == true:
 		$"TestStatus".visible = true
 

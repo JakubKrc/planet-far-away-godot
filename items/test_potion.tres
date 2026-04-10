@@ -9,4 +9,3 @@ id = "test_potion"
 item_name = "Potion"
 description = "Restores health."
 icon = ExtResource("1_f4g14")
-is_wearable = true

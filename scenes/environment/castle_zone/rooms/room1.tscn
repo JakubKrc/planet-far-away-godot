@@ -14,11 +14,15 @@
 [ext_resource type="PackedScene" uid="uid://cwmsp2t8tgg5x" path="res://scenes/environment/castle_zone/misc/switch.tscn" id="11_8th2v"]
 [ext_resource type="Texture2D" uid="uid://dan32lb0ledsp" path="res://scenes/environment/castle_zone/misc/switch.png" id="12_fyvvh"]
 [ext_resource type="PackedScene" uid="uid://c0rxygo0mnmuj" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.tscn" id="13_lrlf8"]
+[ext_resource type="Script" uid="uid://bbs7mlyheen3u" path="res://items/item_data.gd" id="14_s4iuh"]
 [ext_resource type="PackedScene" uid="uid://bsbbsbc1rea6q" path="res://scenes/common/characters/main_char/main_char.tscn" id="15_o5tj0"]
 [ext_resource type="PackedScene" path="res://scenes/common/npc/npc.tscn" id="16_8reqi"]
 [ext_resource type="PackedScene" uid="uid://dnx8hvlj8wdf0" path="res://scripts/components/dialogue_trigger.tscn" id="17_5tq3k"]
+[ext_resource type="Texture2D" uid="uid://6wvslf2dj58n" path="res://scenes/environment/castle_zone/characters/troguon.png" id="17_78vun"]
 [ext_resource type="PackedScene" path="res://scenes/common/items/ground_item.tscn" id="18_grnd"]
+[ext_resource type="Texture2D" uid="uid://hywg6ikatolh" path="res://scenes/environment/castle_zone/characters/doguon.png" id="19_voqjw"]
 [ext_resource type="Resource" uid="uid://jvao2rj0qist" path="res://items/test_potion.tres" id="20_juh4p"]
+[ext_resource type="Resource" uid="uid://dtxm7ljtc6sh5" path="res://items/spare_part.tres" id="21_spare"]
 
 [sub_resource type="Animation" id="Animation_lrlf8"]
 length = 0.001
@@ -212,6 +216,7 @@ libraries/ = SubResource("AnimationLibrary_o5tj0")
 
 [node name="PlayableRobot" parent="." unique_id=1279495027 groups=["robot1"] instance=ExtResource("13_lrlf8")]
 position = Vector2(30, -81)
+starting_items = Array[ExtResource("14_s4iuh")]([ExtResource("21_spare")])
 
 [node name="Switch2" parent="." unique_id=1381935991 instance=ExtResource("11_8th2v")]
 position = Vector2(-92, -74)
@@ -283,10 +288,12 @@ texture = ExtResource("5_pdfq7")
 position = Vector2(2, 208)
 
 [node name="NPC" parent="." unique_id=1159736454 instance=ExtResource("16_8reqi")]
-position = Vector2(-112, 212)
-
-[node name="DialogueTrigger2" parent="NPC" unique_id=586025500 instance=ExtResource("17_5tq3k")]
+position = Vector2(-116, 211)
 dialogue_file = "res://dialogue/example.json"
+
+[node name="Troguon" type="Sprite2D" parent="NPC" unique_id=1832139422]
+position = Vector2(0, -3)
+texture = ExtResource("17_78vun")
 
 [node name="NPC2" parent="." unique_id=740059605 instance=ExtResource("16_8reqi")]
 position = Vector2(38, 142)
@@ -294,7 +301,11 @@ position = Vector2(38, 142)
 [node name="DialogueTrigger2" parent="NPC2" unique_id=1694577474 instance=ExtResource("17_5tq3k")]
 dialogue_file = "res://dialogue/give_keycard.json"
 
-[node name="GroundItem" parent="." unique_id=552460302 instance=ExtResource("18_grnd")]
+[node name="Doguon" type="Sprite2D" parent="NPC2" unique_id=100736548]
+position = Vector2(0, -3)
+texture = ExtResource("19_voqjw")
+
+[node name="GroundItem" parent="." unique_id=552460302 groups=["save"] instance=ExtResource("18_grnd")]
 position = Vector2(112, 218)
 item = ExtResource("20_juh4p")
 pickup_radius = 7.0

@@ -133,6 +133,15 @@ func save_current_level():
 	if level_path == "":
 		return
 
+	# Save all alive ground items (dynamic + scene-placed)
+	var ground_items_data: Array = []
+	for node in get_tree().get_nodes_in_group("ground_item"):
+		if node.item and node.item.resource_path != "":
+			ground_items_data.append({"path": node.item.resource_path, "pos": [node.global_position.x, node.global_position.y]})
+	if not Global.per_level_save.has(level_path):
+		Global.per_level_save[level_path] = {}
+	Global.per_level_save[level_path]["__ground_items__"] = ground_items_data
+
 	for node in get_tree().get_nodes_in_group("save"):
 		if node.is_in_group("player"):
 			continue
@@ -197,6 +206,19 @@ func restore_current_level():
 				if data.has("was_used"):      node.was_used      = data["was_used"]
 				if data.has("activated"):     node.activated     = data["activated"]
 				if data.has("current_index"): node.current_index = data["current_index"]
+
+	# Restore ground items — only when level has been visited before
+	if level_data.has("__ground_items__"):
+		# Free scene-placed items; saved list is authoritative
+		for node in get_tree().get_nodes_in_group("ground_item"):
+			node.queue_free()
+		for entry in level_data["__ground_items__"]:
+			var it = load(entry["path"]) as ItemData
+			if it:
+				var gi = GROUND_ITEM_SCENE.instantiate()
+				gi.item = it
+				gi.position = Vector2(entry["pos"][0], entry["pos"][1])
+				main2D.add_child(gi)
 
 	# Show/hide unpossessed chars at /root/main/ based on their home level
 	for node in get_tree().get_nodes_in_group("save"):
