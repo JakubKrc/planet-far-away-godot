@@ -7,15 +7,23 @@ extends Node2D
 @onready var interact_icon = $InteractIcon
 
 var level_instance = null
-# Called when the node enters the scene tree for the first time.
+const GROUND_ITEM_SCENE = preload("res://scenes/common/items/ground_item.tscn")
+
 func _ready():
 	Global.main = self
+	$InventoryUI.item_thrown.connect(_on_item_thrown)
 	if Global.isTest==true:
 		OStestLabel.visible = true
 		OStestLabel.text = OS.get_name()
 		Global.G_STAT_TestLabel = $CanvasLayerForTestLabel/G_STAT_TestLabel
 		Global.G_STAT_TestLabel.visible = true
 		Global.G_STAT_TestLabel.text = Global.game_state_names[Global.game_state]
+
+func _on_item_thrown(item: ItemData, world_pos: Vector2):
+	var gi = GROUND_ITEM_SCENE.instantiate()
+	gi.item = item
+	gi.position = world_pos
+	main2D.add_child(gi)
 
 func _process(_delta):
 	if Input.is_action_just_pressed("escape")  or Input.is_action_just_pressed("pause"):

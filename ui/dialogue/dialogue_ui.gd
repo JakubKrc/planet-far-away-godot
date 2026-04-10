@@ -36,8 +36,10 @@ func _show_node(id: String):
 	if node.is_empty():
 		_end()
 		return
-	speaker_label.text = node.get("speaker", "")
-	text_label.text = node.get("text", "")
+	var speaker = node.get("speaker", "")
+	var text = node.get("text", "")
+	speaker_label.hide()
+	text_label.text = (speaker + ": " + text) if speaker != "" else text
 	# Filter choices by inventory conditions
 	_choices = []
 	for choice in node.get("choices", []):
@@ -45,7 +47,7 @@ func _show_node(id: String):
 			_choices.append(choice)
 	# Rebuild choice labels
 	for child in choices_container.get_children():
-		child.queue_free()
+		child.free()
 	if _choices.is_empty():
 		var lbl = Label.new()
 		lbl.text = "[ continue ]"
@@ -99,6 +101,25 @@ func _process(_delta):
 		_update_selection()
 	if Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("use"):
 		_advance()
+
+func _input(event: InputEvent):
+	if not visible:
+		return
+	var children = choices_container.get_children()
+	if event is InputEventMouseMotion:
+		for i in children.size():
+			if children[i].get_global_rect().has_point(event.global_position):
+				if _selection != i:
+					_selection = i
+					_update_selection()
+				break
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		for i in children.size():
+			if children[i].get_global_rect().has_point(event.global_position):
+				_selection = i
+				_advance()
+				get_viewport().set_input_as_handled()
+				return
 
 func _advance():
 	if _choices.is_empty():

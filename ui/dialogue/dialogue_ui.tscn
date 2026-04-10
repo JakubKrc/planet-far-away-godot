@@ -1,18 +1,18 @@
-[gd_scene format=3 uid="uid://dialogue_ui_scene"]
+[gd_scene format=3 uid="uid://dexgljvjb10ju"]
 
-[ext_resource type="Script" path="res://ui/dialogue/dialogue_ui.gd" id="1_dlgui"]
+[ext_resource type="Script" uid="uid://cxaebfw8xx5jo" path="res://ui/dialogue/dialogue_ui.gd" id="1_dlgui"]
 
-[node name="DialogueUI" type="CanvasLayer"]
+[node name="DialogueUI" type="CanvasLayer" unique_id=226640948]
 layer = 10
 script = ExtResource("1_dlgui")
 
-[node name="Panel" type="Panel" parent="."]
-offset_left = 0.0
+[node name="Panel" type="Panel" parent="." unique_id=1891037868]
 offset_top = 158.0
 offset_right = 320.0
 offset_bottom = 240.0
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=699475793]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 6
@@ -20,15 +20,20 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin" unique_id=1670916439]
+layout_mode = 2
 
-[node name="Speaker" type="Label" parent="Panel/Margin/VBox"]
+[node name="Speaker" type="Label" parent="Panel/Margin/VBox" unique_id=1743832127]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41718194, 0.46230537, 0.95019764, 1)
 theme_override_font_sizes/font_size = 9
 
-[node name="Text" type="Label" parent="Panel/Margin/VBox"]
-autowrap_mode = 3
+[node name="Text" type="Label" parent="Panel/Margin/VBox" unique_id=268074011]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23633727, 0.59958225, 0.71624017, 1)
 theme_override_font_sizes/font_size = 8
+autowrap_mode = 3
+clip_text = false
 
-[node name="Choices" type="VBoxContainer" parent="Panel/Margin/VBox"]
+[node name="Choices" type="VBoxContainer" parent="Panel/Margin/VBox" unique_id=808468919]
+layout_mode = 2

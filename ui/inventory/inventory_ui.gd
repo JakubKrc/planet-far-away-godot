@@ -144,7 +144,7 @@ func _input(event: InputEvent):
 				close()
 			else:
 				var player = get_tree().get_first_node_in_group("player")
-				if player:
+				if player and player.is_on_floor():
 					var inv = player.get_node_or_null("InventoryComponent")
 					if inv:
 						open(inv)
@@ -327,35 +327,43 @@ func _return_or_throw(item: ItemData):
 
 func _throw(item: ItemData):
 	var player = get_tree().get_first_node_in_group("player")
-	var pos = player.global_position if player else Vector2.ZERO
-	emit_signal("item_thrown", item, pos)
-
-# Right-click: quick equip / unequip
-func _rmb(mouse: Vector2):
-	if _equipment == null:
+	if player == null:
+		emit_signal("item_thrown", item, Vector2.ZERO)
 		return
+	var feet_y = 0.0
+	var col = player.get_node_or_null("CollisionShape2D")
+	if col and col.shape is RectangleShape2D:
+		feet_y = (col.shape as RectangleShape2D).size.y / 2.0
+	var item_half_h = 0.0
+	var tex = item.get_world_texture()
+	if tex:
+		item_half_h = tex.get_height() / 2.0
+	emit_signal("item_thrown", item, player.global_position + Vector2(0, feet_y - item_half_h + 2))
+
+# Right-click: drop item to ground
+func _rmb(mouse: Vector2):
 	var gp = _grid_pos(mouse, _primary, _pri_origin)
 	if gp != Vector2i(-1, -1):
 		var item = _primary.get_at(gp)
-		if item and _equipment.can_equip(item):
-			var slot = _equipment.first_free_slot()
-			if slot == -1:
-				slot = 0
+		if item:
 			_primary.remove(item)
-			var displaced = _equipment.equip(item, slot)
-			if displaced:
-				var pos = _primary.find_free_slot(displaced)
-				if pos != Vector2i(-1, -1):
-					_primary.place(displaced, pos)
+			_throw(item)
 			_control.queue_redraw()
 		return
+	if _dual:
+		var gp2 = _grid_pos(mouse, _secondary, _sec_origin)
+		if gp2 != Vector2i(-1, -1):
+			var item = _secondary.get_at(gp2)
+			if item:
+				_secondary.remove(item)
+				_throw(item)
+				_control.queue_redraw()
+			return
 	var es = _equip_slot(mouse)
-	if es >= 0:
+	if es >= 0 and _equipment:
 		var item = _equipment.unequip(es)
 		if item:
-			var pos = _primary.find_free_slot(item)
-			if pos != Vector2i(-1, -1):
-				_primary.place(item, pos)
+			_throw(item)
 		_control.queue_redraw()
 
 # ── Coordinate helpers ────────────────────────────────────────────
