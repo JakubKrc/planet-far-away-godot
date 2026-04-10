@@ -12,12 +12,12 @@ func _ready():
 	_cx = floor((get_viewport().get_visible_rect().size.x - 320.0) / 2.0)
 	$bg.position.x = _cx
 	locator.position.x = 132 + _cx
-	$fullscreen_label.position.x = 135 + _cx
-	_update_fullscreen_label()
-
-func _update_fullscreen_label():
-	var is_fs = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	fullscreen_label.text = "Fullscreen: " + ("ON" if is_fs else "OFF")
+	# Align buttons to locator y positions (98, 120, 142) + center offset
+	for pair in [[$resume, 98], [$return_to_mm, 120], [$exit, 142]]:
+		var btn = pair[0] as Button
+		var ly  = pair[1] as int
+		btn.position = Vector2(_cx + 120, ly - 9)
+		btn.size     = Vector2(80, 20)
 
 func _process(_delta):
 
@@ -29,8 +29,8 @@ func _process(_delta):
 	if(Input.is_action_just_pressed("ui_up")):
 		selection -= 1
 
-	if(selection<0): selection=3
-	if(selection>3): selection=0
+	if(selection<0): selection=2
+	if(selection>2): selection=0
 
 	locator.position.y = 98 + (selection*22)
 
@@ -44,10 +44,6 @@ func _process(_delta):
 		go_to_main_menu()
 
 	if(Input.is_action_just_pressed("ui_accept") and selection==2):
-		Global.main._toggle_fullscreen()
-		_update_fullscreen_label()
-
-	if(Input.is_action_just_pressed("ui_accept") and selection==3):
 		get_tree().quit()
 
 func go_back_to_game():
