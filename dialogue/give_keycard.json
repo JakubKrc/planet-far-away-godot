@@ -1,0 +1,47 @@
+{
+	"start": {
+		"speaker": "Technician",
+		"text": "Oh, you need to get through the east gate?",
+		"choices": [
+			{
+				"text": "Yes, can you help?",
+				"requires_not": { "key_card": 1 },
+				"next": "offer"
+			},
+			{
+				"text": "I already have your card.",
+				"requires": { "key_card": 1 },
+				"next": "already_have"
+			},
+			{
+				"text": "Just browsing.",
+				"next": null
+			}
+		]
+	},
+	"offer": {
+		"speaker": "Technician",
+		"text": "I have a spare key card. Take it.",
+		"choices": [
+			{
+				"text": "Thanks!",
+				"gives": { "key_card": 1 },
+				"next": "given"
+			},
+			{
+				"text": "No thanks.",
+				"next": null
+			}
+		]
+	},
+	"given": {
+		"speaker": "Technician",
+		"text": "Good luck out there.",
+		"choices": []
+	},
+	"already_have": {
+		"speaker": "Technician",
+		"text": "Good. Use it well.",
+		"choices": []
+	}
+}

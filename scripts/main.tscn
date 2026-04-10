@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://ci14ev7t0tx61" path="res://scripts/camera_2d.gd" id="8_gl0lg"]
 [ext_resource type="PackedScene" uid="uid://cq6ag3h3mgvqn" path="res://ui/interacton_icon/InteractionIcon.tscn" id="8_o4va5"]
 [ext_resource type="Script" uid="uid://cnc1aeltoe71v" path="res://scripts/focus_manager.gd" id="9_ragmj"]
+[ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_ui.tscn" id="11_g247k"]
 
 [sub_resource type="AudioStreamInteractive" id="AudioStreamInteractive_5dr1j"]
 
@@ -110,3 +111,5 @@ offset_top = 108.0
 offset_right = 292.0
 offset_bottom = 131.0
 text = "Click with mouse to regain focus."
+
+[node name="DialogueUI" parent="." unique_id=986771155 instance=ExtResource("11_g247k")]

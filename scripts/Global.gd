@@ -66,6 +66,9 @@ var current_level : String
 var per_level_save : Dictionary
 var active_checkpoint_position: Vector2 = Vector2(INF, INF)
 
+var inventory: Dictionary = {}
+var dialogue
+
 const SAVE_PATH = "user://save.json"
 
 func has_save() -> bool:
@@ -83,6 +86,7 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"possessed_char_name": str(controlled_char.name) if controlled_char != null else "",
 		"possessed_char_home_level": char_home_level,
 		"per_level_save": _serialize_save(per_level_save),
+		"inventory": inventory,
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(data))
@@ -102,7 +106,22 @@ func load_game() -> Dictionary:
 	var cp = result.get("checkpoint_position", null)
 	if cp != null:
 		active_checkpoint_position = Vector2(cp[0], cp[1])
+	var raw_inv = result.get("inventory", {})
+	inventory = {}
+	for key in raw_inv:
+		inventory[key] = int(raw_inv[key])
 	return result
+
+func inv_add(id: String, amount: int = 1):
+	inventory[id] = inventory.get(id, 0) + amount
+
+func inv_remove(id: String, amount: int = 1):
+	inventory[id] = max(0, inventory.get(id, 0) - amount)
+	if inventory[id] == 0:
+		inventory.erase(id)
+
+func inv_has(id: String, amount: int = 1) -> bool:
+	return inventory.get(id, 0) >= amount
 
 func _serialize_save(dict: Dictionary) -> Dictionary:
 	var out = {}

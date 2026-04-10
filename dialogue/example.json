@@ -1,0 +1,47 @@
+{
+	"start": {
+		"speaker": "Guard",
+		"text": "Halt. The east gate is locked.",
+		"choices": [
+			{
+				"text": "I have a key card.",
+				"requires": { "key_card": 1 },
+				"removes": { "key_card": 1 },
+				"next": "used_key"
+			},
+			{
+				"text": "Can you let me through?",
+				"requires_not": { "key_card": 1 },
+				"next": "no_key"
+			},
+			{
+				"text": "Never mind.",
+				"next": null
+			}
+		]
+	},
+	"used_key": {
+		"speaker": "Guard",
+		"text": "That checks out. Go ahead.",
+		"choices": []
+	},
+	"no_key": {
+		"speaker": "Guard",
+		"text": "Find a key card and come back.",
+		"choices": [
+			{
+				"text": "Where can I find one?",
+				"next": "hint"
+			},
+			{
+				"text": "Fine.",
+				"next": null
+			}
+		]
+	},
+	"hint": {
+		"speaker": "Guard",
+		"text": "Try the storage room to the west.",
+		"choices": []
+	}
+}

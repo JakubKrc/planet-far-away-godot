@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://dialogue_ui_scene"]
+
+[ext_resource type="Script" path="res://ui/dialogue/dialogue_ui.gd" id="1_dlgui"]
+
+[node name="DialogueUI" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_dlgui")
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 0.0
+offset_top = 158.0
+offset_right = 320.0
+offset_bottom = 240.0
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Speaker" type="Label" parent="Panel/Margin/VBox"]
+theme_override_font_sizes/font_size = 9
+
+[node name="Text" type="Label" parent="Panel/Margin/VBox"]
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 8
+
+[node name="Choices" type="VBoxContainer" parent="Panel/Margin/VBox"]
