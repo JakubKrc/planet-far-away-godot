@@ -64,19 +64,22 @@ var controlled_char : Node
 var current_level : String
 
 var per_level_save : Dictionary
+var active_checkpoint_position: Vector2 = Vector2(INF, INF)
 
 const SAVE_PATH = "user://save.json"
 
 func has_save() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
 
-func save_game(spawn_position: Vector2):
+func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(INF, INF)):
+	active_checkpoint_position = checkpoint_position if checkpoint_position != Vector2(INF, INF) else spawn_position
 	var char_home_level := ""
 	if controlled_char != null and "home_level" in controlled_char:
 		char_home_level = str(controlled_char.home_level)
 	var data = {
 		"current_level": current_level,
 		"spawn_position": [spawn_position.x, spawn_position.y],
+		"checkpoint_position": [active_checkpoint_position.x, active_checkpoint_position.y],
 		"possessed_char_name": str(controlled_char.name) if controlled_char != null else "",
 		"possessed_char_home_level": char_home_level,
 		"per_level_save": _serialize_save(per_level_save),
@@ -96,6 +99,9 @@ func load_game() -> Dictionary:
 	if result == null:
 		return {}
 	per_level_save = _deserialize_save(result.get("per_level_save", {}))
+	var cp = result.get("checkpoint_position", null)
+	if cp != null:
+		active_checkpoint_position = Vector2(cp[0], cp[1])
 	return result
 
 func _serialize_save(dict: Dictionary) -> Dictionary:
