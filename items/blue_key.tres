@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://cuqq30c3821be"]
+
+[ext_resource type="Texture2D" uid="uid://cvk4xmixq4kpk" path="res://scenes/common/items/blue_key.png" id="1_543mr"]
+[ext_resource type="Script" uid="uid://bbs7mlyheen3u" path="res://items/item_data.gd" id="2_b3vvj"]
+
+[resource]
+script = ExtResource("2_b3vvj")
+id = "blue_key"
+item_name = "Blue Key"
+description = "Opens something."
+icon = ExtResource("1_543mr")

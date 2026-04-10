@@ -5,12 +5,12 @@
 		"choices": [
 			{
 				"text": "Yes, can you help?",
-				"requires_not": { "key_card": 1 },
+				"requires_not": { "blue_key": 1 },
 				"next": "offer"
 			},
 			{
 				"text": "I already have your card.",
-				"requires": { "key_card": 1 },
+				"requires": { "blue_key": 1 },
 				"next": "already_have"
 			},
 			{
@@ -25,7 +25,7 @@
 		"choices": [
 			{
 				"text": "Thanks!",
-				"gives": { "key_card": 1 },
+				"gives": { "res://items/blue_key.tres": 1 },
 				"next": "given"
 			},
 			{

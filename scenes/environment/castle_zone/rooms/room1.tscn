@@ -18,7 +18,6 @@
 [ext_resource type="PackedScene" path="res://scenes/common/npc/npc.tscn" id="16_8reqi"]
 [ext_resource type="PackedScene" uid="uid://dnx8hvlj8wdf0" path="res://scripts/components/dialogue_trigger.tscn" id="17_5tq3k"]
 [ext_resource type="PackedScene" path="res://scenes/common/items/ground_item.tscn" id="18_grnd"]
-[ext_resource type="Resource" path="res://items/test_sword.tres" id="19_sword"]
 [ext_resource type="Resource" uid="uid://jvao2rj0qist" path="res://items/test_potion.tres" id="20_juh4p"]
 
 [sub_resource type="Animation" id="Animation_lrlf8"]
@@ -294,11 +293,6 @@ position = Vector2(38, 142)
 
 [node name="DialogueTrigger2" parent="NPC2" unique_id=1694577474 instance=ExtResource("17_5tq3k")]
 dialogue_file = "res://dialogue/give_keycard.json"
-
-[node name="SwordOnGround" parent="." unique_id=202020202 groups=["interactable"] instance=ExtResource("18_grnd")]
-position = Vector2(61, 204)
-collision_layer = 4
-item = ExtResource("19_sword")
 
 [node name="GroundItem" parent="." unique_id=552460302 instance=ExtResource("18_grnd")]
 position = Vector2(112, 218)

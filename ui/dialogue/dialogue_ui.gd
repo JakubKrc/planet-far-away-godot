@@ -60,12 +60,23 @@ func _show_node(id: String):
 	_selection = 0
 	_update_selection()
 
+func _player_inv() -> InventoryComponent:
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		return player.get_node_or_null("InventoryComponent") as InventoryComponent
+	return null
+
 func _check_conditions(choice: Dictionary) -> bool:
+	var inv = _player_inv()
 	for item_id in choice.get("requires", {}):
-		if not Global.inv_has(item_id, int(choice["requires"][item_id])):
+		var amount = int(choice["requires"][item_id])
+		var has = inv.has_id(item_id, amount) if inv else Global.inv_has(item_id, amount)
+		if not has:
 			return false
 	for item_id in choice.get("requires_not", {}):
-		if Global.inv_has(item_id, int(choice["requires_not"][item_id])):
+		var amount = int(choice["requires_not"][item_id])
+		var has = inv.has_id(item_id, amount) if inv else Global.inv_has(item_id, amount)
+		if has:
 			return false
 	return true
 
@@ -94,10 +105,21 @@ func _advance():
 		_end()
 		return
 	var choice = _choices[_selection]
-	for item_id in choice.get("gives", {}):
-		Global.inv_add(item_id, int(choice["gives"][item_id]))
+	var inv = _player_inv()
+	for key in choice.get("gives", {}):
+		if key.begins_with("res://"):
+			var item = load(key) as ItemData
+			if item and inv:
+				var pos = inv.find_free_slot(item)
+				if pos != Vector2i(-1, -1):
+					inv.place(item, pos)
+		else:
+			Global.inv_add(key, int(choice["gives"][key]))
 	for item_id in choice.get("removes", {}):
-		Global.inv_remove(item_id, int(choice["removes"][item_id]))
+		if inv:
+			inv.remove_by_id(item_id, int(choice["removes"][item_id]))
+		else:
+			Global.inv_remove(item_id, int(choice["removes"][item_id]))
 	var next = choice.get("next", null)
 	if next == null or next == "":
 		_end()
