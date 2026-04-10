@@ -5,19 +5,23 @@ extends CanvasLayer
 @onready var musicPlayer = $MenuStreamPlayer
 @onready var animationPlayer = $AnimationPlayer
 @onready var colorRect = $ColorRect
+@onready var label_continue = $bg/Label2
 
 @export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room1.tscn"
 @export var start_level_portal_name: String = 'game_start_portal'
 @export var start_possessed_char: String = ""
 @export var run_instantly : bool = false
 
-var selection = 0
+var selection = 0  # 0=Continue, 1=New Game, 2=Quit
 var has_save: bool = false
 
 func _ready():
 	Global.main_menu = self
 	animationPlayer.play_backwards("fade_out")
 	has_save = Global.has_save()
+	if not has_save:
+		label_continue.modulate = Color(0.5, 0.5, 0.5, 1.0)
+		selection = 1
 
 func _process(_delta):
 
@@ -37,12 +41,12 @@ func _process(_delta):
 
 	selector.position.y = 120 + (selection * 40)
 
-	if (Input.is_action_just_pressed("ui_accept") and selection == 0) or run_instantly:
-		_start_new_game()
-
-	if Input.is_action_just_pressed("ui_accept") and selection == 1:
+	if Input.is_action_just_pressed("ui_accept") and selection == 0:
 		if has_save:
 			_continue_game()
+
+	if (Input.is_action_just_pressed("ui_accept") and selection == 1) or run_instantly:
+		_start_new_game()
 
 	if (Input.is_action_just_pressed("ui_accept") and selection == 2) or \
 		(Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() != "Web"):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://bsbbsbc1rea6q"]
+[gd_scene format=3 uid="uid://bsbbsbc1rea6q"]
 
 [ext_resource type="Script" uid="uid://ul4mmbvyyrp6" path="res://scripts/components/character_base_script.gd" id="1_em1km"]
 [ext_resource type="Texture2D" uid="uid://dgga4dq3amq0i" path="res://scenes/common/characters/main_char/main_char.png" id="2_0qewk"]
@@ -120,37 +120,35 @@ _data = {
 &"walk_right": SubResource("Animation_xxngs")
 }
 
-[node name="MainChar" type="CharacterBody2D" groups=["main_char", "player", "save"]]
+[node name="MainChar" type="CharacterBody2D" unique_id=1323154113 groups=["main_char", "player", "save"]]
 z_index = 10
 collision_layer = 2
 collision_mask = 13
 script = ExtResource("1_em1km")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=908680439]
 position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_1xk83")
 
-[node name="InteractArea" type="Area2D" parent="."]
+[node name="InteractArea" type="Area2D" parent="." unique_id=1782274972]
 collision_layer = 2
 collision_mask = 5
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=1098457723]
 position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_em1km")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1893145414]
 texture = ExtResource("2_0qewk")
 hframes = 20
 vframes = 5
 frame = 80
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_xxngs")
-}
-autoplay = "stand_right"
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=242962627]
+libraries/ = SubResource("AnimationLibrary_xxngs")
+autoplay = &"stand_right"
 
-[node name="TestStatus" type="Label" parent="."]
+[node name="TestStatus" type="Label" parent="." unique_id=2075174017]
 visible = false
 offset_left = -17.0
 offset_top = -30.0
@@ -160,21 +158,21 @@ theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Status"
 
-[node name="JumpControlled" parent="." instance=ExtResource("3_1vya5")]
+[node name="JumpControlled" parent="." unique_id=871162026 instance=ExtResource("3_1vya5")]
 
-[node name="IdleAnim" parent="." instance=ExtResource("5_a6tec")]
+[node name="IdleAnim" parent="." unique_id=1202010544 instance=ExtResource("5_a6tec")]
 idle_animation_time = 3.0
 idle_animation_random = 4.0
 
-[node name="Falling" parent="." instance=ExtResource("6_vpm0n")]
+[node name="Falling" parent="." unique_id=851820870 instance=ExtResource("6_vpm0n")]
 
-[node name="MovexControlled" parent="." instance=ExtResource("4_57ehd")]
+[node name="MovexControlled" parent="." unique_id=1874237332 instance=ExtResource("4_57ehd")]
 speed = 150.0
 
-[node name="Die" parent="." instance=ExtResource("7_lqqp7")]
+[node name="Die" parent="." unique_id=2053525534 instance=ExtResource("7_lqqp7")]
 
-[node name="State" parent="." groups=["component"] instance=ExtResource("8_em1km")]
+[node name="State" parent="." unique_id=379306825 groups=["component"] instance=ExtResource("8_em1km")]
 
-[node name="FallTroughPlatform" parent="." groups=["component"] instance=ExtResource("9_em1km")]
+[node name="FallTroughPlatform" parent="." unique_id=164430455 groups=["component"] instance=ExtResource("9_em1km")]
 
 [connection signal="animation_finished" from="AnimationPlayer" to="IdleAnim" method="_on_animation_player_animation_finished"]

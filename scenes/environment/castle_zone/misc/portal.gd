@@ -5,11 +5,14 @@ extends Area2D
 @export var door_to_spam: String = ""
 @export var need_to_interact: bool = true
 @export var direction_vector: Vector2 = Vector2.RIGHT
+@export var interactable: bool = true
 
 var need_to_be_exited_before_activating = false
 var player_inside: bool = false
 # Called when the node enters the scene tree for the first time. test22
 func _ready():
+	if interactable:
+		add_to_group("interactable")
 	pass # Replace with function body.
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

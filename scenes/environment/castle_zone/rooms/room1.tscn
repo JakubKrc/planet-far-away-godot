@@ -169,6 +169,7 @@ position = Vector2(147, 215)
 [node name="portal" parent="." unique_id=1094825659 instance=ExtResource("4_hribm")]
 position = Vector2(3, 208)
 door_name = "game_start_portal"
+interactable = false
 
 [node name="Sprite2D" type="Sprite2D" parent="portal" unique_id=2142340885]
 position = Vector2(1, -15)
@@ -274,5 +275,5 @@ door_to_spam = "level_3"
 position = Vector2(0, -3)
 texture = ExtResource("5_pdfq7")
 
-[node name="MainChar" parent="." unique_id=2024430060 instance=ExtResource("15_o5tj0")]
-position = Vector2(-200, 117)
+[node name="MainChar" parent="." unique_id=1323154113 instance=ExtResource("15_o5tj0")]
+position = Vector2(2, 208)

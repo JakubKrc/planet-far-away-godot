@@ -53,6 +53,33 @@ run_instantly = true
 texture = ExtResource("2_2tvq0")
 centered = false
 
+[node name="Label" type="Label" parent="bg" unique_id=126369987]
+offset_left = 127.0
+offset_top = 141.0
+offset_right = 192.0
+offset_bottom = 175.0
+theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
+theme_override_font_sizes/font_size = 24
+text = "Start"
+
+[node name="Label2" type="Label" parent="bg" unique_id=792341327]
+offset_left = 125.0
+offset_top = 102.0
+offset_right = 231.0
+offset_bottom = 136.0
+theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
+theme_override_font_sizes/font_size = 24
+text = "Continue"
+
+[node name="Label3" type="Label" parent="bg" unique_id=943951694]
+offset_left = 127.0
+offset_top = 184.0
+offset_right = 192.0
+offset_bottom = 218.0
+theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
+theme_override_font_sizes/font_size = 24
+text = "Exit"
+
 [node name="selector" type="Sprite2D" parent="." unique_id=1004460188]
 position = Vector2(108, 150)
 texture = ExtResource("3_s2pw5")
@@ -76,32 +103,5 @@ color = Color(0, 0, 0, 1)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1664260034]
 libraries/ = SubResource("AnimationLibrary_bbw0x")
-
-[node name="Label" type="Label" parent="." unique_id=126369987]
-offset_left = 127.0
-offset_top = 103.0
-offset_right = 192.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
-theme_override_font_sizes/font_size = 24
-text = "Start"
-
-[node name="Label2" type="Label" parent="." unique_id=792341327]
-offset_left = 127.0
-offset_top = 141.0
-offset_right = 233.0
-offset_bottom = 175.0
-theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
-theme_override_font_sizes/font_size = 24
-text = "Continue"
-
-[node name="Label3" type="Label" parent="." unique_id=943951694]
-offset_left = 127.0
-offset_top = 184.0
-offset_right = 192.0
-offset_bottom = 218.0
-theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
-theme_override_font_sizes/font_size = 24
-text = "Exit"
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

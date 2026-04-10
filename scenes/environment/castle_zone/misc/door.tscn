@@ -1,16 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://bfnj6k4i271ee"]
+[gd_scene format=3 uid="uid://bfnj6k4i271ee"]
 
 [ext_resource type="Script" uid="uid://bs08ibe8pctrs" path="res://scenes/environment/castle_zone/misc/portal.gd" id="1_7fih2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_efdxy"]
 size = Vector2(10, 26)
 
-[node name="portal" type="Area2D" groups=["door", "interactable"]]
+[node name="portal" type="Area2D" unique_id=2001360482 groups=["door"]]
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_7fih2")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1734726352]
 position = Vector2(0, 3)
 shape = SubResource("RectangleShape2D_efdxy")
 
