@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://jvao2rj0qist"]
+
+[ext_resource type="Texture2D" uid="uid://bq6y0q1dt4lde" path="res://scenes/common/items/potion.png" id="1_f4g14"]
+[ext_resource type="Script" uid="uid://bbs7mlyheen3u" path="res://items/item_data.gd" id="1_potion"]
+
+[resource]
+script = ExtResource("1_potion")
+id = "test_potion"
+item_name = "Potion"
+description = "Restores health."
+icon = ExtResource("1_f4g14")
+is_wearable = true

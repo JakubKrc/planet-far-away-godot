@@ -29,6 +29,8 @@ var _equipment: EquipmentComponent = null
 var _drag_item:   ItemData = null
 var _drag_src:    String   = ""   # "primary" | "secondary" | "equip"
 var _drag_src_slot: int = -1
+var _drag_offset: Vector2 = Vector2.ZERO      # pixel offset for smooth ghost drawing
+var _drag_cell_offset: Vector2i = Vector2i.ZERO  # which cell of the item was grabbed
 
 var _mouse: Vector2
 var _hover_tip: ItemData = null
@@ -55,12 +57,11 @@ func _ready():
 
 # ── Open / close ──────────────────────────────────────────────────
 
-func open(primary: InventoryComponent,
-		  secondary: InventoryComponent = null,
-		  equipment: EquipmentComponent = null):
+func open(primary: InventoryComponent, secondary: InventoryComponent = null):
 	_primary   = primary
 	_secondary = secondary
-	_equipment = equipment
+	var eq = primary.get_parent().get_node_or_null("EquipmentComponent") as EquipmentComponent
+	_equipment = eq if (eq != null and eq.active) else null
 	_dual      = secondary != null
 	_compute_layout()
 	show()
@@ -118,12 +119,17 @@ func _compute_layout():
 # ── Pickup (from ground) ──────────────────────────────────────────
 
 func pick_up(item: ItemData) -> bool:
-	if _primary == null:
+	var target = _primary
+	if target == null:
+		var player = get_tree().get_first_node_in_group("player")
+		if player:
+			target = player.get_node_or_null("InventoryComponent") as InventoryComponent
+	if target == null:
 		return false
-	var pos = _primary.find_free_slot(item)
+	var pos = target.find_free_slot(item)
 	if pos == Vector2i(-1, -1):
 		return false
-	_primary.place(item, pos)
+	target.place(item, pos)
 	if visible:
 		_control.queue_redraw()
 	return true
@@ -140,9 +146,8 @@ func _input(event: InputEvent):
 				var player = get_tree().get_first_node_in_group("player")
 				if player:
 					var inv = player.get_node_or_null("InventoryComponent")
-					var eq  = player.get_node_or_null("EquipmentComponent")
 					if inv:
-						open(inv, null, eq)
+						open(inv)
 			get_viewport().set_input_as_handled()
 			return
 
@@ -210,6 +215,9 @@ func _lmb_down(mouse: Vector2):
 	if gp != Vector2i(-1, -1):
 		var item = _primary.get_at(gp)
 		if item:
+			var item_pos = _primary.get_pos(item)
+			_drag_offset = mouse - (_pri_origin + Vector2(item_pos) * CELL)
+			_drag_cell_offset = gp - item_pos
 			_primary.remove(item)
 			_pick_from(item, "primary")
 			_control.queue_redraw()
@@ -220,6 +228,9 @@ func _lmb_down(mouse: Vector2):
 		if gp2 != Vector2i(-1, -1):
 			var item = _secondary.get_at(gp2)
 			if item:
+				var item_pos = _secondary.get_pos(item)
+				_drag_offset = mouse - (_sec_origin + Vector2(item_pos) * CELL)
+				_drag_cell_offset = gp2 - item_pos
 				_secondary.remove(item)
 				_pick_from(item, "secondary")
 				_control.queue_redraw()
@@ -229,6 +240,8 @@ func _lmb_down(mouse: Vector2):
 	if es >= 0 and _equipment:
 		var item = _equipment.equipped[es]
 		if item:
+			_drag_offset = mouse - _equip_rects[es].position
+			_drag_cell_offset = Vector2i.ZERO
 			_equipment.unequip(es)
 			_pick_from(item, "equip", es)
 			_control.queue_redraw()
@@ -239,8 +252,9 @@ func _lmb_up(mouse: Vector2):
 	var item = _drag_item
 	_drag_item = null
 
-	# Try drop on primary grid
-	var gp = _grid_pos(mouse, _primary, _pri_origin)
+	# Try drop on primary grid — cell under mouse minus which cell was grabbed
+	var cell = _grid_pos(mouse, _primary, _pri_origin)
+	var gp = cell - _drag_cell_offset if cell != Vector2i(-1, -1) else Vector2i(-1, -1)
 	if gp != Vector2i(-1, -1):
 		var target = _primary.get_at(gp)
 		if target != null and target != item:
@@ -261,7 +275,8 @@ func _lmb_up(mouse: Vector2):
 
 	# Try drop on secondary grid
 	if _dual:
-		var gp2 = _grid_pos(mouse, _secondary, _sec_origin)
+		var cell2 = _grid_pos(mouse, _secondary, _sec_origin)
+		var gp2 = cell2 - _drag_cell_offset if cell2 != Vector2i(-1, -1) else Vector2i(-1, -1)
 		if gp2 != Vector2i(-1, -1):
 			var target = _secondary.get_at(gp2)
 			if target != null and target != item:
@@ -411,13 +426,17 @@ func _draw_equip_slots():
 				C_TXT * Color(1, 1, 1, 0.3))
 
 func _draw_grid(inv: InventoryComponent, origin: Vector2):
-	var hover_gp = _grid_pos(_mouse, inv, origin)
+	# When dragging, top-left = cell under mouse minus which cell was grabbed
+	var tl = Vector2i(-1, -1)
+	if _drag_item != null:
+		var c = _grid_pos(_mouse, inv, origin)
+		if c != Vector2i(-1, -1):
+			tl = c - _drag_cell_offset
 	for gy in inv.rows:
 		for gx in inv.cols:
 			var rect = Rect2(origin + Vector2(gx * CELL, gy * CELL), Vector2(CELL, CELL))
 			var col = C_CELL
-			if _drag_item != null and hover_gp != Vector2i(-1, -1):
-				var tl = hover_gp
+			if _drag_item != null and tl != Vector2i(-1, -1):
 				if gx >= tl.x and gx < tl.x + _drag_item.grid_size.x and \
 				   gy >= tl.y and gy < tl.y + _drag_item.grid_size.y:
 					col = C_CELL_OK if inv.can_place(_drag_item, tl) else C_CELL_BAD
@@ -441,23 +460,31 @@ func _draw_equipped():
 			_draw_item_in_rect(item, _equip_rects[i])
 
 func _draw_item_in_rect(item: ItemData, rect: Rect2):
-	if item.icon:
-		_control.draw_texture_rect(item.icon, rect, false)
+	var tex = item.get_icon()
+	if tex:
+		var icon_size = tex.get_size()
+		if icon_size.x <= rect.size.x and icon_size.y <= rect.size.y:
+			var pos = (rect.position + (rect.size - icon_size) / 2.0).floor()
+			_control.draw_texture(tex, pos)
+		else:
+			_control.draw_texture_rect(tex, rect, false)
 	else:
 		_control.draw_rect(rect.grow(-1), C_ITEM)
-	var max_chars = int(rect.size.x / 5)
-	var label = item.item_name.substr(0, max_chars)
-	_control.draw_string(ThemeDB.fallback_font,
-		rect.position + Vector2(1, 8),
-		label, HORIZONTAL_ALIGNMENT_LEFT, -1, 6, C_TXT)
+	if not tex:
+		var max_chars = int(rect.size.x / 5)
+		var label = item.item_name.substr(0, max_chars)
+		_control.draw_string(ThemeDB.fallback_font,
+			rect.position + Vector2(1, 8),
+			label, HORIZONTAL_ALIGNMENT_LEFT, -1, 6, C_TXT)
 
 func _draw_drag_ghost():
 	if _drag_item == null:
 		return
 	var size = Vector2(_drag_item.grid_size) * CELL
-	var rect = Rect2(_mouse - size / 2.0, size)
-	if _drag_item.icon:
-		_control.draw_texture_rect(_drag_item.icon, rect, false, C_ITEM_DRAG)
+	var rect = Rect2(_mouse - _drag_offset, size)
+	var tex = _drag_item.get_icon()
+	if tex:
+		_control.draw_texture_rect(tex, rect, false, C_ITEM_DRAG)
 	else:
 		_control.draw_rect(rect, C_ITEM_DRAG)
 
@@ -466,8 +493,9 @@ func _draw_tooltip():
 	if tip == null or _drag_item != null:
 		return
 	var lines: Array = [tip.item_name]
-	if tip.item_type != "":
-		lines.append("[" + tip.item_type + "]")
+	if tip.is_wearable:
+		var type_tag = tip.item_type if tip.item_type != "" else "wearable"
+		lines.append("[" + type_tag + "]")
 	if tip.description != "":
 		lines.append(tip.description)
 	var font = ThemeDB.fallback_font

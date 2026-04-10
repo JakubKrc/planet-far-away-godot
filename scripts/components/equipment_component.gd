@@ -2,6 +2,7 @@ class_name EquipmentComponent
 extends Node
 
 @export var slots: int = 4
+@export var active: bool = true  # false = has gear but bonuses don't apply (NPC, enemy)
 
 var equipped: Array = []  # [ItemData or null] x slots
 
@@ -10,7 +11,7 @@ func _ready():
 	equipped.fill(null)
 
 func can_equip(item: ItemData) -> bool:
-	if item.item_type == "":
+	if not item.is_wearable:
 		return false
 	for e in equipped:
 		if e != null and e != item and e.item_type == item.item_type:

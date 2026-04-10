@@ -9,6 +9,10 @@ var _placements: Dictionary = {}  # ItemData -> Vector2i (top-left)
 
 func _ready():
 	_init_grid()
+	if OS.is_debug_build():
+		var dbg = load("res://items/test_key.tres") as ItemData
+		if dbg:
+			place(dbg, Vector2i(0, 0))
 
 func _init_grid():
 	_grid.clear()

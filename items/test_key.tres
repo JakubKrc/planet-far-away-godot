@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://bbs7mlyheen3u" path="res://items/item_data.gd" id="1_key"]
+
+[resource]
+script = ExtResource("1_key")
+id = "test_key"
+item_name = "Key"
+description = "Opens something."
+grid_size = Vector2i(1, 1)
+item_type = ""
