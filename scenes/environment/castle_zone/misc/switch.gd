@@ -27,6 +27,10 @@ func _ready():
 func _emit_initial():
 	emit_signal("activated")
 
+func _process(_delta):
+	if what_to_posses:
+		which_anim_to_play()
+
 func _on_body_entered(body):
 	if body.is_in_group(interact_group):  
 		player_inside = true
@@ -36,11 +40,13 @@ func _on_body_exited(body):
 		player_inside = false
 
 func _input(event):
-		
+
 	if player_inside and event.is_action_pressed("use"):
 		for body in area2d.get_overlapping_bodies():
 			if body.is_in_group("player"):
-				if switch_state:
+				if what_to_posses:
+					switch_switch(true)
+				elif switch_state:
 					switch_switch(false)
 				else:
 					switch_switch(true)
@@ -48,6 +54,10 @@ func _input(event):
 func switch_switch(set_to: bool):
 	if !repeatable_action && was_used:
 		return
+	if what_to_posses and set_to:
+		var target = get_tree().get_first_node_in_group(what_to_posses)
+		if target != null and target.is_in_group("player"):
+			return
 	was_used=true
 	if !repeatable_action:
 		get_node("Switch_area").remove_from_group("interactable")
@@ -99,9 +109,16 @@ func change_controlled_char():
 					
 		Global.controlled_char.get_parent().remove_child(Global.controlled_char)
 		get_node("/root/main").add_child(Global.controlled_char)
-			
+		which_anim_to_play()
+
 func which_anim_to_play():
-	if(switch_state):
+	if what_to_posses:
+		var in_possession_mode = Global.controlled_char != null and not Global.controlled_char.is_in_group("main_char")
+		if in_possession_mode:
+			play_animation(animation_active)
+		else:
+			play_animation(animation_not_active)
+	elif switch_state:
 		play_animation(animation_active)
 	else:
 		play_animation(animation_not_active)
