@@ -77,7 +77,9 @@ func switch_switch(set_to: bool):
 			else:
 				emit_signal("deactivated")
 			change_controlled_char()
-	
+
+	signal_was_used = false
+
 func play_animation(anim_name: String):
 	if has_node("AnimationPlayer"):
 		var anim = get_node("AnimationPlayer")
