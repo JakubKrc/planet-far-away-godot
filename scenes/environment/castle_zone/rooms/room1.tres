@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://bcu1103yoouvr"]
+[gd_resource type="TileSet" format=3 uid="uid://bcu1103yoouvr"]
 
 [ext_resource type="Texture2D" uid="uid://d3g0t17agsqde" path="res://scenes/environment/castle_zone/tilesets/tilesbrick.png" id="1_skea6"]
 [ext_resource type="Texture2D" uid="uid://cclylt5e7qjgk" path="res://scenes/environment/castle_zone/tilesets/testtiles.png" id="2_ijfsw"]

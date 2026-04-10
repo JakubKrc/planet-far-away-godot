@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://quek18lwasfk"]
+[gd_scene format=3 uid="uid://quek18lwasfk"]
 
 [ext_resource type="Script" uid="uid://bgjsabfhkc6yw" path="res://ui/main_menu/menu.gd" id="1_5rqr2"]
 [ext_resource type="Texture2D" uid="uid://b7wq0m2shupvc" path="res://ui/main_menu/menubg.png" id="2_2tvq0"]
@@ -42,27 +42,30 @@ _data = {
 &"fade_out": SubResource("Animation_eto60")
 }
 
-[node name="main_menu_canvas" type="CanvasLayer"]
+[node name="main_menu_canvas" type="CanvasLayer" unique_id=699505879]
 process_mode = 2
 script = ExtResource("1_5rqr2")
+start_level_path = "uid://dxvqsse58eyqb"
+start_level_portal_name = "portal_1"
+run_instantly = true
 
-[node name="bg" type="Sprite2D" parent="."]
+[node name="bg" type="Sprite2D" parent="." unique_id=1644592638]
 texture = ExtResource("2_2tvq0")
 centered = false
 
-[node name="selector" type="Sprite2D" parent="."]
+[node name="selector" type="Sprite2D" parent="." unique_id=1004460188]
 position = Vector2(108, 150)
 texture = ExtResource("3_s2pw5")
 
-[node name="Timer" type="Timer" parent="."]
+[node name="Timer" type="Timer" parent="." unique_id=1598637296]
 one_shot = true
 
-[node name="MenuStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="MenuStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1459425357]
 stream = ExtResource("5_gjsov")
 volume_db = 13.0
 autoplay = true
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=105411111]
 modulate = Color(1, 1, 1, 0)
 anchors_preset = 15
 anchor_right = 1.0
@@ -71,9 +74,34 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-"": SubResource("AnimationLibrary_bbw0x")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1664260034]
+libraries/ = SubResource("AnimationLibrary_bbw0x")
+
+[node name="Label" type="Label" parent="." unique_id=126369987]
+offset_left = 127.0
+offset_top = 103.0
+offset_right = 192.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
+theme_override_font_sizes/font_size = 24
+text = "Start"
+
+[node name="Label2" type="Label" parent="." unique_id=792341327]
+offset_left = 127.0
+offset_top = 141.0
+offset_right = 233.0
+offset_bottom = 175.0
+theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
+theme_override_font_sizes/font_size = 24
+text = "Continue"
+
+[node name="Label3" type="Label" parent="." unique_id=943951694]
+offset_left = 127.0
+offset_top = 184.0
+offset_right = 192.0
+offset_bottom = 218.0
+theme_override_colors/font_color = Color(0.20685256, 0.3526886, 0.20090616, 1)
+theme_override_font_sizes/font_size = 24
+text = "Exit"
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

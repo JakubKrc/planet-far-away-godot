@@ -64,7 +64,62 @@ var controlled_char : Node
 var current_level : String
 
 var per_level_save : Dictionary
-#var saved_char_states : Dictionary
+
+const SAVE_PATH = "user://save.json"
+
+func has_save() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
+
+func save_game(spawn_position: Vector2):
+	var char_home_level := ""
+	if controlled_char != null and "home_level" in controlled_char:
+		char_home_level = str(controlled_char.home_level)
+	var data = {
+		"current_level": current_level,
+		"spawn_position": [spawn_position.x, spawn_position.y],
+		"possessed_char_name": str(controlled_char.name) if controlled_char != null else "",
+		"possessed_char_home_level": char_home_level,
+		"per_level_save": _serialize_save(per_level_save),
+	}
+	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify(data))
+	file.close()
+	if OS.get_name() == "Web":
+		JavaScriptBridge.eval("Module['FS'].syncfs(false, function(err) {})")
+
+func load_game() -> Dictionary:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return {}
+	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var result = JSON.parse_string(file.get_as_text())
+	file.close()
+	if result == null:
+		return {}
+	per_level_save = _deserialize_save(result.get("per_level_save", {}))
+	return result
+
+func _serialize_save(dict: Dictionary) -> Dictionary:
+	var out = {}
+	for level in dict:
+		out[level] = {}
+		for node_name in dict[level]:
+			var d: Dictionary = dict[level][node_name].duplicate()
+			if d.has("position"):
+				d["position"] = [d["position"].x, d["position"].y]
+			out[level][node_name] = d
+	return out
+
+func _deserialize_save(dict: Dictionary) -> Dictionary:
+	var out = {}
+	for level in dict:
+		out[level] = {}
+		for node_name in dict[level]:
+			var d: Dictionary = dict[level][node_name].duplicate()
+			if d.has("position"):
+				var p = d["position"]
+				d["position"] = Vector2(p[0], p[1])
+			out[level][node_name] = d
+	return out
 
 func _ready():
 	level_transition_started.connect(_on_transition_started)

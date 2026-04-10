@@ -24,6 +24,7 @@ process_mode = 0
 start_level_path = "uid://cmfspcmyrs45p"
 start_level_portal_name = "game_start_portal"
 start_possessed_char = "main_char"
+run_instantly = false
 
 [node name="DeathMenu" parent="." unique_id=1354511146 instance=ExtResource("4_v0otc")]
 

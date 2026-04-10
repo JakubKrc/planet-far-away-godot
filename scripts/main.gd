@@ -31,24 +31,19 @@ func _process(_delta):
 	
 func load_mainchar(where_to_set_character: Vector2, direction_vector: Vector2):
 	var character = get_tree().get_first_node_in_group("player")
-	print("=== load_mainchar ===")
-	print("  player found: ", character)
-	print("  door pos: ", where_to_set_character)
 	if character == null:
-		print("  ERROR: no node in player group!")
 		return
 	Global.controlled_char = character
 	enable_node(character)
 	character.global_position = where_to_set_character
 	character.velocity = direction_vector
-	print("  char visible: ", character.visible)
-	print("  char pos after set: ", character.global_position)
 	Global.camera.position_smoothing_enabled = false
 	Global.camera.global_position = where_to_set_character
 	await get_tree().process_frame
 	Global.camera.position_smoothing_enabled = true
 	
-func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1, initial_possess_group: String = ""):
+func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1, initial_possess_group: String = "", spawn_override: Vector2 = Vector2.ZERO):
+	print("=== load_level called: ", level_path, " | door: ", door_name, " | spawn_override: ", spawn_override)
 	# Normalize UID paths to file paths so keys are consistent
 	if level_path.begins_with("uid://"):
 		var uid_int = ResourceUID.text_to_id(level_path)
@@ -56,10 +51,11 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 			level_path = ResourceUID.get_id_path(uid_int)
 
 	if level_path=='':
+		print("  ERROR: level_path is empty, aborting")
 		return
 
 	if not ResourceLoader.exists(level_path):
-		print("Level %s dont exist." % level_path);
+		print("  ERROR: Level %s dont exist." % level_path);
 		return
 		
 	save_current_level()
@@ -86,6 +82,13 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 
 	if initial_possess_group != "":
 		var char_to_possess = get_tree().get_first_node_in_group(initial_possess_group)
+		# Fallback: find by node name in the save group (in case char isn't in a named group)
+		if char_to_possess == null:
+			for node in get_tree().get_nodes_in_group("save"):
+				if str(node.name) == initial_possess_group:
+					char_to_possess = node
+					break
+		print("  initial_possess_group '", initial_possess_group, "' -> ", char_to_possess)
 		if char_to_possess:
 			char_to_possess.add_to_group("player")
 			char_to_possess.is_default_char = true
@@ -101,21 +104,19 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 	else:
 		backgroundMusicPlayer.playMusic(levelMusic[0].song, 0)
 
-	var door_position := Vector2.ZERO
-	var door_direction := Vector2.ZERO
-	var print_warning: bool = true
-	for door in get_tree().get_nodes_in_group("door"):
-		if door.door_name == door_name:
-			door.need_to_be_exited_before_activating = true
-			door_position = door.global_position
-			door_direction = door.direction_vector
-			print_warning = false
-			break
+	var spawn_position := spawn_override
+	if spawn_position == Vector2.ZERO:
+		var print_warning: bool = true
+		for door in get_tree().get_nodes_in_group("door"):
+			if door.door_name == door_name:
+				door.need_to_be_exited_before_activating = true
+				spawn_position = door.global_position
+				print_warning = false
+				break
+		if print_warning:
+			print("Portal %s are not in the level %s" % [door_name, level_path])
 
-	if print_warning:
-		print("Portal %s are not in the level %s" % [door_name, level_path])
-
-	await load_mainchar(door_position, door_direction)
+	await load_mainchar(spawn_position, Vector2.ZERO)
 	
 func save_current_level():
 	var level_path = Global.current_level
@@ -150,7 +151,6 @@ func save_current_level():
 	
 func restore_current_level():
 	var level_path = Global.current_level
-	print("=== restore_current_level: ", level_path, " ===")
 
 	# Free fresh-scene duplicates of characters already at /root/main/
 	for node in get_tree().get_nodes_in_group("save"):
@@ -159,16 +159,9 @@ func restore_current_level():
 		if not ("home_level" in node):
 			continue
 		if get_node_or_null("/root/main/" + node.name) != null:
-			print("  freeing duplicate: ", node.get_path())
 			node.remove_from_group("player")
 			node.get_parent().remove_child(node)
 			node.queue_free()
-
-	print("  nodes at /root/main/ in save group:")
-	for node in get_tree().get_nodes_in_group("save"):
-		var p = str(node.get_path())
-		if not p.contains("/main2D/"):
-			print("    ", node.name, " | player=", node.is_in_group("player"), " | home_level=", node.home_level if "home_level" in node else "N/A", " | visible=", node.visible)
 
 	var level_data = Global.per_level_save.get(level_path, {})
 
