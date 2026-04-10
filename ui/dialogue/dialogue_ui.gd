@@ -87,20 +87,23 @@ func _update_selection():
 	for i in children.size():
 		children[i].modulate = Color(1, 1, 0) if i == _selection else Color(1, 1, 1)
 
-func _process(_delta):
+func _unhandled_input(event: InputEvent):
 	if not visible:
 		return
 	var count = choices_container.get_child_count()
 	if count == 0:
 		return
-	if Input.is_action_just_pressed("ui_down"):
+	if event.is_action_pressed("ui_down"):
 		_selection = (_selection + 1) % count
 		_update_selection()
-	if Input.is_action_just_pressed("ui_up"):
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_up"):
 		_selection = (_selection - 1 + count) % count
 		_update_selection()
-	if Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("use"):
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("use"):
 		_advance()
+		get_viewport().set_input_as_handled()
 
 func _input(event: InputEvent):
 	if not visible:

@@ -1,18 +1,22 @@
 {
 	"start": {
-		"speaker": "Guard",
-		"text": "Halt. The east gate is locked.",
+		"speaker": "Troguon",
+		"text": "Hey there. What are you doing here?",
 		"choices": [
 			{
-				"text": "I have a key card.",
-				"requires": { "key_card": 1 },
-				"removes": { "key_card": 1 },
-				"next": "used_key"
+				"text": "I have no idea. I want to go out!",
+				"requires_not": { "spare_part": 1 },
+				"next": "quest"
 			},
 			{
-				"text": "Can you let me through?",
-				"requires_not": { "key_card": 1 },
-				"next": "no_key"
+				"text": "So i have that spare part!",
+				"requires": { "spare_part": 1 },
+				"removes": { "spare_part": 1 },
+				"next": "give_card"
+			},
+			{
+				"text": "What is this place?",
+				"next": "what"
 			},
 			{
 				"text": "Never mind.",
@@ -20,28 +24,44 @@
 			}
 		]
 	},
-	"used_key": {
-		"speaker": "Guard",
-		"text": "That checks out. Go ahead.",
-		"choices": []
-	},
-	"no_key": {
-		"speaker": "Guard",
-		"text": "Find a key card and come back.",
+	"quest": {
+		"speaker": "Troguon",
+		"text": "I have this blue keycard. I think i spotted blue door somewhere. Maybe it fits. But i want spare part for my robot! If you can make to self destruct that flying one by giving that part out, I give it to you.",
 		"choices": [
 			{
-				"text": "Where can I find one?",
-				"next": "hint"
+				"text": "OK i guess...",
+				"next": null
 			},
 			{
-				"text": "Fine.",
+				"text": "Hm. No.",
+				"next": "i_wont"
+			}
+		]
+	},
+	"give_card": {
+		"speaker": "Troguon",
+		"text": "Here your card to freedom! Or not. I never tried it.",
+		"choices": [
+			{
+				"text": "Thank you so so much!!!!!!!",
+				"gives": { "res://items/blue_key.tres": 1 },
 				"next": null
 			}
 		]
 	},
-	"hint": {
-		"speaker": "Guard",
-		"text": "Try the storage room to the west.",
+	"i_wont": {
+		"speaker": "Troguon",
+		"text": "You will be stuck in this extremely boring place forever. Like me.",
+		"choices": [
+			{
+				"text": "...",
+				"next": null
+			}
+		]
+	},
+	"what": {
+		"speaker": "Troguon",
+		"text": "It seems to be eternal and boring. Doguon thinks its torture chamber, but i think its fragment of imagination of some mild mind.",
 		"choices": []
 	}
 }

@@ -14,6 +14,7 @@ func _ready():
 
 func _input(event):
 	if player_inside and event.is_action_pressed("use") and Global.can_player_move:
+		get_viewport().set_input_as_handled()
 		Global.dialogue.start(dialogue_file)
 
 func _on_body_entered(body):
