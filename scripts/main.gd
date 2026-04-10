@@ -30,22 +30,34 @@ func _process(_delta):
 		get_tree().paused = true;
 	
 func load_mainchar(where_to_set_character: Vector2, direction_vector: Vector2):
-	
 	var character = get_tree().get_first_node_in_group("player")
+	print("=== load_mainchar ===")
+	print("  player found: ", character)
+	print("  door pos: ", where_to_set_character)
+	if character == null:
+		print("  ERROR: no node in player group!")
+		return
 	Global.controlled_char = character
-	character.global_position = where_to_set_character;
-	character.visible=true
+	enable_node(character)
+	character.global_position = where_to_set_character
 	character.velocity = direction_vector
+	print("  char visible: ", character.visible)
+	print("  char pos after set: ", character.global_position)
 	Global.camera.position_smoothing_enabled = false
-	Global.camera.global_position = where_to_set_character;
+	Global.camera.global_position = where_to_set_character
 	await get_tree().process_frame
 	Global.camera.position_smoothing_enabled = true
 	
-func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1):
-	
+func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1, initial_possess_group: String = ""):
+	# Normalize UID paths to file paths so keys are consistent
+	if level_path.begins_with("uid://"):
+		var uid_int = ResourceUID.text_to_id(level_path)
+		if ResourceUID.has_id(uid_int):
+			level_path = ResourceUID.get_id_path(uid_int)
+
 	if level_path=='':
 		return
-		
+
 	if not ResourceLoader.exists(level_path):
 		print("Level %s dont exist." % level_path);
 		return
@@ -67,82 +79,142 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 		main2D.call_deferred("add_child",level_instance)
 		await get_tree().process_frame
 				
-	var doors = get_tree().get_nodes_in_group("door")
-	var print_warning: bool = true
-	for door in doors:
-		if door.door_name == door_name:
-			door.need_to_be_exited_before_activating = true;
-			load_mainchar(door.global_position, door.direction_vector)
-			print_warning = false
-			break
+	Global.current_level = level_path
+	for node in get_tree().get_nodes_in_group("save"):
+		if str(node.get_path()).contains("/main2D/") and "home_level" in node:
+			node.home_level = level_path
 
-	if  print_warning:
-		print("Portal %s are not in the level %s" % [door_name, level_path])
-		
+	if initial_possess_group != "":
+		var char_to_possess = get_tree().get_first_node_in_group(initial_possess_group)
+		if char_to_possess:
+			char_to_possess.add_to_group("player")
+			char_to_possess.is_default_char = true
+			Global.controlled_char = char_to_possess
+			char_to_possess.get_parent().remove_child(char_to_possess)
+			add_child(char_to_possess)
+
+	restore_current_level()
+
 	var levelMusic = get_tree().get_nodes_in_group('backgroundmusic')
 	if levelMusic.size() == 0:
-		#backgroundMusicPlayer.stop()
-		#backgroundMusicPlayer.stream = null
 		backgroundMusicPlayer.playMusic(null, 0)
 	else:
 		backgroundMusicPlayer.playMusic(levelMusic[0].song, 0)
-			
-	Global.current_level = str(level_instance.name)
-	restore_current_level()
+
+	var door_position := Vector2.ZERO
+	var door_direction := Vector2.ZERO
+	var print_warning: bool = true
+	for door in get_tree().get_nodes_in_group("door"):
+		if door.door_name == door_name:
+			door.need_to_be_exited_before_activating = true
+			door_position = door.global_position
+			door_direction = door.direction_vector
+			print_warning = false
+			break
+
+	if print_warning:
+		print("Portal %s are not in the level %s" % [door_name, level_path])
+
+	await load_mainchar(door_position, door_direction)
 	
 func save_current_level():
 	var level_path = Global.current_level
-	if level_path=="":
+	if level_path == "":
 		return
-	
-	if not Global.per_level_save.has(level_path):
-		Global.per_level_save[level_path] = {}
-	
+
 	for node in get_tree().get_nodes_in_group("save"):
-		Global.per_level_save[level_path][node.name] = {
-			"node_adress": node.get_path(),
-			"position": node.global_position,
-			"health": node.health,
-			"disabled": !node.visible,
-		}
-		
-	print(Global.per_level_save)
+		if node.is_in_group("player"):
+			continue
+
+		var node_path = str(node.get_path())
+		var target_level: String
+
+		if node_path.contains("/main2D/"):
+			target_level = level_path
+		elif "home_level" in node and node.home_level != "":
+			target_level = node.home_level
+		else:
+			continue
+
+		if not Global.per_level_save.has(target_level):
+			Global.per_level_save[target_level] = {}
+
+		var data = {"position": node.global_position, "disabled": !node.visible}
+		if "health" in node:       data["health"]       = node.health
+		if "switch_state" in node: data["switch_state"] = node.switch_state
+		if "was_used" in node:     data["was_used"]     = node.was_used
+
+		Global.per_level_save[target_level][node.name] = data
 	
 func restore_current_level():
 	var level_path = Global.current_level
-	
-	if not Global.per_level_save.has(level_path):
-		var all_save_nodes = get_tree().get_nodes_in_group("save")
-		for node in all_save_nodes:
-			if !str(node.get_path()).contains("main2D"):
-				if(!(node.is_in_group("player"))):
-					disable_node(node)
-		return
-	
-	var level_data = Global.per_level_save[level_path]
-	
+	print("=== restore_current_level: ", level_path, " ===")
+
+	# Free fresh-scene duplicates of characters already at /root/main/
 	for node in get_tree().get_nodes_in_group("save"):
-		var data
-		if level_data.has(node.name):
-			data = level_data[node.name]
-			#if str(data.node_adress).contains("main2D"):
-			print("loadujem: ", node.name)
-			node.global_position = data["position"]
-			node.health = data["health"]
-			if node.name == get_tree().get_first_node_in_group("player").name:
-				if !node.is_in_group("player"):
-					node.queue_free()
-		#	if !str(data.node_adress).contains("main2D") && !data.disabled:      #ak je to co loadujem na root
-		#		if !get_node("/root/main/main2D/"+str(Global.current_level)).has_node(NodePath(node.name)):    #a ak neni na leveli ten isty node
-			if data.disabled == true:
+		if not str(node.get_path()).contains("/main2D/"):
+			continue
+		if not ("home_level" in node):
+			continue
+		if get_node_or_null("/root/main/" + node.name) != null:
+			print("  freeing duplicate: ", node.get_path())
+			node.remove_from_group("player")
+			node.get_parent().remove_child(node)
+			node.queue_free()
+
+	print("  nodes at /root/main/ in save group:")
+	for node in get_tree().get_nodes_in_group("save"):
+		var p = str(node.get_path())
+		if not p.contains("/main2D/"):
+			print("    ", node.name, " | player=", node.is_in_group("player"), " | home_level=", node.home_level if "home_level" in node else "N/A", " | visible=", node.visible)
+
+	var level_data = Global.per_level_save.get(level_path, {})
+
+	# Restore level-local nodes (enemies, switches, platforms)
+	if not level_data.is_empty():
+		for node in get_tree().get_nodes_in_group("save"):
+			if node.is_in_group("player") or not node.is_inside_tree():
+				continue
+			if not str(node.get_path()).contains("/main2D/"):
+				continue
+			if not level_data.has(node.name):
+				continue
+			var data = level_data[node.name]
+			if data["disabled"]:
 				disable_node(node)
 			else:
 				enable_node(node)
+				node.global_position = data["position"]
+				if data.has("health"):       node.health      = data["health"]
+				if data.has("switch_state"):
+					node.switch_state = data["switch_state"]
+					if node.has_method("which_anim_to_play"): node.which_anim_to_play()
+				if data.has("was_used"):     node.was_used    = data["was_used"]
 
-func unload_level(): 
+	# Show/hide unpossessed chars at /root/main/ based on their home level
+	for node in get_tree().get_nodes_in_group("save"):
+		if node.is_in_group("player"):
+			continue
+		if str(node.get_path()).contains("/main2D/"):
+			continue
+		if not ("home_level" in node) or node.home_level == "":
+			continue
+		if node.home_level != level_path:
+			disable_node(node)
+			continue
+		# Belongs to this level — restore using saved state
+		var char_data = level_data.get(node.name, {})
+		if char_data.get("disabled", false):
+			disable_node(node)
+		else:
+			enable_node(node)
+			if char_data.has("position"): node.global_position = char_data["position"]
+			if char_data.has("health"):   node.health = char_data["health"]
+
+func unload_level():
 	for child in main2D.get_children():
 		if not child.is_in_group("player"):
-			main2D.call_deferred("remove_child",child)
+			main2D.remove_child(child)
 			child.queue_free()
 
 func disable_node(node: Node):

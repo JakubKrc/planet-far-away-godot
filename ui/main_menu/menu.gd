@@ -8,6 +8,7 @@ extends CanvasLayer
 
 @export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room1.tscn"
 @export var start_level_portal_name: String = 'game_start_portal'
+@export var start_possessed_char: String = ""
 @export var run_instantly : bool = false
 
 var selection = 0
@@ -37,8 +38,7 @@ func _process(_delta):
 	if (Input.is_action_just_pressed("ui_accept") and selection == 0) || run_instantly:
 		Global.game_state = Global.GameState.PLAYING
 		Global.per_level_save.clear()
-		Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1)
-		Global.main.spawn.spawn()
+		Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1, start_possessed_char)
 		#Global.main.spawn2.spawn()
 		get_tree().paused = false
 		animationPlayer.play("fade_out")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://ddicd47q4hmh2"]
+[gd_scene format=3 uid="uid://ddicd47q4hmh2"]
 
 [ext_resource type="PackedScene" uid="uid://quek18lwasfk" path="res://ui/main_menu/menu.tscn" id="1_gvia5"]
 [ext_resource type="Script" uid="uid://bw4q1c5l4f44l" path="res://scripts/main.gd" id="1_i11qp"]
@@ -13,28 +13,29 @@
 
 [sub_resource type="AudioStreamInteractive" id="AudioStreamInteractive_5dr1j"]
 
-[node name="main" type="Node2D"]
+[node name="main" type="Node2D" unique_id=677208013]
 texture_filter = 1
 script = ExtResource("1_i11qp")
 
-[node name="main2D" type="Node2D" parent="."]
+[node name="main2D" type="Node2D" parent="." unique_id=999875523]
 
-[node name="main_menu" parent="." instance=ExtResource("1_gvia5")]
+[node name="main_menu" parent="." unique_id=1416931253 instance=ExtResource("1_gvia5")]
 process_mode = 0
-start_level_path = "uid://bc242uunchr16"
-start_level_portal_name = "portal_1"
+start_level_path = "uid://cmfspcmyrs45p"
+start_level_portal_name = "game_start_portal"
+start_possessed_char = "main_char"
 
-[node name="DeathMenu" parent="." instance=ExtResource("4_v0otc")]
+[node name="DeathMenu" parent="." unique_id=1354511146 instance=ExtResource("4_v0otc")]
 
-[node name="pause_menu" parent="." instance=ExtResource("3_mf4xh")]
+[node name="pause_menu" parent="." unique_id=1660549522 instance=ExtResource("3_mf4xh")]
 visible = false
 
-[node name="Spawn" parent="." instance=ExtResource("2_nhlsy")]
+[node name="Spawn" parent="." unique_id=401562351 instance=ExtResource("2_nhlsy")]
 CHARACTER = "uid://bsbbsbc1rea6q"
 
-[node name="CanvasLayerForTestLabel" type="CanvasLayer" parent="."]
+[node name="CanvasLayerForTestLabel" type="CanvasLayer" parent="." unique_id=716568613]
 
-[node name="OSTestLabel" type="Label" parent="CanvasLayerForTestLabel"]
+[node name="OSTestLabel" type="Label" parent="CanvasLayerForTestLabel" unique_id=2058711118]
 visible = false
 z_index = 50
 offset_left = 1.0
@@ -45,7 +46,7 @@ theme_override_colors/font_color = Color(0.595706, 0.118168, 0, 1)
 theme_override_font_sizes/font_size = 10
 text = "OS"
 
-[node name="G_STAT_TestLabel" type="Label" parent="CanvasLayerForTestLabel"]
+[node name="G_STAT_TestLabel" type="Label" parent="CanvasLayerForTestLabel" unique_id=1257368203]
 visible = false
 z_index = 50
 offset_left = 1.0
@@ -56,44 +57,44 @@ theme_override_colors/font_color = Color(0.595706, 0.118168, 0, 1)
 theme_override_font_sizes/font_size = 10
 text = "G_STAT"
 
-[node name="AudioManager" type="Node" parent="."]
+[node name="AudioManager" type="Node" parent="." unique_id=841931868]
 
-[node name="BackgroundMusicPlayer" type="AudioStreamPlayer" parent="AudioManager"]
+[node name="BackgroundMusicPlayer" type="AudioStreamPlayer" parent="AudioManager" unique_id=1522846746]
 stream = SubResource("AudioStreamInteractive_5dr1j")
 autoplay = true
 script = ExtResource("6_yfde7")
 
-[node name="CanvasLayerForUi" type="CanvasLayer" parent="."]
+[node name="CanvasLayerForUi" type="CanvasLayer" parent="." unique_id=2060382421]
 layer = 0
 
-[node name="HealthBar" parent="CanvasLayerForUi" instance=ExtResource("7_bytmo")]
+[node name="HealthBar" parent="CanvasLayerForUi" unique_id=1824201668 instance=ExtResource("7_bytmo")]
 offset_left = 11.0
 offset_top = 230.0
 offset_right = 61.0
 offset_bottom = 234.0
 
-[node name="HealthBar2" parent="CanvasLayerForUi" instance=ExtResource("7_bytmo")]
+[node name="HealthBar2" parent="CanvasLayerForUi" unique_id=1830780180 instance=ExtResource("7_bytmo")]
 offset_left = 262.0
 offset_top = 230.0
 offset_right = 312.0
 offset_bottom = 234.0
 which_value = 1
 
-[node name="InteractIcon" parent="." instance=ExtResource("8_o4va5")]
+[node name="InteractIcon" parent="." unique_id=2104633134 instance=ExtResource("8_o4va5")]
 z_index = 4096
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1377512847]
 position_smoothing_enabled = true
 script = ExtResource("8_gl0lg")
 
-[node name="FocusManager" type="Node2D" parent="."]
+[node name="FocusManager" type="Node2D" parent="." unique_id=496593326]
 process_mode = 2
 script = ExtResource("9_ragmj")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="FocusManager"]
+[node name="CanvasLayer" type="CanvasLayer" parent="FocusManager" unique_id=545233675]
 layer = 2
 
-[node name="ColorRect" type="ColorRect" parent="FocusManager/CanvasLayer"]
+[node name="ColorRect" type="ColorRect" parent="FocusManager/CanvasLayer" unique_id=1920082961]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -101,7 +102,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.53333336)
 
-[node name="Focus_Message" type="Label" parent="FocusManager/CanvasLayer/ColorRect"]
+[node name="Focus_Message" type="Label" parent="FocusManager/CanvasLayer/ColorRect" unique_id=854382661]
 layout_mode = 0
 offset_left = 37.0
 offset_top = 108.0

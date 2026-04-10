@@ -21,6 +21,9 @@ func _set_health(new_health):
 	if health>max_health:
 		health=max_health
 	
+var home_level: String = ""
+var is_default_char: bool = false
+
 var components = {}
 func _ready():
 	for c in get_children():
