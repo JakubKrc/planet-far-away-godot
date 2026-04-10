@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://c0rxygo0mnmuj" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.tscn" id="13_lrlf8"]
 [ext_resource type="PackedScene" uid="uid://bsbbsbc1rea6q" path="res://scenes/common/characters/main_char/main_char.tscn" id="15_o5tj0"]
 [ext_resource type="PackedScene" path="res://scenes/common/npc/npc.tscn" id="16_8reqi"]
+[ext_resource type="PackedScene" uid="uid://dnx8hvlj8wdf0" path="res://scripts/components/dialogue_trigger.tscn" id="17_5tq3k"]
 
 [sub_resource type="Animation" id="Animation_lrlf8"]
 length = 0.001
@@ -281,8 +282,12 @@ position = Vector2(2, 208)
 
 [node name="NPC" parent="." unique_id=1159736454 instance=ExtResource("16_8reqi")]
 position = Vector2(-112, 212)
+
+[node name="DialogueTrigger2" parent="NPC" unique_id=586025500 instance=ExtResource("17_5tq3k")]
 dialogue_file = "res://dialogue/example.json"
 
 [node name="NPC2" parent="." unique_id=740059605 instance=ExtResource("16_8reqi")]
 position = Vector2(63, 196)
+
+[node name="DialogueTrigger2" parent="NPC2" unique_id=1694577474 instance=ExtResource("17_5tq3k")]
 dialogue_file = "res://dialogue/give_keycard.json"

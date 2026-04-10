@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://npc_base_scene"]
 
 [ext_resource type="Script" path="res://scenes/common/npc/npc.gd" id="1_npcgd"]
+[ext_resource type="Script" path="res://scripts/components/dialogue_trigger.gd" id="2_dlgtrig"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_npc"]
 size = Vector2(16, 24)
@@ -12,3 +13,6 @@ script = ExtResource("1_npcgd")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_npc")
+
+[node name="DialogueTrigger" type="Node" parent="."]
+script = ExtResource("2_dlgtrig")
