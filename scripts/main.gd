@@ -140,9 +140,11 @@ func save_current_level():
 			Global.per_level_save[target_level] = {}
 
 		var data = {"position": node.global_position, "disabled": !node.visible}
-		if "health" in node:       data["health"]       = node.health
-		if "switch_state" in node: data["switch_state"] = node.switch_state
-		if "was_used" in node:     data["was_used"]     = node.was_used
+		if "health" in node:         data["health"]         = node.health
+		if "switch_state" in node:   data["switch_state"]   = node.switch_state
+		if "was_used" in node:       data["was_used"]       = node.was_used
+		if "activated" in node:      data["activated"]      = node.activated
+		if "current_index" in node:  data["current_index"]  = node.current_index
 
 		Global.per_level_save[target_level][node.name] = data
 	
@@ -189,7 +191,9 @@ func restore_current_level():
 				if data.has("switch_state"):
 					node.switch_state = data["switch_state"]
 					if node.has_method("which_anim_to_play"): node.which_anim_to_play()
-				if data.has("was_used"):     node.was_used    = data["was_used"]
+				if data.has("was_used"):      node.was_used      = data["was_used"]
+				if data.has("activated"):     node.activated     = data["activated"]
+				if data.has("current_index"): node.current_index = data["current_index"]
 
 	# Show/hide unpossessed chars at /root/main/ based on their home level
 	for node in get_tree().get_nodes_in_group("save"):
