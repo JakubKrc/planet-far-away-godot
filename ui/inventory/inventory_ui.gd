@@ -6,6 +6,7 @@ const EQUIP_SLOT  = 32
 const PAD         = 8
 const EQUIP_GAP   = 4
 const SEP         = 6    # gap between equip and grid; between dual grids
+const DROP_H      = CELL # height of the drop-to-ground strip
 
 # Colors
 const C_BG        = Color(0.08, 0.08, 0.12, 0.96)
@@ -40,6 +41,7 @@ var _panel:       Rect2
 var _pri_origin:  Vector2
 var _sec_origin:  Vector2   # valid only in dual mode
 var _equip_rects: Array     # [Rect2] x 4
+var _drop_rect:   Rect2     # drop-to-ground zone below equip slots
 var _dual:        bool = false
 
 signal item_thrown(item: ItemData, world_pos: Vector2)
@@ -84,9 +86,10 @@ func _compute_layout():
 	var equip_rows = 2
 	var eq_w = equip_cols * EQUIP_SLOT + (equip_cols - 1) * EQUIP_GAP
 	var eq_h = equip_rows * EQUIP_SLOT + (equip_rows - 1) * EQUIP_GAP
+	var equip_block_h = eq_h + EQUIP_GAP + DROP_H
 	var grid_w = _primary.cols * CELL
 	var grid_h = _primary.rows * CELL
-	var panel_h = max(eq_h, grid_h) + PAD * 2
+	var panel_h = max(equip_block_h, grid_h) + PAD * 2
 
 	var panel_w: int
 	if _dual:
@@ -99,7 +102,7 @@ func _compute_layout():
 	var pp = ((vp - Vector2(panel_w, panel_h)) / 2.0).floor()
 	_panel = Rect2(pp, Vector2(panel_w, panel_h))
 
-	var eq_origin = pp + Vector2(PAD, (panel_h - eq_h) / 2.0).floor()
+	var eq_origin = pp + Vector2(PAD, (panel_h - equip_block_h) / 2.0).floor()
 	_equip_rects = []
 	for i in 4:
 		@warning_ignore("integer_division")
@@ -109,6 +112,8 @@ func _compute_layout():
 			eq_origin + Vector2(col * (EQUIP_SLOT + EQUIP_GAP),
 								row * (EQUIP_SLOT + EQUIP_GAP)),
 			Vector2(EQUIP_SLOT, EQUIP_SLOT)))
+
+	_drop_rect = Rect2(eq_origin + Vector2(0, eq_h + EQUIP_GAP), Vector2(eq_w, DROP_H))
 
 	_pri_origin = pp + Vector2(PAD + eq_w + SEP,
 							   (panel_h - grid_h) / 2.0).floor()
@@ -311,6 +316,12 @@ func _lmb_up(mouse: Vector2):
 		_control.queue_redraw()
 		return
 
+	# Drop zone → throw to ground
+	if _drop_rect.has_point(mouse):
+		_throw(item)
+		_control.queue_redraw()
+		return
+
 	# Outside panel → throw
 	if not _panel.has_point(mouse):
 		_throw(item)
@@ -391,6 +402,7 @@ func _on_draw():
 		return
 	_draw_panel()
 	_draw_equip_slots()
+	_draw_drop_zone()
 	_draw_grid(_primary, _pri_origin)
 	if _dual:
 		_draw_grid(_secondary, _sec_origin)
@@ -418,6 +430,16 @@ func _draw_panel():
 			Vector2(sep_x2, _panel.position.y + PAD),
 			Vector2(sep_x2, _panel.end.y - PAD),
 			C_BORDER)
+
+func _draw_drop_zone():
+	var hov = _drag_item != null and _drop_rect.has_point(_mouse)
+	var col = Color(0.55, 0.25, 0.25) if hov else Color(0.28, 0.18, 0.18)
+	_control.draw_rect(_drop_rect, col)
+	_control.draw_rect(_drop_rect, C_BORDER, false)
+	_control.draw_string(ThemeDB.fallback_font,
+		_drop_rect.position + Vector2(0, 11),
+		"DROP", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), 7,
+		C_TXT * Color(1, 1, 1, 0.7))
 
 func _draw_equip_slots():
 	for i in _equip_rects.size():
