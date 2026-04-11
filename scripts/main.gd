@@ -173,6 +173,8 @@ func save_current_level():
 		if "was_used" in node:       data["was_used"]       = node.was_used
 		if "activated" in node:      data["activated"]      = node.activated
 		if "current_index" in node:  data["current_index"]  = node.current_index
+		var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
+		if inv:                      data["inventory"]      = inv.serialize()
 
 		Global.per_level_save[target_level][node.name] = data
 	
@@ -208,6 +210,9 @@ func restore_current_level():
 				enable_node(node)
 				node.global_position = data["position"]
 				if data.has("health"):       node.health      = data["health"]
+				if data.has("inventory"):
+					var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
+					if inv: inv.deserialize(data["inventory"])
 				if data.has("switch_state"):
 					node.switch_state = data["switch_state"]
 					if node.has_method("which_anim_to_play"): node.which_anim_to_play()

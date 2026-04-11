@@ -1,7 +1,6 @@
-[gd_scene load_steps=17 format=3 uid="uid://c0rxygo0mnmuj"]
+[gd_scene format=3 uid="uid://c0rxygo0mnmuj"]
 
 [ext_resource type="Script" uid="uid://ul4mmbvyyrp6" path="res://scripts/components/character_base_script.gd" id="1_siuox"]
-[ext_resource type="PackedScene" uid="uid://bi3g5mk5xpocy" path="res://scripts/components/inventory_component.tscn" id="20_robot"]
 [ext_resource type="Texture2D" uid="uid://dkj16op0ywgqb" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.png" id="1_vog53"]
 [ext_resource type="PackedScene" uid="uid://du08r16oxaisy" path="res://scripts/components/state.tscn" id="3_shsi1"]
 [ext_resource type="PackedScene" uid="uid://bgpvgu0wvcwcv" path="res://scripts/components/movex_controlled.tscn" id="4_bj0jq"]
@@ -119,7 +118,7 @@ _data = {
 &"walk_right": SubResource("Animation_jvdeg")
 }
 
-[node name="PlayableRobot" type="CharacterBody2D" groups=["save"]]
+[node name="PlayableRobot" type="CharacterBody2D" unique_id=1675268947 groups=["save"]]
 z_index = 3
 collision_layer = 2
 collision_mask = 3
@@ -127,29 +126,27 @@ script = ExtResource("1_siuox")
 health = 50
 max_health = 50
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=963569032]
 position = Vector2(0, -3)
 shape = SubResource("RectangleShape2D_hegqk")
 
-[node name="InteractArea" type="Area2D" parent="."]
+[node name="InteractArea" type="Area2D" parent="." unique_id=866995041]
 collision_layer = 2
 collision_mask = 5
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=190657630]
 position = Vector2(0, -3)
 shape = SubResource("RectangleShape2D_nr1h3")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1620821710]
 texture = ExtResource("1_vog53")
 hframes = 3
 vframes = 2
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_jvdeg")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1804605257]
+libraries/ = SubResource("AnimationLibrary_jvdeg")
 
-[node name="TestStatus" type="Label" parent="."]
+[node name="TestStatus" type="Label" parent="." unique_id=1576263105]
 visible = false
 offset_left = -17.0
 offset_top = -30.0
@@ -159,15 +156,13 @@ theme_override_colors/font_color = Color(0.980392, 0.87451, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Status"
 
-[node name="State" parent="." groups=["component"] instance=ExtResource("3_shsi1")]
+[node name="State" parent="." unique_id=54387583 groups=["component"] instance=ExtResource("3_shsi1")]
 
-[node name="MovexControlled" parent="." instance=ExtResource("4_bj0jq")]
+[node name="MovexControlled" parent="." unique_id=1689625574 instance=ExtResource("4_bj0jq")]
 
-[node name="Falling" parent="." instance=ExtResource("5_siuox")]
+[node name="Falling" parent="." unique_id=830292372 instance=ExtResource("5_siuox")]
 
-[node name="JumpControlledFly" parent="." instance=ExtResource("6_jvdeg")]
+[node name="JumpControlledFly" parent="." unique_id=574328416 instance=ExtResource("6_jvdeg")]
 jump_velocity = -100.0
 
-[node name="Die" parent="." instance=ExtResource("7_nr1h3")]
-
-[node name="InventoryComponent" parent="." instance=ExtResource("20_robot")]
+[node name="Die" parent="." unique_id=1371320805 instance=ExtResource("7_nr1h3")]

@@ -8,8 +8,8 @@ extends CanvasLayer
 @onready var label_continue = $bg/Label2
 
 @export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room1.tscn"
-@export var start_level_portal_name: String = 'game_start_portal'
-@export var start_possessed_char: String = ""
+@export var start_level_portal_name: String = 'portal_1'
+@export var start_possessed_char: String = "main_char"
 @export var run_instantly : bool = false
 
 var selection = 0  # 0=Continue, 1=New Game, 2=Quit

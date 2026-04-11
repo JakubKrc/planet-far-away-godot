@@ -1,16 +1,16 @@
-[gd_scene format=3 uid="uid://ground_item_scene"]
+[gd_scene format=3 uid="uid://cw5tm5la8w5ha"]
 
-[ext_resource type="Script" path="res://scenes/common/items/ground_item.gd" id="1_gritem"]
+[ext_resource type="Script" uid="uid://0gdvwfm5eb85" path="res://scenes/common/items/ground_item.gd" id="1_gritem"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_jhaad"]
 radius = 8.0
 
-[node name="GroundItem" type="Area2D"]
-collision_layer = 0
+[node name="GroundItem" type="Area2D" unique_id=1376428125 groups=["interactable", "save"]]
+collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_gritem")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_pickup")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=579592118]
+shape = SubResource("CircleShape2D_jhaad")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1425637962]

@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://cdhi8yspax7qu"]
+
+[ext_resource type="Script" uid="uid://o5mkj28dmw05" path="res://scenes/common/chest/chest.gd" id="1_chest"]
+[ext_resource type="PackedScene" uid="uid://bi3g5mk5xpocy" path="res://scripts/components/inventory_component.tscn" id="2_chest"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_chest"]
+size = Vector2(16, 16)
+
+[node name="Chest" type="Area2D" unique_id=1336411612]
+script = ExtResource("1_chest")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2063093095]
+shape = SubResource("RectangleShape2D_chest")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=407939530]
+
+[node name="InventoryComponent" parent="." unique_id=1746633372 instance=ExtResource("2_chest")]

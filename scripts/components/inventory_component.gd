@@ -3,12 +3,18 @@ extends Node
 
 @export var cols: int = 8
 @export var rows: int = 6
+@export var starting_items: Array[ItemData] = []
 
 var _grid: Array = []        # [row][col] = ItemData or null
 var _placements: Dictionary = {}  # ItemData -> Vector2i (top-left)
 
 func _ready():
 	_init_grid()
+	for item in starting_items:
+		if item:
+			var pos = find_free_slot(item)
+			if pos != Vector2i(-1, -1):
+				place(item, pos)
 
 func _init_grid():
 	_grid.clear()

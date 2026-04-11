@@ -45,8 +45,7 @@ _data = {
 [node name="main_menu_canvas" type="CanvasLayer" unique_id=699505879]
 process_mode = 2
 script = ExtResource("1_5rqr2")
-start_level_path = "uid://dxvqsse58eyqb"
-start_level_portal_name = "portal_1"
+start_level_path = "uid://ci7ok1mwmooi1"
 run_instantly = true
 
 [node name="bg" type="Sprite2D" parent="." unique_id=1644592638]

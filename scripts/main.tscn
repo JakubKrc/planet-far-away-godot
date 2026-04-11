@@ -10,8 +10,8 @@
 [ext_resource type="Script" uid="uid://ci14ev7t0tx61" path="res://scripts/camera_2d.gd" id="8_gl0lg"]
 [ext_resource type="PackedScene" uid="uid://cq6ag3h3mgvqn" path="res://ui/interacton_icon/InteractionIcon.tscn" id="8_o4va5"]
 [ext_resource type="Script" uid="uid://cnc1aeltoe71v" path="res://scripts/focus_manager.gd" id="9_ragmj"]
-[ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_ui.tscn" id="11_g247k"]
-[ext_resource type="PackedScene" uid="uid://inventory_ui_scene" path="res://ui/inventory/inventory_ui.tscn" id="12_invui"]
+[ext_resource type="PackedScene" uid="uid://dexgljvjb10ju" path="res://ui/dialogue/dialogue_ui.tscn" id="11_g247k"]
+[ext_resource type="PackedScene" path="res://ui/inventory/inventory_ui.tscn" id="12_invui"]
 
 [sub_resource type="AudioStreamInteractive" id="AudioStreamInteractive_5dr1j"]
 
@@ -23,10 +23,6 @@ script = ExtResource("1_i11qp")
 
 [node name="main_menu" parent="." unique_id=1416931253 instance=ExtResource("1_gvia5")]
 process_mode = 0
-start_level_path = "uid://cmfspcmyrs45p"
-start_level_portal_name = "game_start_portal"
-start_possessed_char = "main_char"
-run_instantly = false
 
 [node name="DeathMenu" parent="." unique_id=1354511146 instance=ExtResource("4_v0otc")]
 
