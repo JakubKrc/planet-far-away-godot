@@ -142,6 +142,10 @@ func apply_inventory_save():
 		eq_comp.deserialize(_saved_equipment_data)
 		_saved_equipment_data = []
 
+func notify(text: String, duration: float = 2.5):
+	if main:
+		main.notify(text, duration)
+
 func inv_add(id: String, amount: int = 1):
 	inventory[id] = inventory.get(id, 0) + amount
 	print("[INV] +%d %s  (total: %d)" % [amount, id, inventory[id]])

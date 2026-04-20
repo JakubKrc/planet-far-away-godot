@@ -42,6 +42,7 @@ var _pri_origin:  Vector2
 var _sec_origin:  Vector2   # valid only in dual mode
 var _equip_rects: Array     # [Rect2] x 4
 var _drop_rect:   Rect2     # drop-to-ground zone below equip slots
+var _close_rect:  Rect2     # close button (X) in top-right corner
 var _dual:        bool = false
 
 signal item_thrown(item: ItemData, world_pos: Vector2)
@@ -114,6 +115,9 @@ func _compute_layout():
 			Vector2(EQUIP_SLOT, EQUIP_SLOT)))
 
 	_drop_rect = Rect2(eq_origin + Vector2(0, eq_h + EQUIP_GAP), Vector2(eq_w, DROP_H))
+
+	var cb = 9
+	_close_rect = Rect2(Vector2(_panel.end.x - cb - 2, _panel.position.y + 2), Vector2(cb, cb))
 
 	_pri_origin = pp + Vector2(PAD + eq_w + SEP,
 							   (panel_h - grid_h) / 2.0).floor()
@@ -215,6 +219,10 @@ func _cancel_drag():
 	_control.queue_redraw()
 
 func _lmb_down(mouse: Vector2):
+	# Close button
+	if _close_rect.has_point(mouse):
+		close()
+		return
 	# Pick from primary grid
 	var gp = _grid_pos(mouse, _primary, _pri_origin)
 	if gp != Vector2i(-1, -1):
@@ -411,6 +419,7 @@ func _on_draw():
 		_draw_items_in_inv(_secondary, _sec_origin)
 	_draw_equipped()
 	_draw_drag_ghost()
+	_draw_close_button()
 	_draw_tooltip()
 
 func _draw_panel():
@@ -430,6 +439,15 @@ func _draw_panel():
 			Vector2(sep_x2, _panel.position.y + PAD),
 			Vector2(sep_x2, _panel.end.y - PAD),
 			C_BORDER)
+
+func _draw_close_button():
+	var hov = _close_rect.has_point(_mouse)
+	_control.draw_rect(_close_rect, Color(0.55, 0.25, 0.25) if hov else Color(0.35, 0.18, 0.18))
+	_control.draw_rect(_close_rect, C_BORDER, false)
+	var p = _close_rect.position
+	var s = _close_rect.size
+	_control.draw_line(p + Vector2(2, 2), p + s - Vector2(2, 2), C_TXT, 1.0)
+	_control.draw_line(p + Vector2(s.x - 2, 2), p + Vector2(2, s.y - 2), C_TXT, 1.0)
 
 func _draw_drop_zone():
 	var hov = _drag_item != null and _drop_rect.has_point(_mouse)

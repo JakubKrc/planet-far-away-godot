@@ -1,12 +1,14 @@
 extends Node2D
 
-@export var interact_group: String = "player"   
-@export var animation_active: String = "active" 
+@export var interact_group: String = "player"
+@export var animation_active: String = "active"
 @export var animation_not_active: String = "not_active"
 @export var switch_state: bool = false
 @export var repeatable_action: bool = true
 @export var what_to_posses: String = ""
 @export var use_signal: bool = false
+@export var requires_item_id: String = ""
+@export var requires_message: String = ""
 
 @onready var area2d = $Switch_area
 
@@ -44,6 +46,12 @@ func _input(event):
 	if player_inside and event.is_action_pressed("use"):
 		for body in area2d.get_overlapping_bodies():
 			if body.is_in_group("player"):
+				if requires_item_id != "":
+					var inv = body.get_node_or_null("InventoryComponent") as InventoryComponent
+					var has_it = inv.has_id(requires_item_id) if inv else Global.inv_has(requires_item_id)
+					if not has_it:
+						Global.notify(requires_message if requires_message != "" else "Required item missing")
+						return
 				if what_to_posses:
 					switch_switch(true)
 				elif switch_state:

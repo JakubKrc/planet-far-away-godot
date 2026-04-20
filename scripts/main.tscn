@@ -109,6 +109,18 @@ offset_right = 292.0
 offset_bottom = 131.0
 text = "Click with mouse to regain focus."
 
+[node name="NotificationLayer" type="CanvasLayer" parent="." unique_id=111222333]
+layer = 15
+
+[node name="NotificationLabel" type="Label" parent="NotificationLayer" unique_id=111222334]
+visible = false
+anchor_right = 1.0
+offset_top = 8.0
+offset_bottom = 22.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 10
+
 [node name="DialogueUI" parent="." unique_id=986771155 instance=ExtResource("11_g247k")]
 
 [node name="InventoryUI" parent="." unique_id=112358132 instance=ExtResource("12_invui")]

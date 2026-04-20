@@ -9,6 +9,20 @@ extends Node2D
 var level_instance = null
 const GROUND_ITEM_SCENE = preload("res://scenes/common/items/ground_item.tscn")
 
+@onready var _notification_label: Label = $NotificationLayer/NotificationLabel
+var _notify_tween: Tween
+
+func notify(text: String, duration: float = 2.5):
+	_notification_label.text = text
+	_notification_label.modulate.a = 1.0
+	_notification_label.show()
+	if _notify_tween:
+		_notify_tween.kill()
+	_notify_tween = create_tween()
+	_notify_tween.tween_interval(duration)
+	_notify_tween.tween_property(_notification_label, "modulate:a", 0.0, 0.4)
+	_notify_tween.tween_callback(_notification_label.hide)
+
 func _ready():
 	Global.main = self
 	$InventoryUI.item_thrown.connect(_on_item_thrown)
