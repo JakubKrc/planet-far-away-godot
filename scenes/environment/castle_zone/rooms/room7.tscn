@@ -19,6 +19,8 @@
 [ext_resource type="Texture2D" uid="uid://b70j52uapyqi" path="res://scenes/common/chest/drawer4.png" id="17_e2aj5"]
 [ext_resource type="Resource" uid="uid://cuqq30c3821be" path="res://items/blue_key.tres" id="17_iw3bh"]
 [ext_resource type="Script" uid="uid://bbs7mlyheen3u" path="res://items/item_data.gd" id="17_v5bwi"]
+[ext_resource type="PackedScene" uid="uid://c6naps2b2bqa4" path="res://audio/music/technical/backgroundmusic.tscn" id="20_my0v3"]
+[ext_resource type="AudioStream" uid="uid://u4gpjdfmlr3n" path="res://audio/music/game3.mp3" id="21_ex4tg"]
 
 [sub_resource type="Animation" id="Animation_lrlf8"]
 length = 0.001
@@ -301,3 +303,6 @@ position = Vector2(69, 272)
 chest_texture = ExtResource("17_e2aj5")
 collision_size = Vector2(16, 20)
 starting_items = Array[ExtResource("17_v5bwi")]([ExtResource("17_iw3bh")])
+
+[node name="backgroundmusic" parent="." unique_id=982006642 instance=ExtResource("20_my0v3")]
+song = ExtResource("21_ex4tg")

@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://dk4kb7jph1iwp"]
+
+[ext_resource type="Script" uid="uid://clkn6d1yywf1" path="res://ui/menu/menu.gd" id="1_menu"]
+[ext_resource type="AudioStream" uid="uid://cc5y11q57mij3" path="res://audio/music/gamemenu.mp3" id="2_music"]
+[ext_resource type="Texture2D" uid="uid://b7wq0m2shupvc" path="res://ui/main_menu/menubg.png" id="2_w0ybq"]
+
+[node name="Menu" type="CanvasLayer" unique_id=1875921677]
+layer = 20
+script = ExtResource("1_menu")
+
+[node name="BgImage" type="TextureRect" parent="." unique_id=569416992]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_w0ybq")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Bg" type="ColorRect" parent="." unique_id=745787178]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Center" type="CenterContainer" parent="." unique_id=2126403978]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center" unique_id=1579284655]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/VBox" unique_id=2072918345]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "Earth Echo"
+horizontal_alignment = 1
+
+[node name="Items" type="VBoxContainer" parent="Center/VBox" unique_id=587211996]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Settings" type="VBoxContainer" parent="Center/VBox" unique_id=2042996209]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MusicRow" type="HBoxContainer" parent="Center/VBox/Settings" unique_id=611473605]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Center/VBox/Settings/MusicRow" unique_id=1151937246]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Music"
+
+[node name="Slider" type="HSlider" parent="Center/VBox/Settings/MusicRow" unique_id=1099069576]
+custom_minimum_size = Vector2(80, 12)
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="Value" type="Label" parent="Center/VBox/Settings/MusicRow" unique_id=1353409629]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "100%"
+
+[node name="Back" type="Label" parent="Center/VBox/Settings" unique_id=324922553]
+layout_mode = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 10
+text = "[ Back ]"
+horizontal_alignment = 1
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=6936218]
+stream = ExtResource("2_music")

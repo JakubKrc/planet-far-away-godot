@@ -18,6 +18,7 @@ audio/
 *.png
 *.zip
 *.png.import
+*.aseprite
 
 .vscode
 addons

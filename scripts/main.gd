@@ -23,9 +23,14 @@ func notify(text: String, duration: float = 2.5):
 	_notify_tween.tween_property(_notification_label, "modulate:a", 0.0, 0.4)
 	_notify_tween.tween_callback(_notification_label.hide)
 
+func set_ingame_ui_visible(v: bool):
+	$CanvasLayerForUi.visible = v
+	$InteractIcon.visible = v
+
 func _ready():
 	Global.main = self
 	$InventoryUI.item_thrown.connect(_on_item_thrown)
+	set_ingame_ui_visible(false)
 	if Global.isTest==true:
 		OStestLabel.visible = true
 		OStestLabel.text = OS.get_name()
@@ -48,16 +53,6 @@ func _toggle_fullscreen():
 func _process(_delta):
 	if Input.is_action_just_pressed("fullscreen"):
 		_toggle_fullscreen()
-	if Input.is_action_just_pressed("escape")  or Input.is_action_just_pressed("pause"):
-		if Global.game_state == Global.GameState.MAIN_MENU:
-			return;
-		if Input.is_key_pressed(KEY_ESCAPE) and OS.get_name() == "Web":
-			return;
-		await get_tree().process_frame;
-		Global.pause_menu.selection = 0;
-		Global.pause_menu.show();
-		Global.game_state = Global.GameState.PAUSE_MENU
-		get_tree().paused = true;
 	
 func load_mainchar(where_to_set_character: Vector2, direction_vector: Vector2):
 	var character = get_tree().get_first_node_in_group("player")

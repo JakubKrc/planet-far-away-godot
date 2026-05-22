@@ -56,6 +56,7 @@ var game_state = GameState.MAIN_MENU :
 		return game_state
 var main_menu
 var pause_menu
+var menu
 var death_menu
 var camera
 var can_player_move = true

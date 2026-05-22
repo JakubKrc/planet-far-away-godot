@@ -180,7 +180,6 @@ position = Vector2(147, 215)
 
 [node name="portal" parent="." unique_id=1094825659 instance=ExtResource("4_hribm")]
 position = Vector2(3, 208)
-door_name = "game_start_portal"
 interactable = false
 
 [node name="Sprite2D" type="Sprite2D" parent="portal" unique_id=2142340885]
