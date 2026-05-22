@@ -13,6 +13,15 @@ var _selection: int = 0
 func _ready():
 	Global.dialogue = self
 	hide()
+	Global.ui_text_settings_changed.connect(_apply_fonts)
+	_apply_fonts()
+
+func _apply_fonts():
+	Global.apply_to_label(speaker_label, 9)
+	Global.apply_to_label(text_label, 8)
+	for c in choices_container.get_children():
+		if c is Label:
+			Global.apply_to_label(c, 7)
 
 func start(json_path: String):
 	if json_path == "":
@@ -51,14 +60,14 @@ func _show_node(id: String):
 	if _choices.is_empty():
 		var lbl = Label.new()
 		lbl.text = "[ continue ]"
-		lbl.add_theme_font_size_override("font_size", 7)
 		choices_container.add_child(lbl)
+		Global.apply_to_label(lbl, 7)
 	else:
 		for choice in _choices:
 			var lbl = Label.new()
 			lbl.text = choice["text"]
-			lbl.add_theme_font_size_override("font_size", 7)
 			choices_container.add_child(lbl)
+			Global.apply_to_label(lbl, 7)
 	_selection = 0
 	_update_selection()
 

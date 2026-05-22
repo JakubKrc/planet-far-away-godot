@@ -17,18 +17,41 @@ const SETTINGS_PATH = "user://settings.cfg"
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var settings_back: Label = $Center/VBox/Settings/Back
 @onready var bg_image: TextureRect = $BgImage
+@onready var font_option: OptionButton = $Center/VBox/Settings/FontRow/Option
+@onready var size_slider: HSlider = $Center/VBox/Settings/SizeRow/Slider
+@onready var size_value: Label = $Center/VBox/Settings/SizeRow/Value
 
 var state = State.MAIN
 var _return_state = State.MAIN  # where Settings goes Back to
 var _selection: int = 0
 var _has_save: bool = false
+var _settings_sel: int = 0   # 0=music, 1=font, 2=size, 3=back
+const SETTINGS_ROWS = 4
+
+const FONT_OPTIONS = [
+	["Default",        "default"],
+	["Open Sans",      "open_sans"],
+	["Press Start 2P", "press_start_2p"],
+]
 
 func _ready():
 	Global.menu = self
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	music_slider.value_changed.connect(_on_music_slider_changed)
+	for opt in FONT_OPTIONS:
+		font_option.add_item(opt[0])
+	font_option.item_selected.connect(_on_font_selected)
+	size_slider.value_changed.connect(_on_size_slider_changed)
 	_load_settings()
+	Global.ui_text_settings_changed.connect(_apply_own_fonts)
+	_apply_own_fonts()
 	open_main()
+
+func _apply_own_fonts():
+	Global.apply_to_label(title, 16)
+	Global.apply_to_label(settings_back, 10)
+	for c in items.get_children():
+		Global.apply_to_label(c, 10)
 
 # ── Public API ────────────────────────────────────────────────────
 
@@ -76,7 +99,24 @@ func open_settings():
 	title.text = "Settings"
 	items.hide()
 	settings_panel.show()
+	_settings_sel = 0
+	_update_settings_highlight()
 	show()
+
+func _settings_row_label(row: int) -> Label:
+	match row:
+		0: return $Center/VBox/Settings/MusicRow/Label
+		1: return $Center/VBox/Settings/FontRow/Label
+		2: return $Center/VBox/Settings/SizeRow/Label
+		3: return settings_back
+	return null
+
+func _update_settings_highlight():
+	for r in SETTINGS_ROWS:
+		var lbl = _settings_row_label(r)
+		if lbl == null: continue
+		var base = Color(1, 1, 1) if r < 3 else Color(0.7, 0.7, 0.7)
+		lbl.modulate = Color(1, 1, 0) if r == _settings_sel else base
 
 func close():
 	hide()
@@ -98,6 +138,7 @@ func _rebuild_items(entries: Array):
 		lbl.set_meta("action", entry[1])
 		lbl.set_meta("enabled", entry[2])
 		items.add_child(lbl)
+		Global.apply_to_label(lbl, 10)
 
 func _update_highlight():
 	var live = items.get_children()
@@ -134,10 +175,13 @@ func _input(event: InputEvent):
 				break
 	if event.is_action_pressed("ui_down"):
 		_step(1, live)
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_up"):
 		_step(-1, live)
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("use"):
 		_activate(live)
+		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		for i in live.size():
 			if live[i].get_global_rect().has_point(event.global_position) and live[i].get_meta("enabled"):
@@ -166,20 +210,49 @@ func _settings_input(event: InputEvent):
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("escape"):
 		_act_settings_back()
 		return
+	if event.is_action_pressed("ui_down"):
+		_settings_sel = (_settings_sel + 1) % SETTINGS_ROWS
+		_update_settings_highlight()
+		return
+	if event.is_action_pressed("ui_up"):
+		_settings_sel = (_settings_sel - 1 + SETTINGS_ROWS) % SETTINGS_ROWS
+		_update_settings_highlight()
+		return
 	if event.is_action_pressed("ui_left"):
-		music_slider.value = clamp(music_slider.value - music_slider.step, music_slider.min_value, music_slider.max_value)
+		_settings_adjust(-1)
 		return
 	if event.is_action_pressed("ui_right"):
-		music_slider.value = clamp(music_slider.value + music_slider.step, music_slider.min_value, music_slider.max_value)
+		_settings_adjust(+1)
 		return
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("use"):
+		if _settings_sel == 3:
+			_act_settings_back()
+		return
+	# Mouse hover/click for back label
 	if event is InputEventMouseMotion:
-		var over = settings_back.get_global_rect().has_point(event.global_position)
-		settings_back.modulate = Color(1, 1, 0) if over else Color(0.7, 0.7, 0.7)
+		for r in SETTINGS_ROWS:
+			var lbl = _settings_row_label(r)
+			if lbl and lbl.get_global_rect().has_point(event.global_position):
+				if _settings_sel != r:
+					_settings_sel = r
+					_update_settings_highlight()
+				break
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if settings_back.get_global_rect().has_point(event.global_position):
 			_act_settings_back()
 			get_viewport().set_input_as_handled()
+
+func _settings_adjust(dir: int):
+	match _settings_sel:
+		0:
+			music_slider.value = clamp(music_slider.value + dir * music_slider.step, music_slider.min_value, music_slider.max_value)
+		1:
+			var n = font_option.item_count
+			font_option.selected = (font_option.selected + dir + n) % n
+			_on_font_selected(font_option.selected)
+		2:
+			size_slider.value = clamp(size_slider.value + dir * size_slider.step, size_slider.min_value, size_slider.max_value)
 
 # ── Actions ───────────────────────────────────────────────────────
 
@@ -189,11 +262,17 @@ func _act_resume():
 	get_tree().paused = false
 	Global.main.set_ingame_ui_visible(true)
 
+func _close_dialogue_if_open():
+	if Global.dialogue and Global.dialogue.visible:
+		Global.dialogue.hide()
+		Global.can_player_move = true
+
 func _act_new_game():
 	Global.game_state = Global.GameState.PLAYING
 	Global.per_level_save.clear()
 	music_player.stop()
 	close()
+	_close_dialogue_if_open()
 	Global.main.set_ingame_ui_visible(true)
 	Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1, start_possessed_char)
 
@@ -210,6 +289,7 @@ func _act_continue():
 	var home_level: String = save.get("possessed_char_home_level", "")
 	music_player.stop()
 	close()
+	_close_dialogue_if_open()
 	Global.main.set_ingame_ui_visible(true)
 	if home_level != "" and home_level != target_level:
 		await Global.main.load_level(home_level, "", 10000, 10000, possessed)
@@ -227,6 +307,7 @@ func _act_main_menu():
 	get_tree().paused = false
 	Global.main.backgroundMusicPlayer.playMusic(null, 0)
 	Global.main.set_ingame_ui_visible(false)
+	_close_dialogue_if_open()
 	open_main()
 
 func _act_open_settings():
@@ -248,6 +329,17 @@ func _on_music_slider_changed(v: float):
 	_apply_music_volume(v)
 	_save_settings()
 
+func _on_font_selected(idx: int):
+	Global.ui_font_name = FONT_OPTIONS[idx][1]
+	Global.ui_text_settings_changed.emit()
+	_save_settings()
+
+func _on_size_slider_changed(v: float):
+	Global.ui_font_size_scale = v
+	size_value.text = "%.1fx" % v
+	Global.ui_text_settings_changed.emit()
+	_save_settings()
+
 func _apply_music_volume(v: float):
 	var bus = AudioServer.get_bus_index("Master")
 	if bus < 0: bus = 0
@@ -260,13 +352,28 @@ func _apply_music_volume(v: float):
 func _load_settings():
 	var cfg = ConfigFile.new()
 	var vol: float = 1.0
+	var font_name := "default"
+	var size_scale := 1.0
+	font_name = "press_start_2p"
 	if cfg.load(SETTINGS_PATH) == OK:
-		vol = float(cfg.get_value("audio", "music_volume", 1.0))
+		vol        = float(cfg.get_value("audio", "music_volume", 1.0))
+		font_name  = str(cfg.get_value("ui", "font_name", "press_start_2p"))
+		size_scale = float(cfg.get_value("ui", "font_size_scale", 1.0))
 	music_slider.value = vol
 	music_label.text = "%d%%" % int(vol * 100)
 	_apply_music_volume(vol)
+	Global.ui_font_name = font_name
+	Global.ui_font_size_scale = size_scale
+	for i in FONT_OPTIONS.size():
+		if FONT_OPTIONS[i][1] == font_name:
+			font_option.selected = i
+			break
+	size_slider.value = size_scale
+	size_value.text = "%.1fx" % size_scale
 
 func _save_settings():
 	var cfg = ConfigFile.new()
 	cfg.set_value("audio", "music_volume", music_slider.value)
+	cfg.set_value("ui", "font_name", Global.ui_font_name)
+	cfg.set_value("ui", "font_size_scale", Global.ui_font_size_scale)
 	cfg.save(SETTINGS_PATH)

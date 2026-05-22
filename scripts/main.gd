@@ -31,6 +31,11 @@ func _ready():
 	Global.main = self
 	$InventoryUI.item_thrown.connect(_on_item_thrown)
 	set_ingame_ui_visible(false)
+	Global.ui_text_settings_changed.connect(_apply_notification_font)
+	_apply_notification_font()
+
+func _apply_notification_font():
+	Global.apply_to_label(_notification_label, 10)
 	if Global.isTest==true:
 		OStestLabel.visible = true
 		OStestLabel.text = OS.get_name()

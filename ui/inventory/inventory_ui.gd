@@ -57,6 +57,11 @@ func _ready():
 	_control.draw.connect(_on_draw)
 	add_child(_control)
 	hide()
+	Global.ui_text_settings_changed.connect(func(): if visible: _control.queue_redraw())
+
+func _font() -> Font:
+	var f = Global.get_current_font()
+	return f if f else ThemeDB.fallback_font
 
 # ── Open / close ──────────────────────────────────────────────────
 
@@ -454,7 +459,7 @@ func _draw_drop_zone():
 	var col = Color(0.55, 0.25, 0.25) if hov else Color(0.28, 0.18, 0.18)
 	_control.draw_rect(_drop_rect, col)
 	_control.draw_rect(_drop_rect, C_BORDER, false)
-	_control.draw_string(ThemeDB.fallback_font,
+	_control.draw_string(_font(),
 		_drop_rect.position + Vector2(0, 11),
 		"DROP", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), 7,
 		C_TXT * Color(1, 1, 1, 0.7))
@@ -468,7 +473,7 @@ func _draw_equip_slots():
 		if eq_item:
 			_draw_item_in_rect(eq_item, _equip_rects[i])
 		else:
-			_control.draw_string(ThemeDB.fallback_font,
+			_control.draw_string(_font(),
 				_equip_rects[i].position + Vector2(2, 10),
 				str(i + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 7,
 				C_TXT * Color(1, 1, 1, 0.3))
@@ -521,7 +526,7 @@ func _draw_item_in_rect(item: ItemData, rect: Rect2):
 	if not tex:
 		var max_chars = int(rect.size.x / 5)
 		var label = item.item_name.substr(0, max_chars)
-		_control.draw_string(ThemeDB.fallback_font,
+		_control.draw_string(_font(),
 			rect.position + Vector2(1, 8),
 			label, HORIZONTAL_ALIGNMENT_LEFT, -1, 6, C_TXT)
 
@@ -546,7 +551,7 @@ func _draw_tooltip():
 		lines.append("[" + type_tag + "]")
 	if tip.description != "":
 		lines.append(tip.description)
-	var font = ThemeDB.fallback_font
+	var font = _font()
 	var fs = 7
 	var lh = 9
 	var max_w = 0.0

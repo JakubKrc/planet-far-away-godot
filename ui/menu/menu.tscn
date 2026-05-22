@@ -80,6 +80,44 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "100%"
 
+[node name="FontRow" type="HBoxContainer" parent="Center/VBox/Settings"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Center/VBox/Settings/FontRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Font"
+
+[node name="Option" type="OptionButton" parent="Center/VBox/Settings/FontRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+
+[node name="SizeRow" type="HBoxContainer" parent="Center/VBox/Settings"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Center/VBox/Settings/SizeRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Text size"
+
+[node name="Slider" type="HSlider" parent="Center/VBox/Settings/SizeRow"]
+custom_minimum_size = Vector2(80, 12)
+layout_mode = 2
+min_value = 0.7
+max_value = 1.6
+step = 0.1
+value = 1.0
+
+[node name="Value" type="Label" parent="Center/VBox/Settings/SizeRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "1.0x"
+
 [node name="Back" type="Label" parent="Center/VBox/Settings" unique_id=324922553]
 layout_mode = 2
 mouse_filter = 0

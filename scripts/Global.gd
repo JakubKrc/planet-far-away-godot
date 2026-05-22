@@ -57,6 +57,29 @@ var game_state = GameState.MAIN_MENU :
 var main_menu
 var pause_menu
 var menu
+
+# ── Text / font settings ──────────────────────────────────────────
+var ui_font_name: String = "press_start_2p"  # "default" | "open_sans" | "press_start_2p"
+var ui_font_size_scale: float = 1.0
+signal ui_text_settings_changed
+
+func get_current_font() -> Font:
+	var path := ""
+	match ui_font_name:
+		"open_sans":      path = "res://fonts/open_sans.ttf"
+		"press_start_2p": path = "res://fonts/press_start_2p.ttf"
+		_:                return null
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as Font
+
+func apply_to_label(label: Label, base_size: int):
+	var f = get_current_font()
+	if f:
+		label.add_theme_font_override("font", f)
+	else:
+		label.remove_theme_font_override("font")
+	label.add_theme_font_size_override("font_size", maxi(1, int(base_size * ui_font_size_scale)))
 var death_menu
 var camera
 var can_player_move = true
