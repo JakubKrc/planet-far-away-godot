@@ -22,6 +22,8 @@ func notify(text: String, duration: float = 2.5):
 	_notify_tween.tween_interval(duration)
 	_notify_tween.tween_property(_notification_label, "modulate:a", 0.0, 0.4)
 	_notify_tween.tween_callback(_notification_label.hide)
+	if Global.dialogue:
+		Global.dialogue.append_notification(text)
 
 func set_ingame_ui_visible(v: bool):
 	$CanvasLayerForUi.visible = v

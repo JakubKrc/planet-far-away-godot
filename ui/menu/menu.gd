@@ -263,8 +263,11 @@ func _act_resume():
 	Global.main.set_ingame_ui_visible(true)
 
 func _close_dialogue_if_open():
-	if Global.dialogue and Global.dialogue.visible:
-		Global.dialogue.hide()
+	if Global.dialogue:
+		if Global.dialogue.visible:
+			Global.dialogue.hide()
+		Global.dialogue._in_dialogue = false
+		Global.dialogue.clear_log()
 		Global.can_player_move = true
 
 func _act_new_game():

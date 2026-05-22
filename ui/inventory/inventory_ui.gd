@@ -144,9 +144,18 @@ func pick_up(item: ItemData) -> bool:
 	if pos == Vector2i(-1, -1):
 		return false
 	target.place(item, pos)
+	_log("Picked up: " + _item_name(item))
 	if visible:
 		_control.queue_redraw()
 	return true
+
+func _item_name(item: ItemData) -> String:
+	if item == null: return "?"
+	return item.item_name if item.item_name != "" else item.id
+
+func _log(text: String):
+	if Global.dialogue:
+		Global.dialogue.append_log(text, Color(0.7, 0.85, 0.7))
 
 # ── Input ─────────────────────────────────────────────────────────
 
@@ -318,6 +327,7 @@ func _lmb_up(mouse: Vector2):
 	if es >= 0 and _equipment:
 		if _equipment.can_equip(item):
 			var displaced = _equipment.equip(item, es)
+			_log("Equipped: " + _item_name(item))
 			if displaced:
 				var pos = _primary.find_free_slot(displaced)
 				if pos != Vector2i(-1, -1):
@@ -350,6 +360,7 @@ func _return_or_throw(item: ItemData):
 		_throw(item)
 
 func _throw(item: ItemData):
+	_log("Dropped: " + _item_name(item))
 	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		emit_signal("item_thrown", item, Vector2.ZERO)

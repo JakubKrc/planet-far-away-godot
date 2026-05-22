@@ -10,7 +10,7 @@ script = ExtResource("1_dlgui")
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -82.0
+offset_top = -120.0
 
 [node name="Margin" type="MarginContainer" parent="Panel" unique_id=699475793]
 layout_mode = 0
@@ -23,18 +23,18 @@ theme_override_constants/margin_bottom = 4
 
 [node name="VBox" type="VBoxContainer" parent="Panel/Margin" unique_id=1670916439]
 layout_mode = 2
+theme_override_constants/separation = 2
 
-[node name="Speaker" type="Label" parent="Panel/Margin/VBox" unique_id=1743832127]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/VBox" unique_id=200000001]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.41718194, 0.46230537, 0.95019764, 1)
-theme_override_font_sizes/font_size = 9
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
 
-[node name="Text" type="Label" parent="Panel/Margin/VBox" unique_id=268074011]
+[node name="Log" type="VBoxContainer" parent="Panel/Margin/VBox/Scroll" unique_id=200000002]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.23633727, 0.59958225, 0.71624017, 1)
-theme_override_font_sizes/font_size = 8
-autowrap_mode = 3
-clip_text = false
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
 
 [node name="Choices" type="VBoxContainer" parent="Panel/Margin/VBox" unique_id=808468919]
 layout_mode = 2
