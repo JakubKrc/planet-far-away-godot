@@ -27,14 +27,11 @@ func _ready():
 		return
 	add_to_group("interactable")
 	add_to_group("save")
+	# The component built its grid at the default size during its own _ready(),
+	# so it has to be rebuilt at the chest's size before anything is placed.
 	var inv = $InventoryComponent as InventoryComponent
-	inv.cols = cols
-	inv.rows = rows
-	for item in starting_items:
-		if item:
-			var pos = inv.find_free_slot(item)
-			if pos != Vector2i(-1, -1):
-				inv.place(item, pos)
+	inv.resize_grid(cols, rows)
+	inv.add_starting_items(starting_items)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 

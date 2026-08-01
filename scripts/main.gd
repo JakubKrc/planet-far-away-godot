@@ -160,8 +160,11 @@ func save_current_level():
 	# Save all alive ground items (dynamic + scene-placed)
 	var ground_items_data: Array = []
 	for node in get_tree().get_nodes_in_group("ground_item"):
-		if node.item and node.item.resource_path != "":
-			ground_items_data.append({"path": node.item.resource_path, "pos": [node.global_position.x, node.global_position.y]})
+		if node.item == null:
+			continue
+		var item_path = node.item.get_source_path()
+		if item_path != "":
+			ground_items_data.append({"path": item_path, "pos": [node.global_position.x, node.global_position.y]})
 	if not Global.per_level_save.has(level_path):
 		Global.per_level_save[level_path] = {}
 	Global.per_level_save[level_path]["__ground_items__"] = ground_items_data
@@ -242,10 +245,10 @@ func restore_current_level():
 		for node in get_tree().get_nodes_in_group("ground_item"):
 			node.queue_free()
 		for entry in level_data["__ground_items__"]:
-			var it = load(entry["path"]) as ItemData
-			if it:
+			var stored_item = load(entry["path"]) as ItemData
+			if stored_item:
 				var gi = GROUND_ITEM_SCENE.instantiate()
-				gi.item = it
+				gi.item = stored_item.make_unique_copy()
 				gi.position = Vector2(entry["pos"][0], entry["pos"][1])
 				main2D.add_child(gi)
 

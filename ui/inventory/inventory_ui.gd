@@ -133,21 +133,42 @@ func _compute_layout():
 # ── Pickup (from ground) ──────────────────────────────────────────
 
 func pick_up(item: ItemData) -> bool:
-	var target = _primary
-	if target == null:
-		var player = get_tree().get_first_node_in_group("player")
-		if player:
-			target = player.get_node_or_null("InventoryComponent") as InventoryComponent
+	var target = _player_inventory()
 	if target == null:
 		return false
-	var pos = target.find_free_slot(item)
+	# Scene-placed ground items point at a shared .tres, so take our own copy.
+	var picked = item.make_unique_copy()
+	var pos = target.find_free_slot(picked)
 	if pos == Vector2i(-1, -1):
 		return false
-	target.place(item, pos)
-	_log("Picked up: " + _item_name(item))
+	target.place(picked, pos)
+	_log("Picked up: " + _item_name(picked))
 	if visible:
 		_control.queue_redraw()
 	return true
+
+# The player's bag, whether or not the inventory screen is currently open.
+func _player_inventory() -> InventoryComponent:
+	if _primary != null:
+		return _primary
+	var player = get_tree().get_first_node_in_group("player")
+	if player == null:
+		return null
+	return player.get_node_or_null("InventoryComponent") as InventoryComponent
+
+# Hands an item to the player, dropping it at their feet when the bag is full.
+# Callers that award items (dialogue rewards, scripted grants) use this so a
+# full bag never destroys the reward.
+func give_or_drop(item: ItemData):
+	var target = _player_inventory()
+	if target != null:
+		var pos = target.find_free_slot(item)
+		if pos != Vector2i(-1, -1):
+			target.place(item, pos)
+			if visible:
+				_control.queue_redraw()
+			return
+	_drop_to_ground(item)
 
 func _item_name(item: ItemData) -> String:
 	if item == null: return "?"
@@ -218,19 +239,27 @@ func _pick_from(item: ItemData, src: String, slot: int = -1):
 func _cancel_drag():
 	if _drag_item == null:
 		return
-	# Return to source
+	# Return to source, or to the ground if the source no longer has room.
+	# Uses _player_inventory() so a drag is still recoverable if the screen has
+	# already been torn down.
 	if _drag_src == "primary":
-		var pos = _primary.find_free_slot(_drag_item)
-		if pos != Vector2i(-1, -1):
-			_primary.place(_drag_item, pos)
+		_place_or_throw(_player_inventory(), _drag_item)
 	elif _drag_src == "secondary" and _secondary:
-		var pos = _secondary.find_free_slot(_drag_item)
-		if pos != Vector2i(-1, -1):
-			_secondary.place(_drag_item, pos)
+		_place_or_throw(_secondary, _drag_item)
 	elif _drag_src == "equip" and _equipment:
 		_equipment.equipped[_drag_src_slot] = _drag_item
+	else:
+		_throw(_drag_item)
 	_drag_item = null
 	_control.queue_redraw()
+
+# Puts the item back in the given inventory, or on the ground if it will not fit.
+func _place_or_throw(inv: InventoryComponent, item: ItemData):
+	var pos = inv.find_free_slot(item) if inv else Vector2i(-1, -1)
+	if pos != Vector2i(-1, -1):
+		inv.place(item, pos)
+	else:
+		_throw(item)
 
 func _lmb_down(mouse: Vector2):
 	# Close button
@@ -288,15 +317,13 @@ func _lmb_up(mouse: Vector2):
 			var result = _primary.try_combine(item, target)
 			if result:
 				_primary.remove(target)
-				var rpos = _primary.find_free_slot(result)
-				if rpos != Vector2i(-1, -1):
-					_primary.place(result, rpos)
+				_place_or_throw(_primary, result)
 			else:
-				_return_or_throw(item)
+				_place_or_throw(_primary, item)
 		elif _primary.can_place(item, gp):
 			_primary.place(item, gp)
 		else:
-			_return_or_throw(item)
+			_place_or_throw(_primary, item)
 		_control.queue_redraw()
 		return
 
@@ -307,18 +334,16 @@ func _lmb_up(mouse: Vector2):
 		if gp2 != Vector2i(-1, -1):
 			var target = _secondary.get_at(gp2)
 			if target != null and target != item:
-				var result = _primary.try_combine(item, target)
+				var result = _secondary.try_combine(item, target)
 				if result:
 					_secondary.remove(target)
-					var rpos = _primary.find_free_slot(result)
-					if rpos != Vector2i(-1, -1):
-						_primary.place(result, rpos)
+					_place_or_throw(_secondary, result)
 				else:
-					_return_or_throw(item)
+					_place_or_throw(_secondary, item)
 			elif _secondary.can_place(item, gp2):
 				_secondary.place(item, gp2)
 			else:
-				_return_or_throw(item)
+				_place_or_throw(_secondary, item)
 			_control.queue_redraw()
 			return
 
@@ -329,13 +354,9 @@ func _lmb_up(mouse: Vector2):
 			var displaced = _equipment.equip(item, es)
 			_log("Equipped: " + _item_name(item))
 			if displaced:
-				var pos = _primary.find_free_slot(displaced)
-				if pos != Vector2i(-1, -1):
-					_primary.place(displaced, pos)
-				else:
-					_throw(displaced)
+				_place_or_throw(_primary, displaced)
 		else:
-			_return_or_throw(item)
+			_place_or_throw(_primary, item)
 		_control.queue_redraw()
 		return
 
@@ -349,18 +370,17 @@ func _lmb_up(mouse: Vector2):
 	if not _panel.has_point(mouse):
 		_throw(item)
 	else:
-		_return_or_throw(item)
+		_place_or_throw(_primary, item)
 	_control.queue_redraw()
 
-func _return_or_throw(item: ItemData):
-	var pos = _primary.find_free_slot(item)
-	if pos != Vector2i(-1, -1):
-		_primary.place(item, pos)
-	else:
-		_throw(item)
-
+# Drops the item on the ground and tells the player it left their bag.
 func _throw(item: ItemData):
 	_log("Dropped: " + _item_name(item))
+	_drop_to_ground(item)
+
+# Spawns the item on the ground without logging, for callers that describe the
+# outcome themselves.
+func _drop_to_ground(item: ItemData):
 	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		emit_signal("item_thrown", item, Vector2.ZERO)

@@ -10,14 +10,38 @@ var _placements: Dictionary = {}  # ItemData -> Vector2i (top-left)
 
 func _ready():
 	_init_grid()
-	for item in starting_items:
-		if item:
-			var pos = find_free_slot(item)
-			if pos != Vector2i(-1, -1):
-				place(item, pos)
+	add_starting_items(starting_items)
+
+# Places authored items. Each one is copied so several slots can hold the same
+# .tres — see ItemData.make_unique_copy().
+func add_starting_items(items: Array[ItemData]):
+	for item in items:
+		if item == null:
+			continue
+		var copy = item.make_unique_copy()
+		var pos = find_free_slot(copy)
+		if pos == Vector2i(-1, -1):
+			push_warning("%s: no room for starting item '%s'" % [get_parent().name, copy.id])
+			continue
+		place(copy, pos)
+
+# Changes the grid dimensions and re-places whatever fits. Needed because a parent
+# can only set cols/rows after this node's _ready() has already built the grid.
+func resize_grid(new_cols: int, new_rows: int):
+	var previous_items = all_items()
+	cols = new_cols
+	rows = new_rows
+	_init_grid()
+	for item in previous_items:
+		var pos = find_free_slot(item)
+		if pos == Vector2i(-1, -1):
+			push_warning("%s: item '%s' does not fit after resize and was dropped" % [get_parent().name, item.id])
+			continue
+		place(item, pos)
 
 func _init_grid():
 	_grid.clear()
+	_placements.clear()
 	_grid.resize(rows)
 	for i in rows:
 		_grid[i] = []
@@ -77,7 +101,11 @@ func find_free_slot(item: ItemData) -> Vector2i:
 	return Vector2i(-1, -1)
 
 func try_combine(item_a: ItemData, item_b: ItemData) -> ItemData:
-	return item_a.combine_with.get(item_b.id, null)
+	var recipe_result = item_a.combine_with.get(item_b.id, null)
+	if recipe_result == null:
+		return null
+	# The recipe holds a shared resource; the crafted item needs its own copy.
+	return recipe_result.make_unique_copy()
 
 # --- Simple id-based helpers (for quest/dialogue items) ---
 
@@ -102,14 +130,24 @@ func remove_by_id(id: String, amount: int = 1):
 func serialize() -> Array:
 	var out = []
 	for item in _placements:
-		if item.resource_path != "":
+		var path = item.get_source_path()
+		if path != "":
 			var pos = _placements[item]
-			out.append({"path": item.resource_path, "pos": [pos.x, pos.y]})
+			out.append({"path": path, "pos": [pos.x, pos.y]})
 	return out
 
 func deserialize(data: Array):
 	_init_grid()
 	for entry in data:
-		var item = load(entry["path"]) as ItemData
-		if item:
-			place(item, Vector2i(entry["pos"][0], entry["pos"][1]))
+		var stored_item = load(entry["path"]) as ItemData
+		if stored_item == null:
+			continue
+		var item = stored_item.make_unique_copy()
+		var pos = Vector2i(entry["pos"][0], entry["pos"][1])
+		# A save written when the grid was larger can point outside it.
+		if not can_place(item, pos):
+			pos = find_free_slot(item)
+		if pos == Vector2i(-1, -1):
+			push_warning("%s: saved item '%s' no longer fits and was dropped" % [get_parent().name, item.id])
+			continue
+		place(item, pos)

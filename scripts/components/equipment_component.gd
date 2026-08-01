@@ -43,14 +43,21 @@ func first_free_slot() -> int:
 func serialize() -> Array:
 	var out = []
 	for i in equipped.size():
-		if equipped[i] != null and equipped[i].resource_path != "":
-			out.append({"slot": i, "path": equipped[i].resource_path})
+		if equipped[i] == null:
+			continue
+		var path = equipped[i].get_source_path()
+		if path != "":
+			out.append({"slot": i, "path": path})
 	return out
 
 func deserialize(data: Array):
 	equipped.resize(slots)
 	equipped.fill(null)
 	for entry in data:
-		var item = load(entry["path"]) as ItemData
-		if item and entry["slot"] < slots:
-			equipped[entry["slot"]] = item
+		var stored_item = load(entry["path"]) as ItemData
+		if stored_item == null:
+			continue
+		var slot = int(entry["slot"])
+		if slot < 0 or slot >= slots:
+			continue
+		equipped[slot] = stored_item.make_unique_copy()

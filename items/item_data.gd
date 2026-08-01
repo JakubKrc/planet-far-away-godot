@@ -26,8 +26,26 @@ const CELL = 16
 @export var item_type: String = ""           # used to prevent duplicate slot types (e.g. "weapon")
 @export var combine_with: Dictionary = {}    # { other_item_id: String -> result: ItemData }
 
+# Which .tres this item was copied from. Runtime copies made by make_unique_copy()
+# have an empty resource_path, so saving relies on this instead.
+var source_path: String = ""
+
 func get_icon() -> Texture2D:
 	return icon if icon else world_texture
 
 func get_world_texture() -> Texture2D:
 	return world_texture if world_texture else icon
+
+# The path this item should be saved under. Shared resources straight from disk
+# still have their resource_path; copies carry source_path instead.
+func get_source_path() -> String:
+	return source_path if source_path != "" else resource_path
+
+# load() hands out one shared instance per .tres, so every "key.tres" in the game
+# would be the exact same object. Inventories key their grid by item object, so
+# two shared keys would collide in one slot and only one could ever be held.
+# Anything entering an inventory or the world must get its own copy first.
+func make_unique_copy() -> ItemData:
+	var copy: ItemData = duplicate()
+	copy.source_path = get_source_path()
+	return copy

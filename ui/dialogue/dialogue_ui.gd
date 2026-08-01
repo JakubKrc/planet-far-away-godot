@@ -227,13 +227,18 @@ func _advance():
 	var inv = _player_inv()
 	for key in choice.get("gives", {}):
 		if key.begins_with("res://"):
-			var item = load(key) as ItemData
-			if item and inv:
-				var pos = inv.find_free_slot(item)
+			var reward = load(key) as ItemData
+			if reward:
+				var item = reward.make_unique_copy()
+				var item_label = item.item_name if item.item_name != "" else item.id
+				var pos = inv.find_free_slot(item) if inv else Vector2i(-1, -1)
 				if pos != Vector2i(-1, -1):
 					inv.place(item, pos)
-					var nm = item.item_name if item.item_name != "" else item.id
-					append_log("Received: " + nm, Color(0.7, 0.85, 0.7))
+					append_log("Received: " + item_label, Color(0.7, 0.85, 0.7))
+				elif Global.inventory_ui:
+					# No room — drop it at the player's feet rather than lose it.
+					Global.inventory_ui.give_or_drop(item)
+					append_log("Received: %s (no room — dropped at your feet)" % item_label, C_NOTIF)
 		else:
 			Global.inv_add(key, int(choice["gives"][key]))
 			append_log("Received: %s x%d" % [str(key), int(choice["gives"][key])], Color(0.7, 0.85, 0.7))
