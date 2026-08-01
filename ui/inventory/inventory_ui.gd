@@ -5,6 +5,7 @@ const CELL        = 16
 const EQUIP_SLOT  = 32
 const PAD         = 8
 const EQUIP_GAP   = 4
+const EQUIP_GRID_COLS = 2  # equip slots are laid out two per row
 const SEP         = 6    # gap between equip and grid; between dual grids
 const DROP_H      = CELL # height of the drop-to-ground strip
 
@@ -40,7 +41,7 @@ var _hover_tip: ItemData = null
 var _panel:       Rect2
 var _pri_origin:  Vector2
 var _sec_origin:  Vector2   # valid only in dual mode
-var _equip_rects: Array     # [Rect2] x 4
+var _equip_rects: Array     # [Rect2], one per equip slot (0 to EquipmentComponent.MAX_SLOTS)
 var _drop_rect:   Rect2     # drop-to-ground zone below equip slots
 var _close_rect:  Rect2     # close button (X) in top-right corner
 var _dual:        bool = false
@@ -87,12 +88,25 @@ func close():
 
 # ── Layout ────────────────────────────────────────────────────────
 
+# How many equip slots to draw. Zero is valid — a character may have no
+# EquipmentComponent, or one configured with no slots.
+func _equip_slot_count() -> int:
+	return _equipment.slots if _equipment else 0
+
 func _compute_layout():
-	var equip_cols = 2
-	var equip_rows = 2
-	var eq_w = equip_cols * EQUIP_SLOT + (equip_cols - 1) * EQUIP_GAP
-	var eq_h = equip_rows * EQUIP_SLOT + (equip_rows - 1) * EQUIP_GAP
-	var equip_block_h = eq_h + EQUIP_GAP + DROP_H
+	var slot_count = _equip_slot_count()
+	var equip_cols = mini(slot_count, EQUIP_GRID_COLS)
+	var equip_rows = ceili(float(slot_count) / EQUIP_GRID_COLS)
+	var eq_w = 0
+	var eq_h = 0
+	if slot_count > 0:
+		eq_w = equip_cols * EQUIP_SLOT + (equip_cols - 1) * EQUIP_GAP
+		eq_h = equip_rows * EQUIP_SLOT + (equip_rows - 1) * EQUIP_GAP
+	# The drop-to-ground strip lives under the slots and is always shown, so the
+	# left column keeps a width even when there are no equip slots at all.
+	var side_w = maxi(eq_w, EQUIP_SLOT)
+	var gap_below_slots = EQUIP_GAP if eq_h > 0 else 0
+	var equip_block_h = eq_h + gap_below_slots + DROP_H
 	var grid_w = _primary.cols * CELL
 	var grid_h = _primary.rows * CELL
 	var panel_h = max(equip_block_h, grid_h) + PAD * 2
@@ -100,9 +114,9 @@ func _compute_layout():
 	var panel_w: int
 	if _dual:
 		var sec_w = _secondary.cols * CELL
-		panel_w = PAD + eq_w + SEP + grid_w + SEP + sec_w + PAD
+		panel_w = PAD + side_w + SEP + grid_w + SEP + sec_w + PAD
 	else:
-		panel_w = PAD + eq_w + SEP + grid_w + PAD
+		panel_w = PAD + side_w + SEP + grid_w + PAD
 
 	var vp = get_viewport().get_visible_rect().size
 	var pp = ((vp - Vector2(panel_w, panel_h)) / 2.0).floor()
@@ -110,21 +124,21 @@ func _compute_layout():
 
 	var eq_origin = pp + Vector2(PAD, (panel_h - equip_block_h) / 2.0).floor()
 	_equip_rects = []
-	for i in 4:
+	for i in slot_count:
 		@warning_ignore("integer_division")
-		var row = i / equip_cols
-		var col = i % equip_cols
+		var row = i / EQUIP_GRID_COLS
+		var col = i % EQUIP_GRID_COLS
 		_equip_rects.append(Rect2(
 			eq_origin + Vector2(col * (EQUIP_SLOT + EQUIP_GAP),
 								row * (EQUIP_SLOT + EQUIP_GAP)),
 			Vector2(EQUIP_SLOT, EQUIP_SLOT)))
 
-	_drop_rect = Rect2(eq_origin + Vector2(0, eq_h + EQUIP_GAP), Vector2(eq_w, DROP_H))
+	_drop_rect = Rect2(eq_origin + Vector2(0, eq_h + gap_below_slots), Vector2(side_w, DROP_H))
 
 	var cb = 9
 	_close_rect = Rect2(Vector2(_panel.end.x - cb - 2, _panel.position.y + 2), Vector2(cb, cb))
 
-	_pri_origin = pp + Vector2(PAD + eq_w + SEP,
+	_pri_origin = pp + Vector2(PAD + side_w + SEP,
 							   (panel_h - grid_h) / 2.0).floor()
 
 	if _dual:
@@ -461,13 +475,13 @@ func _on_draw():
 func _draw_panel():
 	_control.draw_rect(_panel, C_BG)
 	_control.draw_rect(_panel, C_BORDER, false)
-	# Separator after equip area
-	if _equip_rects.size() > 0:
-		var sep_x = _pri_origin.x - SEP / 2.0
-		_control.draw_line(
-			Vector2(sep_x, _panel.position.y + PAD),
-			Vector2(sep_x, _panel.end.y - PAD),
-			C_BORDER)
+	# Separator after the left column. Drawn even with no equip slots, because
+	# the drop-to-ground strip still occupies that column.
+	var sep_x = _pri_origin.x - SEP / 2.0
+	_control.draw_line(
+		Vector2(sep_x, _panel.position.y + PAD),
+		Vector2(sep_x, _panel.end.y - PAD),
+		C_BORDER)
 	# Separator between dual grids
 	if _dual:
 		var sep_x2 = _sec_origin.x - SEP / 2.0
@@ -538,7 +552,7 @@ func _draw_items_in_inv(inv: InventoryComponent, origin: Vector2):
 func _draw_equipped():
 	if _equipment == null:
 		return
-	for i in _equipment.equipped.size():
+	for i in _equip_rects.size():
 		var item = _equipment.equipped[i]
 		if item:
 			_draw_item_in_rect(item, _equip_rects[i])

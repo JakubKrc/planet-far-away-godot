@@ -1,12 +1,21 @@
 class_name EquipmentComponent
 extends Node
 
-@export var slots: int = 4
+# The inventory screen has room for at most this many equip slots.
+const MAX_SLOTS = 4
+
+@export_range(0, MAX_SLOTS) var slots: int = MAX_SLOTS
 @export var active: bool = true  # false = has gear but bonuses don't apply (NPC, enemy)
 
 var equipped: Array = []  # [ItemData or null] x slots
 
 func _ready():
+	rebuild_slots()
+
+# Clamps `slots` to what the UI can draw and resizes the array to match, so the
+# two can never disagree. Clears whatever was equipped.
+func rebuild_slots():
+	slots = clampi(slots, 0, MAX_SLOTS)
 	equipped.resize(slots)
 	equipped.fill(null)
 
@@ -51,8 +60,7 @@ func serialize() -> Array:
 	return out
 
 func deserialize(data: Array):
-	equipped.resize(slots)
-	equipped.fill(null)
+	rebuild_slots()
 	for entry in data:
 		var stored_item = load(entry["path"]) as ItemData
 		if stored_item == null:
