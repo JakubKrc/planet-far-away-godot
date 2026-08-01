@@ -13,7 +13,7 @@ extends Area2D
 #@onready var anim = $AnimationPlayer
 #@onready var sprite = $Sprite2D
 
-var damage_timer = Timer.new()
+var damage_timer: Timer = null
 var players_in_area := []
 var visuals := {}
 

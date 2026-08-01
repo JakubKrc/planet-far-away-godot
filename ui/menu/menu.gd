@@ -7,6 +7,7 @@ enum State { MAIN, PAUSE, SETTINGS }
 @export var start_possessed_char: String = "main_char"
 
 const SETTINGS_PATH = "user://settings.cfg"
+const MUSIC_BUS = "music"   # defined in audio/default_bus_layout.tres
 
 @onready var bg: ColorRect      = $Bg
 @onready var title: Label       = $Center/VBox/Title
@@ -37,6 +38,7 @@ const FONT_OPTIONS = [
 func _ready():
 	Global.menu = self
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	music_player.bus = MUSIC_BUS
 	music_slider.value_changed.connect(_on_music_slider_changed)
 	for opt in FONT_OPTIONS:
 		font_option.add_item(opt[0])
@@ -125,7 +127,11 @@ func close():
 # ── Items rendering ───────────────────────────────────────────────
 
 func _rebuild_items(entries: Array):
+	# Detach before freeing: queue_free() alone leaves the old labels as children
+	# for the rest of the frame, so _update_highlight() would index into stale
+	# entries and light up a dying label.
 	for c in items.get_children():
+		items.remove_child(c)
 		c.queue_free()
 	for entry in entries:
 		var lbl = Label.new()
@@ -359,8 +365,11 @@ func _on_size_slider_changed(v: float):
 	_save_settings()
 
 func _apply_music_volume(v: float):
-	var bus = AudioServer.get_bus_index("Master")
-	if bus < 0: bus = 0
+	# Must be the music bus, not Master — Master would take sound effects with it.
+	var bus = AudioServer.get_bus_index(MUSIC_BUS)
+	if bus < 0:
+		push_warning("Audio bus '%s' not found; music volume not applied." % MUSIC_BUS)
+		return
 	if v <= 0.001:
 		AudioServer.set_bus_mute(bus, true)
 	else:

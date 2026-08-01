@@ -19,14 +19,14 @@ var interact_target: Node = null
 var _interact_anchor: Node2D = null
 
 func _set_health(new_health):
-
-	health = new_health
-
-	if new_health <= 0:
+	var was_alive: bool = health > 0
+	# Clamp before reacting: health used to be stored raw, so it drifted negative
+	# and the max_health cap was applied after die() had already run.
+	health = clampi(int(new_health), 0, int(max_health))
+	# Only on the transition, or every further hit would re-trigger the death
+	# animation and menu.
+	if health == 0 and was_alive:
 		do('die')
-
-	if health>max_health:
-		health=max_health
 
 var home_level: String = ""
 var is_default_char: bool = false
