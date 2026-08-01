@@ -82,7 +82,27 @@ func apply_to_label(label: Label, base_size: int):
 	label.add_theme_font_size_override("font_size", maxi(1, int(base_size * ui_font_size_scale)))
 var death_menu
 var camera
-var can_player_move = true
+# Everything that currently wants the player held still, keyed by reason.
+# Several systems overlap — a level transition can be running while the inventory
+# is open — so movement resumes only once every one of them has let go. Writing
+# a plain bool here meant whichever system closed last freed the player, even if
+# another still wanted them frozen.
+var _movement_blockers: Dictionary = {}
+
+var can_player_move: bool:
+	get:
+		return _movement_blockers.is_empty()
+
+func block_player_movement(reason: String):
+	_movement_blockers[reason] = true
+
+func unblock_player_movement(reason: String):
+	_movement_blockers.erase(reason)
+
+# Drops every blocker at once. For hard state changes (new game, quit to menu)
+# where a system may have been torn down before it could release its own.
+func clear_movement_blockers():
+	_movement_blockers.clear()
 
 var controlled_char : Node
 var current_level : String
@@ -219,10 +239,10 @@ func _ready():
 	level_transition_finished.connect(_on_transition_finished)
 
 func _on_transition_started():
-	can_player_move = false
+	block_player_movement("level_transition")
 
 func _on_transition_finished():
-	can_player_move = true
+	unblock_player_movement("level_transition")
 
 func _process(_delta):
 	handle_ingame_input()

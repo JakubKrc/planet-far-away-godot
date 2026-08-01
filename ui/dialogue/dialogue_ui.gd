@@ -48,7 +48,7 @@ func start(json_path: String):
 		push_error("Dialogue: invalid JSON: " + json_path)
 		return
 	_data = parsed
-	Global.can_player_move = false
+	Global.block_player_movement("dialogue")
 	show()
 	# Wait for layout so sizes are valid
 	await get_tree().process_frame
@@ -261,7 +261,7 @@ func _end():
 	for child in choices_container.get_children():
 		child.queue_free()
 	hide()
-	Global.can_player_move = true
+	Global.unblock_player_movement("dialogue")
 
 # Auto-hide helper for notifications
 var _hide_timer: Timer = null

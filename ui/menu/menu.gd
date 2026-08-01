@@ -268,7 +268,7 @@ func _close_dialogue_if_open():
 			Global.dialogue.hide()
 		Global.dialogue._in_dialogue = false
 		Global.dialogue.clear_log()
-		Global.can_player_move = true
+		Global.unblock_player_movement("dialogue")
 
 func _act_new_game():
 	Global.game_state = Global.GameState.PLAYING
@@ -276,6 +276,8 @@ func _act_new_game():
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()
+	# Anything that was holding movement belongs to the abandoned run.
+	Global.clear_movement_blockers()
 	Global.main.set_ingame_ui_visible(true)
 	Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1, start_possessed_char)
 
@@ -297,6 +299,7 @@ func _act_continue():
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()
+	Global.clear_movement_blockers()
 	Global.main.set_ingame_ui_visible(true)
 	if home_level != "" and home_level != target_level:
 		await Global.main.load_level(home_level, "", 10000, 10000, possessed)
@@ -322,6 +325,7 @@ func _act_main_menu():
 	Global.main.backgroundMusicPlayer.playMusic(null, 0)
 	Global.main.set_ingame_ui_visible(false)
 	_close_dialogue_if_open()
+	Global.clear_movement_blockers()
 	open_main()
 
 func _act_open_settings():

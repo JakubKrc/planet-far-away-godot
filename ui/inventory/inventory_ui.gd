@@ -74,14 +74,14 @@ func open(primary: InventoryComponent, secondary: InventoryComponent = null):
 	_dual      = secondary != null
 	_compute_layout()
 	show()
-	Global.can_player_move = false
+	Global.block_player_movement("inventory")
 	_control.queue_redraw()
 
 func close():
 	if _drag_item:
 		_cancel_drag()
 	hide()
-	Global.can_player_move = true
+	Global.unblock_player_movement("inventory")
 	_primary = null
 	_secondary = null
 	_equipment = null
