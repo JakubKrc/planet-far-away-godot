@@ -16,11 +16,20 @@ var _choices: Array = []
 var _selection: int = 0
 var _in_dialogue: bool = false
 var _log_entries: Array = []   # plain strings, for clearing/recreating on font change
+var _dialogue_scroll_anchor: int = 0  # scroll y where current dialogue begins
+var _bottom_spacer: Control = null    # padding to allow scroll past last line
 
 func _ready():
 	Global.dialogue = self
 	hide()
 	Global.ui_text_settings_changed.connect(_rebuild_log_fonts)
+	_bottom_spacer = Control.new()
+	_bottom_spacer.custom_minimum_size = Vector2(0, 60)
+	log_box.add_child(_bottom_spacer)
+
+func _refresh_spacer_height():
+	if _bottom_spacer:
+		_bottom_spacer.custom_minimum_size = Vector2(0, int(scroll.size.y))
 
 # ── Public API ────────────────────────────────────────────────────
 
@@ -36,9 +45,18 @@ func start(json_path: String):
 	if _data == null:
 		push_error("Dialogue: invalid JSON: " + json_path)
 		return
-	_in_dialogue = true
 	Global.can_player_move = false
 	show()
+	# Wait for layout so sizes are valid
+	await get_tree().process_frame
+	_refresh_spacer_height()
+	# Anchor at top of bottom_spacer (=end of previous content)
+	_dialogue_scroll_anchor = int(_bottom_spacer.position.y) if _bottom_spacer else int(log_box.size.y)
+	_in_dialogue = true
+	# Optional blank spacer line if log already had content
+	var had_old: bool = log_box.get_child_count() > 1  # >1 because spacer is always there
+	if had_old:
+		append_log(" ", C_TEXT)
 	_show_node("start")
 
 func append_log(text: String, color: Color = C_TEXT):
@@ -52,6 +70,8 @@ func append_log(text: String, color: Color = C_TEXT):
 	lbl.add_theme_color_override("font_color", color)
 	Global.apply_to_label(lbl, 8)
 	log_box.add_child(lbl)
+	if _bottom_spacer:
+		log_box.move_child(_bottom_spacer, -1)
 	_scroll_to_bottom.call_deferred()
 
 func append_notification(text: String):
@@ -65,6 +85,10 @@ func clear_log():
 	_log_entries.clear()
 	for c in log_box.get_children():
 		c.queue_free()
+	_bottom_spacer = Control.new()
+	var h: int = int(scroll.size.y) if is_inside_tree() else 60
+	_bottom_spacer.custom_minimum_size = Vector2(0, h)
+	log_box.add_child.call_deferred(_bottom_spacer)
 
 func _rebuild_log_fonts():
 	for c in log_box.get_children():
@@ -133,6 +157,17 @@ func _scroll_to_bottom():
 	if not is_inside_tree():
 		return
 	await get_tree().process_frame
+	var viewport_h := int(scroll.size.y)
+	if _in_dialogue:
+		# Position so the first new line of this dialogue sits at top of viewport.
+		# If new content overflows, scroll further so latest is at viewport bottom.
+		var last_y := int(_bottom_spacer.position.y) if _bottom_spacer else int(log_box.size.y)
+		var new_h := last_y - _dialogue_scroll_anchor
+		var target := _dialogue_scroll_anchor
+		if new_h > viewport_h:
+			target = _dialogue_scroll_anchor + new_h - viewport_h
+		scroll.scroll_vertical = target
+		return
 	scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
 
 # ── Input ─────────────────────────────────────────────────────────

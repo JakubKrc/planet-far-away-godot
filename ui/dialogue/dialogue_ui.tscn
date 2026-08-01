@@ -34,6 +34,8 @@ vertical_scroll_mode = 2
 [node name="Log" type="VBoxContainer" parent="Panel/Margin/VBox/Scroll" unique_id=200000002]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 0
 theme_override_constants/separation = 1
 
 [node name="Choices" type="VBoxContainer" parent="Panel/Margin/VBox" unique_id=808468919]
