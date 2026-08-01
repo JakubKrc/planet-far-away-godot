@@ -11,6 +11,13 @@ var direction : Vector2 = Vector2.ZERO
 
 var can_interact := false
 
+# The one thing a `use` press acts on. Interactables no longer listen for input
+# themselves — several of them used to overlap and all fire at once, in an order
+# decided by the scene tree. Now the character picks a single target and the
+# interact icon points at exactly the node that will respond.
+var interact_target: Node = null
+var _interact_anchor: Node2D = null
+
 func _set_health(new_health):
 
 	health = new_health
@@ -58,6 +65,62 @@ func do(method_name: String, params: Dictionary = {}):
 		else:
 			c.call(method_name, params)
 
+# Picks the interactable to act on: highest interact_priority wins, nearest wins
+# ties. Anything that declines via can_interact_with() is skipped, so the icon
+# never appears over something that would do nothing.
+func _update_interact_target():
+	interact_target = null
+	_interact_anchor = null
+	var best_priority := -1
+	var best_distance := INF
+
+	for area in interact_area.get_overlapping_areas():
+		if not area.is_in_group("interactable") or area.is_in_group("dont_interact"):
+			continue
+		var handler = _interact_handler(area)
+		if handler == null:
+			continue
+		if handler.has_method("can_interact_with") and not handler.can_interact_with(self):
+			continue
+		var priority: int = handler.interact_priority if "interact_priority" in handler else 0
+		var distance := global_position.distance_squared_to(area.global_position)
+		if priority < best_priority:
+			continue
+		if priority == best_priority and distance >= best_distance:
+			continue
+		best_priority = priority
+		best_distance = distance
+		interact_target = handler
+		_interact_anchor = area
+
+	can_interact = interact_target != null
+	var icon = Global.main.interact_icon.get_node("Icon")
+	icon.visible = can_interact
+	if _interact_anchor != null:
+		icon.position = _interact_anchor.global_position - Vector2(0, 30)
+
+# The node implementing interact(). The "interactable" group sits on the Area2D,
+# which depending on the scene is the script's own node, its parent (switches) or
+# its child (dialogue triggers).
+func _interact_handler(area: Area2D) -> Node:
+	if area.has_method("interact"):
+		return area
+	var parent = area.get_parent()
+	if parent != null and parent.has_method("interact"):
+		return parent
+	for child in area.get_children():
+		if child.has_method("interact"):
+			return child
+	return null
+
+func _unhandled_input(event: InputEvent):
+	if Global.controlled_char != self or not Global.can_player_move:
+		return
+	if not event.is_action_pressed("use") or interact_target == null:
+		return
+	get_viewport().set_input_as_handled()
+	interact_target.interact(self)
+
 func get_component(cls) -> Node:
 	var c = components.get(cls)
 	if c == null:
@@ -76,12 +139,4 @@ func _physics_process(delta):
 	if (Global.is_method_on_target(components, 'falling_and_floor_memory')):
 		Global.call_method_on_target(components, 'falling_and_floor_memory', {'delta':delta} )
 
-	can_interact = false
-	
-	for area in interact_area.get_overlapping_areas():
-		if area.is_in_group("interactable") && !area.is_in_group("dont_interact"):
-			can_interact = true
-			Global.main.interact_icon.get_node("Icon").position = area.global_position - Vector2(0, 30)
-			break
-			
-	Global.main.interact_icon.get_node("Icon").visible = can_interact
+	_update_interact_target()

@@ -14,6 +14,7 @@ extends Node2D
 
 var player_inside: bool = false
 var was_used: bool = false
+var interact_priority: int = 0   # lowest: anything lying on a switch is taken first
 # Re-entrancy guard. Switches and platforms are wired in a loop: the switch emits
 # `activated` -> Platform.activate() -> the platform emits `started_running` ->
 # back into this switch's _on_platform_running() -> switch_switch() again. This
@@ -51,23 +52,24 @@ func _on_body_exited(body):
 	if body.is_in_group(interact_group):
 		player_inside = false
 
-func _input(event):
+# Only a character in interact_group may work this switch — room7 uses it to
+# restrict one switch to the playable robot.
+func can_interact_with(player) -> bool:
+	return player.is_in_group(interact_group)
 
-	if player_inside and event.is_action_pressed("use"):
-		for body in area2d.get_overlapping_bodies():
-			if body.is_in_group("player"):
-				if requires_item_id != "":
-					var inv = body.get_node_or_null("InventoryComponent") as InventoryComponent
-					var has_it = inv.has_id(requires_item_id) if inv else Global.inv_has(requires_item_id)
-					if not has_it:
-						Global.notify(requires_message if requires_message != "" else "Required item missing")
-						return
-				if what_to_posses != "":
-					switch_switch(true)
-				elif switch_state:
-					switch_switch(false)
-				else:
-					switch_switch(true)
+func interact(player):
+	if requires_item_id != "":
+		var inv = player.get_node_or_null("InventoryComponent") as InventoryComponent
+		var has_it = inv.has_id(requires_item_id) if inv else Global.inv_has(requires_item_id)
+		if not has_it:
+			Global.notify(requires_message if requires_message != "" else "Required item missing")
+			return
+	if what_to_posses != "":
+		switch_switch(true)
+	elif switch_state:
+		switch_switch(false)
+	else:
+		switch_switch(true)
 
 func switch_switch(set_to: bool):
 	if !repeatable_action && was_used:
