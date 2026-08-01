@@ -223,11 +223,11 @@ func restore_current_level():
 			if not level_data.has(node.name):
 				continue
 			var data = level_data[node.name]
-			if data["disabled"]:
+			if data.get("disabled", false):
 				disable_node(node)
 			else:
 				enable_node(node)
-				node.global_position = data["position"]
+				if data.has("position"):     node.global_position = data["position"]
 				if data.has("health"):       node.health      = data["health"]
 				if data.has("inventory"):
 					var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent

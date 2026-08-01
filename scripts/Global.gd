@@ -128,6 +128,10 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"equipment_component": equip_data,
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		push_error("Could not write save file %s (error %d)" % [SAVE_PATH, FileAccess.get_open_error()])
+		notify("Saving failed!")
+		return
 	file.store_string(JSON.stringify(data))
 	file.close()
 	if OS.get_name() == "Web":
@@ -137,9 +141,13 @@ func load_game() -> Dictionary:
 	if not FileAccess.file_exists(SAVE_PATH):
 		return {}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null:
+		push_error("Could not read save file %s (error %d)" % [SAVE_PATH, FileAccess.get_open_error()])
+		return {}
 	var result = JSON.parse_string(file.get_as_text())
 	file.close()
-	if result == null:
+	if not result is Dictionary:
+		push_error("Save file %s is not valid JSON — ignoring it." % SAVE_PATH)
 		return {}
 	per_level_save = _deserialize_save(result.get("per_level_save", {}))
 	var cp = result.get("checkpoint_position", null)

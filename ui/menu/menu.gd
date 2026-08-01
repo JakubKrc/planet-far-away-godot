@@ -283,13 +283,17 @@ func _act_continue():
 	var save = Global.load_game()
 	if save.is_empty():
 		return
+	# Bail before closing the menu, so a damaged save leaves the player here
+	# rather than in a running game with no level loaded.
+	var target_level: String = str(save.get("current_level", ""))
+	if target_level == "":
+		push_error("Save has no current_level — cannot continue.")
+		return
 	Global.game_state = Global.GameState.PLAYING
 	get_tree().paused = false
 	var possessed = save.get("possessed_char_name", start_possessed_char)
-	var sp = save.get("spawn_position", [0.0, 0.0])
-	var spawn_pos = Vector2(sp[0], sp[1])
-	var target_level: String = save["current_level"]
-	var home_level: String = save.get("possessed_char_home_level", "")
+	var spawn_pos = _saved_position(save.get("spawn_position", null))
+	var home_level: String = str(save.get("possessed_char_home_level", ""))
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()
@@ -299,6 +303,13 @@ func _act_continue():
 		await Global.main.load_level(target_level, "", 10000, 0.1, "", spawn_pos)
 	else:
 		await Global.main.load_level(target_level, "", 10000, 0.1, possessed, spawn_pos)
+
+# Saved positions are [x, y] pairs. Anything else falls back to Vector2.ZERO,
+# which load_level reads as "use the level's own spawn door".
+func _saved_position(value) -> Vector2:
+	if value is Array and value.size() >= 2:
+		return Vector2(value[0], value[1])
+	return Vector2.ZERO
 
 func _act_main_menu():
 	var player = get_tree().get_first_node_in_group("player")

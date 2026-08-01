@@ -40,11 +40,14 @@ func start(json_path: String):
 	if file == null:
 		push_error("Dialogue: file not found: " + json_path)
 		return
-	_data = JSON.parse_string(file.get_as_text())
+	# Parse into an untyped local first: assigning a failed parse straight into
+	# the typed _data would throw before it could be checked.
+	var parsed = JSON.parse_string(file.get_as_text())
 	file.close()
-	if _data == null:
+	if not parsed is Dictionary:
 		push_error("Dialogue: invalid JSON: " + json_path)
 		return
+	_data = parsed
 	Global.can_player_move = false
 	show()
 	# Wait for layout so sizes are valid
