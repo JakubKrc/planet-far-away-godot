@@ -14,14 +14,24 @@ extends Node2D
 
 var player_inside: bool = false
 var was_used: bool = false
+# Re-entrancy guard. Switches and platforms are wired in a loop: the switch emits
+# `activated` -> Platform.activate() -> the platform emits `started_running` ->
+# back into this switch's _on_platform_running() -> switch_switch() again. This
+# flag is raised around the emit so that second pass updates state and animation
+# without emitting again. It is cleared at the end of every switch_switch(), so
+# it guards one call rather than latching.
 var signal_was_used = false
 
+# Declared without parameters, but possession switches emit one extra String
+# ("posesujem") to tell a receiving switch the activation came from a possession
+# switch. Godot allows emitting more arguments than are declared; every receiver
+# takes an optional parameter, so both shapes work through the same connection.
 signal activated
 signal deactivated
 
 func _ready():
-	area2d.connect("body_entered", Callable(self, "_on_body_entered"))
-	area2d.connect("body_exited", Callable(self, "_on_body_exited"))
+	area2d.body_entered.connect(_on_body_entered)
+	area2d.body_exited.connect(_on_body_exited)
 	which_anim_to_play()
 	if use_signal && switch_state:
 		call_deferred("_emit_initial")
@@ -30,7 +40,7 @@ func _emit_initial():
 	emit_signal("activated")
 
 func _process(_delta):
-	if what_to_posses:
+	if what_to_posses != "":
 		which_anim_to_play()
 
 func _on_body_entered(body):
@@ -52,7 +62,7 @@ func _input(event):
 					if not has_it:
 						Global.notify(requires_message if requires_message != "" else "Required item missing")
 						return
-				if what_to_posses:
+				if what_to_posses != "":
 					switch_switch(true)
 				elif switch_state:
 					switch_switch(false)
@@ -62,7 +72,7 @@ func _input(event):
 func switch_switch(set_to: bool):
 	if !repeatable_action && was_used:
 		return
-	if what_to_posses and set_to:
+	if what_to_posses != "" and set_to:
 		var target = get_tree().get_first_node_in_group(what_to_posses)
 		if target != null and target.is_in_group("player"):
 			return
@@ -76,12 +86,11 @@ func switch_switch(set_to: bool):
 		if (!signal_was_used):
 			signal_was_used=true
 			
-			if (what_to_posses):
+			if what_to_posses != "":
 				emit_signal("activated","posesujem")
 			else:
 				emit_signal("activated")
-				print("activated neposesujem")
-							
+
 			change_controlled_char()
 			
 	if set_to==false:
@@ -89,8 +98,7 @@ func switch_switch(set_to: bool):
 		which_anim_to_play()
 		if (!signal_was_used):
 			signal_was_used=true
-			print("deaktivujem")
-			if (what_to_posses):
+			if what_to_posses != "":
 				emit_signal("deactivated","posesujem")
 			else:
 				emit_signal("deactivated")
@@ -105,7 +113,7 @@ func play_animation(anim_name: String):
 			anim.play(anim_name)
 			
 func change_controlled_char():
-	if what_to_posses:
+	if what_to_posses != "":
 		var old_char = Global.controlled_char
 		old_char.remove_from_group("player")
 		old_char.velocity = Vector2.ZERO
@@ -121,7 +129,7 @@ func change_controlled_char():
 		which_anim_to_play()
 
 func which_anim_to_play():
-	if what_to_posses:
+	if what_to_posses != "":
 		var in_possession_mode = Global.controlled_char != null and not Global.controlled_char.is_default_char
 		if in_possession_mode:
 			play_animation(animation_active)
