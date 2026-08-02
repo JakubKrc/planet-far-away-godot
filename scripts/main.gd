@@ -294,6 +294,22 @@ func unload_level():
 			main2D.remove_child(child)
 			child.queue_free()
 
+# Characters that were possessed or carried between levels are reparented to
+# /root/main, so unload_level() never touches them. Starting or resuming a run
+# while one is still there leaves it behind, and the incoming level's own copy of
+# the same character is then added alongside it under an auto-generated name
+# ("@CharacterBody2D@27") — the stray duplicate standing at the level's spawn.
+func clear_persistent_characters():
+	for child in get_children():
+		if not child.is_in_group("save"):
+			continue
+		if not ("home_level" in child):
+			continue
+		child.remove_from_group("player")
+		remove_child(child)
+		child.queue_free()
+	Global.controlled_char = null
+
 func disable_node(node: Node):
 	node.visible = false
 	node.set_process(false)

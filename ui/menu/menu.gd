@@ -284,8 +284,17 @@ func _act_new_game():
 	_close_dialogue_if_open()
 	# Anything that was holding movement belongs to the abandoned run.
 	Global.clear_movement_blockers()
+	# Both actions are reachable from the in-game pause menu, so a run may still be
+	# live with its character parked under /root/main.
+	_leave_current_run()
 	Global.main.set_ingame_ui_visible(true)
 	Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1, start_possessed_char)
+
+# Tears down whatever run is still in progress before another level is loaded.
+func _leave_current_run():
+	if Global.death_menu:
+		Global.death_menu.hide()
+	Global.main.clear_persistent_characters()
 
 func _act_continue():
 	var save = Global.load_game()
@@ -306,6 +315,7 @@ func _act_continue():
 	close()
 	_close_dialogue_if_open()
 	Global.clear_movement_blockers()
+	_leave_current_run()
 	Global.main.set_ingame_ui_visible(true)
 	if home_level != "" and home_level != target_level:
 		await Global.main.load_level(home_level, "", 10000, 10000, possessed)
