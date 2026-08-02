@@ -224,7 +224,7 @@ libraries/ = SubResource("AnimationLibrary_o5tj0")
 character_id = "room1_robot"
 position = Vector2(-12, -77)
 
-[node name="InventoryComponent" parent="PlayableRobot" unique_id=107406968 instance=ExtResource("7_8mi6y")]
+[node name="InventoryComponent" parent="PlayableRobot"]
 starting_items = Array[ExtResource("14_s4iuh")]([ExtResource("21_spare")])
 
 [node name="Chest" parent="PlayableRobot" unique_id=1336411612 instance=ExtResource("17_k2e8i")]

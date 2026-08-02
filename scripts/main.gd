@@ -81,7 +81,6 @@ func place_controlled_character(where_to_set_character: Vector2, direction_vecto
 	Global.camera.global_position = where_to_set_character
 	await get_tree().process_frame
 	Global.camera.position_smoothing_enabled = true
-	Global.apply_inventory_save()
 
 # Portals may store their target as a uid:// reference. Level keys in the save
 # are plain res:// paths, so everything is normalized to those.
@@ -104,8 +103,14 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 		push_error("Level %s dont exist." % level_path)
 		return
 		
+	# Snapshot the level we are leaving before anything is torn down. The character
+	# we are controlling comes with us, so its record moves to the new level and it
+	# will be spawned there by populate_characters().
+	var travelling_character_id := Global._controlled_character_id()
+	capture_characters_to_roster()
 	save_current_level()
-						
+	Global.move_character_to_level(travelling_character_id, level_path)
+
 	Global.level_transition_started.emit()
 	
 	var didFadeInTransitionHappened = TransitionScreen.transition(fadeIn, fadeOut)
@@ -122,39 +127,36 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 		await get_tree().process_frame
 				
 	Global.current_level = level_path
-	for node in get_tree().get_nodes_in_group("save"):
-		if str(node.get_path()).contains("/main2D/") and "home_level" in node:
-			node.home_level = level_path
 
-	# A level may declare who you control here and where you arrive. The caller
-	# still wins — a save restores as the character it recorded, not the level's
-	# default — and a level that declares nothing keeps whoever walked in.
+	# Bring this level's cast into existence before deciding who to control, so the
+	# character we are looking for is already in the tree.
+	populate_characters(level_path)
+
+	# Who you control here, most specific first:
+	#   1. the caller said so — a save restoring, or a scripted sequence
+	#   2. you walked in as someone, so you stay as them
+	#   3. the level's own declaration, for when nobody arrived with you
+	# The level's declaration is deliberately last: it answers "who am I when this
+	# level opens cold", which is the new-game case. A level that wants to seize
+	# control from a traveller does it by passing the character explicitly.
+	if initial_possess_group == "":
+		initial_possess_group = travelling_character_id
 	if initial_possess_group == "":
 		initial_possess_group = _level_declares("default_character")
 	if door_name == "":
 		door_name = _level_declares("default_spawn_door")
 
 	if initial_possess_group != "":
-		# Accepts a group name, a character_id, or (for saves written before ids
-		# existed) a node name.
-		var char_to_possess = get_tree().get_first_node_in_group(initial_possess_group)
+		# Accepts a character_id or a group name.
+		var char_to_possess = _find_character_by_id(initial_possess_group)
 		if char_to_possess == null:
-			char_to_possess = _find_character_by_id(initial_possess_group)
+			char_to_possess = get_tree().get_first_node_in_group(initial_possess_group)
 		if char_to_possess == null:
-			for node in get_tree().get_nodes_in_group("save"):
-				if str(node.name) == initial_possess_group:
-					char_to_possess = node
-					break
-		if char_to_possess:
-			if not char_to_possess is CharacterBase:
-				push_error("load_level: found '%s' for '%s' but it is not a character (type: %s). Check the scene — InventoryComponent/EquipmentComponent children must be plain Node, not CharacterBody2D." % [char_to_possess.name, initial_possess_group, char_to_possess.get_class()])
-				char_to_possess = null
-			else:
-				char_to_possess.add_to_group("player")
-				char_to_possess.is_level_default_character = true
-				Global.controlled_char = char_to_possess
-				char_to_possess.get_parent().remove_child(char_to_possess)
-				add_child(char_to_possess)
+			push_warning("load_level: no character '%s' in %s." % [initial_possess_group, level_path])
+		elif not char_to_possess is CharacterBase:
+			push_error("load_level: found '%s' for '%s' but it is not a character (type: %s). Check the scene — InventoryComponent/EquipmentComponent children must be plain Node, not CharacterBody2D." % [char_to_possess.name, initial_possess_group, char_to_possess.get_class()])
+		else:
+			_give_control_to(char_to_possess)
 
 	restore_current_level()
 
@@ -177,7 +179,19 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 			push_warning("Portal %s is not in the level %s" % [door_name, level_path])
 
 	await place_controlled_character(spawn_position, Vector2.ZERO)
-	
+
+# Hands the player a character. The character stays where it is in the level —
+# nothing is reparented, which is what keeps two same-named characters from
+# colliding and deleting one another.
+func _give_control_to(character: Node):
+	for previous in get_tree().get_nodes_in_group("player"):
+		if previous != character:
+			previous.remove_from_group("player")
+	character.add_to_group("player")
+	character.is_level_default_character = true
+	enable_node(character)
+	Global.controlled_char = character
+
 # Per-node state carried in the save, beyond position and visibility.
 const SAVED_PROPERTIES = ["health", "switch_state", "was_used", "activated", "current_index"]
 
@@ -204,20 +218,57 @@ func _character_id_of(node: Node) -> String:
 		return node.character_id
 	return ""
 
-# The already-carried copy of the same character, if one is parked at /root/main.
-# Matched on character_id, falling back to node name only for characters that
-# have not been given an id yet.
-func _carried_copy_of(level_character: Node) -> Node:
-	var wanted_id := _character_id_of(level_character)
-	for child in get_children():
-		if child == level_character:
+# ── Character roster ──────────────────────────────────────────────
+
+func characters_in_tree() -> Array:
+	var found = []
+	for node in get_tree().get_nodes_in_group("save"):
+		if node is CharacterBase:
+			found.append(node)
+	return found
+
+# Writes every live character into the roster. Called before a level is torn down
+# and before a save, so the roster is always the authority on where people are.
+func capture_characters_to_roster():
+	for character in characters_in_tree():
+		Global.write_character_record(character, Global.current_level)
+
+# Brings a level's cast into existence: registers residents on first sight,
+# removes the scene's copy of anyone who has since moved elsewhere, and spawns
+# characters the roster says are here but who are not in the scene — the ones you
+# walked in with.
+func populate_characters(level_path: String):
+	for character in characters_in_tree():
+		if character.character_id == "":
 			continue
-		if wanted_id != "":
-			if _character_id_of(child) == wanted_id:
-				return child
-		elif str(child.name) == str(level_character.name):
-			return child
-	return null
+		var record := Global.character_record(character.character_id)
+		if record.is_empty():
+			Global.write_character_record(character, level_path)
+			continue
+		if str(record.get("level", "")) != level_path:
+			# This character lives somewhere else now; the scene's copy is a stale
+			# duplicate, and keeping it would fork the character in two.
+			character.get_parent().remove_child(character)
+			character.queue_free()
+			continue
+		Global.apply_character_record(character, record)
+
+	for character_id in Global.character_roster:
+		if Global.character_level(character_id) != level_path:
+			continue
+		if _find_character_by_id(character_id) != null:
+			continue
+		_spawn_character_from_record(character_id, Global.character_record(character_id))
+
+func _spawn_character_from_record(character_id: String, record: Dictionary):
+	var scene_path := str(record.get("scene", ""))
+	if scene_path == "" or not ResourceLoader.exists(scene_path):
+		push_error("Roster: character '%s' has no usable scene (%s)." % [character_id, scene_path])
+		return
+	var character = (load(scene_path) as PackedScene).instantiate()
+	character.character_id = character_id
+	level_instance.add_child(character)
+	Global.apply_character_record(character, record)
 
 # Reads a declaration off the loaded level. Duck-typed rather than requiring the
 # Level base script, so a room that has nothing to declare needs no script at all.
@@ -254,19 +305,13 @@ func save_current_level():
 	Global.per_level_save[level_path]["__ground_items__"] = ground_items_data
 
 	for node in get_tree().get_nodes_in_group("save"):
-		if node.is_in_group("player"):
+		# Characters are tracked in the roster, not here.
+		if node is CharacterBase:
+			continue
+		if not str(node.get_path()).contains("/main2D/"):
 			continue
 
-		var node_path = str(node.get_path())
-		var target_level: String
-
-		if node_path.contains("/main2D/"):
-			target_level = level_path
-		elif "home_level" in node and node.home_level != "":
-			target_level = node.home_level
-		else:
-			continue
-
+		var target_level: String = level_path
 		if not Global.per_level_save.has(target_level):
 			Global.per_level_save[target_level] = {}
 
@@ -274,35 +319,21 @@ func save_current_level():
 		for property_name in SAVED_PROPERTIES:
 			if _has_property(node, property_name):
 				data[property_name] = node.get(property_name)
+		# Chests carry an inventory; characters are handled by the roster instead.
 		var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
 		if inv:                      data["inventory"]      = inv.serialize()
-		# Only the controlled character's equipment reaches the save file via
-		# Global.save_game, so without this anyone you are not currently playing
-		# loses what they had equipped.
-		var equipment = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
-		if equipment:                data["equipment"]      = equipment.serialize()
 
 		Global.per_level_save[target_level][_save_key(node)] = data
-	
+
 func restore_current_level():
 	var level_path = Global.current_level
-
-	# Free fresh-scene duplicates of characters already at /root/main/
-	for node in get_tree().get_nodes_in_group("save"):
-		if not str(node.get_path()).contains("/main2D/"):
-			continue
-		if not ("home_level" in node):
-			continue
-		if _carried_copy_of(node) != null:
-			node.remove_from_group("player")
-			node.get_parent().remove_child(node)
-			node.queue_free()
-
 	var level_data = Global.per_level_save.get(level_path, {})
 
 	# Restore level-local nodes (enemies, switches, platforms)
 	if not level_data.is_empty():
 		for node in get_tree().get_nodes_in_group("save"):
+			if node is CharacterBase:
+				continue    # the roster owns characters
 			if not node.is_inside_tree():
 				continue
 			if not str(node.get_path()).contains("/main2D/"):
@@ -310,33 +341,15 @@ func restore_current_level():
 			if not level_data.has(_save_key(node)):
 				continue
 			var data = level_data[_save_key(node)]
-			# The controlled character takes its position and enabled state from the
-			# spawn/possession path, not from here. Its bag still lives in this record
-			# though, and skipping the whole entry used to throw the items away — you
-			# would walk back into a room possessing someone else and find it empty.
-			if node.is_in_group("player"):
-				if data.has("inventory"):
-					var player_inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
-					if player_inv: player_inv.deserialize(data["inventory"])
-				if data.has("equipment"):
-					var player_eq = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
-					if player_eq: player_eq.deserialize(data["equipment"])
-				continue
 			if data.get("disabled", false):
 				disable_node(node)
 			else:
 				enable_node(node)
 				if data.has("position"):     node.global_position = data["position"]
-				if data.has("health"):       node.health      = data["health"]
 				if data.has("inventory"):
 					var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
 					if inv: inv.deserialize(data["inventory"])
-				if data.has("equipment"):
-					var equipment = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
-					if equipment: equipment.deserialize(data["equipment"])
 				for property_name in SAVED_PROPERTIES:
-					if property_name == "health":
-						continue   # already applied above
 					if data.has(property_name) and _has_property(node, property_name):
 						node.set(property_name, data[property_name])
 				if data.has("switch_state") and node.has_method("which_anim_to_play"):
@@ -355,46 +368,14 @@ func restore_current_level():
 				gi.position = Vector2(entry["pos"][0], entry["pos"][1])
 				main2D.add_child(gi)
 
-	# Show/hide unpossessed chars at /root/main/ based on their home level
-	for node in get_tree().get_nodes_in_group("save"):
-		if node.is_in_group("player"):
-			continue
-		if str(node.get_path()).contains("/main2D/"):
-			continue
-		if not ("home_level" in node) or node.home_level == "":
-			continue
-		if node.home_level != level_path:
-			disable_node(node)
-			continue
-		# Belongs to this level — restore using saved state
-		var char_data = level_data.get(_save_key(node), {})
-		if char_data.get("disabled", false):
-			disable_node(node)
-		else:
-			enable_node(node)
-			if char_data.has("position"): node.global_position = char_data["position"]
-			if char_data.has("health"):   node.health = char_data["health"]
-
 func unload_level():
 	for child in main2D.get_children():
-		if not child.is_in_group("player"):
-			main2D.remove_child(child)
-			child.queue_free()
-
-# Characters that were possessed or carried between levels are reparented to
-# /root/main, so unload_level() never touches them. Starting or resuming a run
-# while one is still there leaves it behind, and the incoming level's own copy of
-# the same character is then added alongside it under an auto-generated name
-# ("@CharacterBody2D@27") — the stray duplicate standing at the level's spawn.
-func clear_persistent_characters():
-	for child in get_children():
-		if not child.is_in_group("save"):
-			continue
-		if not ("home_level" in child):
-			continue
-		child.remove_from_group("player")
-		remove_child(child)
+		main2D.remove_child(child)
 		child.queue_free()
+
+# Ends the current run. Characters live inside the level, so unloading it removes
+# them; only the roster and the control pointer need clearing on top.
+func clear_persistent_characters():
 	Global.controlled_char = null
 
 # ── Test helpers ──────────────────────────────────────────────────

@@ -224,8 +224,6 @@ position = Vector2(-434, 352)
 character_id = "room7_robot"
 position = Vector2(-441, 404)
 
-[node name="InventoryComponent" parent="PlayableRobot" unique_id=107406968 instance=ExtResource("16_iw3bh")]
-
 [node name="Switch2" parent="." unique_id=1879330617 instance=ExtResource("6_wvuok")]
 position = Vector2(-441, 398)
 interact_group = "playable_robot"

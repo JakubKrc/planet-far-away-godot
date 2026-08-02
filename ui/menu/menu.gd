@@ -280,6 +280,7 @@ func _close_dialogue_if_open():
 func _act_new_game():
 	Global.game_state = Global.GameState.PLAYING
 	Global.per_level_save.clear()
+	Global.character_roster.clear()
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()
@@ -318,18 +319,15 @@ func _act_continue():
 	if possessed == "":
 		possessed = str(save.get("possessed_char_name", ""))
 	var spawn_pos = _saved_position(save.get("spawn_position", null))
-	var home_level: String = str(save.get("possessed_char_home_level", ""))
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()
 	Global.clear_movement_blockers()
 	_leave_current_run()
 	Global.main.set_ingame_ui_visible(true)
-	if home_level != "" and home_level != target_level:
-		await Global.main.load_level(home_level, "", 10000, 10000, possessed)
-		await Global.main.load_level(target_level, "", 10000, 0.1, "", spawn_pos)
-	else:
-		await Global.main.load_level(target_level, "", 10000, 0.1, possessed, spawn_pos)
+	# One load. The roster already knows which level everyone is in, so there is no
+	# longer a detour through the character's home level to collect it.
+	await Global.main.load_level(target_level, "", 10000, 0.1, possessed, spawn_pos)
 
 # Saved positions are [x, y] pairs. Anything else falls back to Vector2.ZERO,
 # which load_level reads as "use the level's own spawn door".

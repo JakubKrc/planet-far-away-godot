@@ -157,18 +157,15 @@ func change_controlled_char():
 	old_char.velocity = Vector2.ZERO
 	await get_tree().process_frame
 	var what_possesing = get_tree().get_first_node_in_group(what_to_posses)
-	# Nothing to possess: give the old character back its "player" group and stop.
-	# The reparenting below used to run regardless, which tore the character the
-	# player was still controlling out of the level and stranded it under /root/main.
 	if what_possesing == null:
 		push_warning("Switch %s: no node in group '%s' to possess." % [name, what_to_posses])
 		old_char.add_to_group("player")
 		return
-	Global.controlled_char = what_possesing
-	Global.controlled_char.add_to_group("player")
-	Global.controlled_char.get_parent().remove_child(Global.controlled_char)
-	get_node("/root/main").add_child(Global.controlled_char)
-	Global.main.enable_node(Global.controlled_char)
+	# The character stays where it is in the level; only who the player wears
+	# changes. Possession used to reparent it to /root/main, which is what let two
+	# same-named characters collide.
+	Global.main._give_control_to(what_possesing)
+	what_possesing.is_level_default_character = false
 	which_anim_to_play()
 
 func which_anim_to_play():

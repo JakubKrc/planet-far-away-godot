@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://dibegh5aifauk" path="res://scripts/components/falling.tscn" id="5_siuox"]
 [ext_resource type="PackedScene" uid="uid://deoosjyp6kqqw" path="res://scripts/components/jump_controlled_fly.tscn" id="6_jvdeg"]
 [ext_resource type="PackedScene" uid="uid://cee5qeljbyaec" path="res://scripts/components/die.tscn" id="7_nr1h3"]
+[ext_resource type="PackedScene" uid="uid://bi3g5mk5xpocy" path="res://scripts/components/inventory_component.tscn" id="8_invcmp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hegqk"]
 size = Vector2(10, 30)
@@ -166,3 +167,5 @@ text = "Status"
 jump_velocity = -100.0
 
 [node name="Die" parent="." unique_id=1371320805 instance=ExtResource("7_nr1h3")]
+
+[node name="InventoryComponent" parent="." instance=ExtResource("8_invcmp")]

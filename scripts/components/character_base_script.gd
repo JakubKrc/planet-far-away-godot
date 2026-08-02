@@ -38,8 +38,6 @@ func _set_health(new_health):
 # living there, taking its inventory with it.
 @export var character_id: String = ""
 
-var home_level: String = ""
-
 # True when this character is the one its level hands you on arrival, false when
 # you are wearing it through possession. Switches read it to decide whether to
 # show their "possessed" animation. Nothing to do with being the main character —
@@ -86,7 +84,7 @@ func _mcp_state() -> Dictionary:
 		"max_health": max_health,
 		"is_controlled": Global.controlled_char == self,
 		"is_player": is_in_group("player"),
-		"home_level": home_level,
+		"roster_level": Global.character_level(character_id),
 		"position": [global_position.x, global_position.y],
 		"on_floor": is_on_floor(),
 		"interact_target": str(interact_target.name) if interact_target != null else "",

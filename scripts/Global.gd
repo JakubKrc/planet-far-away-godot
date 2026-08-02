@@ -131,9 +131,6 @@ var active_checkpoint_position: Vector2 = Vector2(INF, INF)
 var dialogue
 var inventory_ui
 
-var _saved_inventory_data: Array = []
-var _saved_equipment_data: Array = []
-
 const SAVE_PATH = "user://save.json"
 const TEST_SAVE_PATH = "user://save_test.json"
 
@@ -152,6 +149,61 @@ func _controlled_character_id() -> String:
 		return str(controlled_char.character_id)
 	return ""
 
+# ── Character roster ──────────────────────────────────────────────
+# Where every character is and what state it is in, keyed by character_id.
+# Characters are data here rather than nodes kept alive across level changes:
+# a level instantiates whoever the roster says belongs to it, and nobody is ever
+# reparented. That is what lets two rooms each hold a node called
+# "PlayableRobot" without one silently deleting the other.
+var character_roster: Dictionary = {}
+
+func character_record(character_id: String) -> Dictionary:
+	return character_roster.get(character_id, {})
+
+func character_level(character_id: String) -> String:
+	return str(character_record(character_id).get("level", ""))
+
+# Copies a live character into its roster record. Stored JSON-ready so the roster
+# can go straight into the save file.
+func write_character_record(character: Node, level_path: String):
+	if character.character_id == "":
+		push_warning("Character '%s' has no character_id and cannot be tracked." % character.name)
+		return
+	var record: Dictionary = character_roster.get(character.character_id, {})
+	record["scene"] = character.scene_file_path
+	record["level"] = level_path
+	record["position"] = [character.global_position.x, character.global_position.y]
+	record["health"] = character.health
+	record["disabled"] = not character.visible
+	var inventory = character.get_node_or_null("InventoryComponent")
+	if inventory:
+		record["inventory"] = inventory.serialize()
+	var equipment = character.get_node_or_null("EquipmentComponent")
+	if equipment:
+		record["equipment"] = equipment.serialize()
+	character_roster[character.character_id] = record
+
+func apply_character_record(character: Node, record: Dictionary):
+	if record.has("position"):
+		var stored_position = record["position"]
+		character.global_position = Vector2(stored_position[0], stored_position[1])
+	if record.has("health"):
+		character.health = record["health"]
+	if record.has("inventory"):
+		var inventory = character.get_node_or_null("InventoryComponent")
+		if inventory:
+			inventory.deserialize(record["inventory"])
+	if record.has("equipment"):
+		var equipment = character.get_node_or_null("EquipmentComponent")
+		if equipment:
+			equipment.deserialize(record["equipment"])
+
+# Called when the controlled character walks into another level.
+func move_character_to_level(character_id: String, level_path: String):
+	if character_id == "" or not character_roster.has(character_id):
+		return
+	character_roster[character_id]["level"] = level_path
+
 func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(INF, INF)):
 	# Snapshot the room the player is standing in first. per_level_save is only
 	# refreshed when a level is left, so without this a checkpoint stores the room
@@ -159,29 +211,18 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 	# chests filled, platforms moved — is silently lost on reload.
 	if main != null:
 		main.save_current_level()
+	# Characters live in the roster, so their state is captured there rather than
+	# alongside the level's switches and platforms.
+	if main != null:
+		main.capture_characters_to_roster()
 	active_checkpoint_position = checkpoint_position if checkpoint_position != Vector2(INF, INF) else spawn_position
-	var char_home_level := ""
-	if controlled_char != null and "home_level" in controlled_char:
-		char_home_level = str(controlled_char.home_level)
-	var inv_data = []
-	var equip_data = []
-	if controlled_char != null:
-		var inv_comp = controlled_char.get_node_or_null("InventoryComponent")
-		if inv_comp:
-			inv_data = inv_comp.serialize()
-		var eq_comp = controlled_char.get_node_or_null("EquipmentComponent")
-		if eq_comp:
-			equip_data = eq_comp.serialize()
 	var data = {
 		"current_level": current_level,
 		"spawn_position": [spawn_position.x, spawn_position.y],
 		"checkpoint_position": [active_checkpoint_position.x, active_checkpoint_position.y],
 		"possessed_character_id": _controlled_character_id(),
-		"possessed_char_name": str(controlled_char.name) if controlled_char != null else "",
-		"possessed_char_home_level": char_home_level,
+		"character_roster": character_roster,
 		"per_level_save": _serialize_save(per_level_save),
-		"inventory_component": inv_data,
-		"equipment_component": equip_data,
 	}
 	var path := save_path()
 	var file = FileAccess.open(path, FileAccess.WRITE)
@@ -208,25 +249,11 @@ func load_game() -> Dictionary:
 		push_error("Save file %s is not valid JSON — ignoring it." % path)
 		return {}
 	per_level_save = _deserialize_save(result.get("per_level_save", {}))
+	character_roster = result.get("character_roster", {})
 	var cp = result.get("checkpoint_position", null)
 	if cp != null:
 		active_checkpoint_position = Vector2(cp[0], cp[1])
-	# Stash component data; applied in apply_inventory_save() after char is in scene
-	_saved_inventory_data  = result.get("inventory_component", [])
-	_saved_equipment_data  = result.get("equipment_component", [])
 	return result
-
-func apply_inventory_save():
-	if controlled_char == null:
-		return
-	var inv_comp = controlled_char.get_node_or_null("InventoryComponent")
-	if inv_comp and _saved_inventory_data.size() > 0:
-		inv_comp.deserialize(_saved_inventory_data)
-		_saved_inventory_data = []
-	var eq_comp = controlled_char.get_node_or_null("EquipmentComponent")
-	if eq_comp and _saved_equipment_data.size() > 0:
-		eq_comp.deserialize(_saved_equipment_data)
-		_saved_equipment_data = []
 
 func notify(text: String, duration: float = 2.5):
 	if main:
