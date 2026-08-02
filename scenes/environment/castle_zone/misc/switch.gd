@@ -60,7 +60,8 @@ func can_interact_with(player) -> bool:
 func interact(player):
 	if requires_item_id != "":
 		var inv = player.get_node_or_null("InventoryComponent") as InventoryComponent
-		var has_it = inv.has_id(requires_item_id) if inv else Global.inv_has(requires_item_id)
+		# No bag at all means the player cannot be carrying the key item.
+		var has_it = inv.has_id(requires_item_id) if inv else false
 		if not has_it:
 			Global.notify(requires_message if requires_message != "" else "Required item missing")
 			return

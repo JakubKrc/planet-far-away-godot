@@ -134,16 +134,45 @@ func _player_inv() -> InventoryComponent:
 		return player.get_node_or_null("InventoryComponent") as InventoryComponent
 	return null
 
+# Dialogue JSON may name a reward either as a full resource path or as a bare
+# item id; ids resolve by convention, since every item's id matches its filename.
+func _reward_resource_path(key: String) -> String:
+	if key.begins_with("res://"):
+		return key
+	return "res://items/%s.tres" % key
+
+# Puts one copy of the named item in the player's bag, dropping it at their feet
+# when there is no room, so a reward is never silently lost.
+func _give_reward(inv: InventoryComponent, key: String):
+	var path = _reward_resource_path(key)
+	if not ResourceLoader.exists(path):
+		push_error("Dialogue: reward '%s' has no item resource at %s" % [key, path])
+		return
+	var reward = load(path) as ItemData
+	if reward == null:
+		push_error("Dialogue: reward '%s' at %s is not an ItemData" % [key, path])
+		return
+	var item = reward.make_unique_copy()
+	var item_label = item.item_name if item.item_name != "" else item.id
+	var pos = inv.find_free_slot(item) if inv else Vector2i(-1, -1)
+	if pos != Vector2i(-1, -1):
+		inv.place(item, pos)
+		append_log("Received: " + item_label, Color(0.7, 0.85, 0.7))
+	elif Global.inventory_ui:
+		Global.inventory_ui.give_or_drop(item)
+		append_log("Received: %s (no room — dropped at your feet)" % item_label, C_NOTIF)
+
 func _check_conditions(choice: Dictionary) -> bool:
 	var inv = _player_inv()
 	for item_id in choice.get("requires", {}):
 		var amount = int(choice["requires"][item_id])
-		var has = inv.has_id(item_id, amount) if inv else Global.inv_has(item_id, amount)
+		# No bag at all means the player cannot be carrying anything.
+		var has = inv.has_id(item_id, amount) if inv else false
 		if not has:
 			return false
 	for item_id in choice.get("requires_not", {}):
 		var amount = int(choice["requires_not"][item_id])
-		var has = inv.has_id(item_id, amount) if inv else Global.inv_has(item_id, amount)
+		var has = inv.has_id(item_id, amount) if inv else false
 		if has:
 			return false
 	return true
@@ -226,27 +255,12 @@ func _advance():
 	append_log("> " + str(choice.get("text", "")), C_CHOSEN)
 	var inv = _player_inv()
 	for key in choice.get("gives", {}):
-		if key.begins_with("res://"):
-			var reward = load(key) as ItemData
-			if reward:
-				var item = reward.make_unique_copy()
-				var item_label = item.item_name if item.item_name != "" else item.id
-				var pos = inv.find_free_slot(item) if inv else Vector2i(-1, -1)
-				if pos != Vector2i(-1, -1):
-					inv.place(item, pos)
-					append_log("Received: " + item_label, Color(0.7, 0.85, 0.7))
-				elif Global.inventory_ui:
-					# No room — drop it at the player's feet rather than lose it.
-					Global.inventory_ui.give_or_drop(item)
-					append_log("Received: %s (no room — dropped at your feet)" % item_label, C_NOTIF)
-		else:
-			Global.inv_add(key, int(choice["gives"][key]))
-			append_log("Received: %s x%d" % [str(key), int(choice["gives"][key])], Color(0.7, 0.85, 0.7))
+		var amount = int(choice["gives"][key])
+		for i in amount:
+			_give_reward(inv, key)
 	for item_id in choice.get("removes", {}):
 		if inv:
 			inv.remove_by_id(item_id, int(choice["removes"][item_id]))
-		else:
-			Global.inv_remove(item_id, int(choice["removes"][item_id]))
 	var next = choice.get("next", null)
 	if next == null or next == "":
 		_end()

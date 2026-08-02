@@ -107,7 +107,6 @@ var current_level : String
 var per_level_save : Dictionary
 var active_checkpoint_position: Vector2 = Vector2(INF, INF)
 
-var inventory: Dictionary = {}
 var dialogue
 var inventory_ui
 
@@ -140,7 +139,6 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"possessed_char_name": str(controlled_char.name) if controlled_char != null else "",
 		"possessed_char_home_level": char_home_level,
 		"per_level_save": _serialize_save(per_level_save),
-		"inventory": inventory,
 		"inventory_component": inv_data,
 		"equipment_component": equip_data,
 	}
@@ -170,10 +168,6 @@ func load_game() -> Dictionary:
 	var cp = result.get("checkpoint_position", null)
 	if cp != null:
 		active_checkpoint_position = Vector2(cp[0], cp[1])
-	var raw_inv = result.get("inventory", {})
-	inventory = {}
-	for key in raw_inv:
-		inventory[key] = int(raw_inv[key])
 	# Stash component data; applied in apply_inventory_save() after char is in scene
 	_saved_inventory_data  = result.get("inventory_component", [])
 	_saved_equipment_data  = result.get("equipment_component", [])
@@ -195,23 +189,18 @@ func notify(text: String, duration: float = 2.5):
 	if main:
 		main.notify(text, duration)
 
-func inv_add(id: String, amount: int = 1):
-	inventory[id] = inventory.get(id, 0) + amount
-
-func inv_remove(id: String, amount: int = 1):
-	inventory[id] = max(0, inventory.get(id, 0) - amount)
-	if inventory[id] == 0:
-		inventory.erase(id)
-
-func inv_has(id: String, amount: int = 1) -> bool:
-	return inventory.get(id, 0) >= amount
-
 func _serialize_save(dict: Dictionary) -> Dictionary:
 	var out = {}
 	for level in dict:
 		out[level] = {}
 		for node_name in dict[level]:
-			var d: Dictionary = dict[level][node_name].duplicate()
+			var entry = dict[level][node_name]
+			# Not every entry is a per-node record: "__ground_items__" holds a plain
+			# array that is already JSON-ready. Only node records carry a Vector2.
+			if not entry is Dictionary:
+				out[level][node_name] = entry
+				continue
+			var d: Dictionary = entry.duplicate()
 			if d.has("position"):
 				d["position"] = [d["position"].x, d["position"].y]
 			out[level][node_name] = d
@@ -222,7 +211,11 @@ func _deserialize_save(dict: Dictionary) -> Dictionary:
 	for level in dict:
 		out[level] = {}
 		for node_name in dict[level]:
-			var d: Dictionary = dict[level][node_name].duplicate()
+			var entry = dict[level][node_name]
+			if not entry is Dictionary:
+				out[level][node_name] = entry
+				continue
+			var d: Dictionary = entry.duplicate()
 			if d.has("position"):
 				var p = d["position"]
 				d["position"] = Vector2(p[0], p[1])
