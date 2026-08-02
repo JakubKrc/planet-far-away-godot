@@ -339,10 +339,9 @@ func _saved_position(value) -> Vector2:
 	return Vector2.ZERO
 
 func _act_main_menu():
-	var player = get_tree().get_first_node_in_group("player")
-	if player: player.queue_free()
-	var mc = get_tree().get_first_node_in_group("main_char")
-	if mc: mc.queue_free()
+	# Frees every carried character, not just one "player" plus one "main_char" —
+	# a possession chain can leave several parked outside the level.
+	_leave_current_run()
 	Global.main.unload_level()
 	Global.game_state = Global.GameState.MAIN_MENU
 	get_tree().paused = false

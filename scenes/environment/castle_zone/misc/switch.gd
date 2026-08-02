@@ -173,7 +173,7 @@ func change_controlled_char():
 
 func which_anim_to_play():
 	if what_to_posses != "":
-		var in_possession_mode = Global.controlled_char != null and not Global.controlled_char.is_default_char
+		var in_possession_mode = Global.controlled_char != null and not Global.controlled_char.is_level_default_character
 		if in_possession_mode:
 			play_animation(animation_active)
 		else:

@@ -68,7 +68,8 @@ func _process(_delta):
 	if Input.is_action_just_pressed("fullscreen"):
 		_toggle_fullscreen()
 	
-func load_mainchar(where_to_set_character: Vector2, direction_vector: Vector2):
+# Places whoever is currently the player — not necessarily the main character.
+func place_controlled_character(where_to_set_character: Vector2, direction_vector: Vector2):
 	var character = get_tree().get_first_node_in_group("player")
 	if character == null:
 		return
@@ -145,12 +146,12 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 					char_to_possess = node
 					break
 		if char_to_possess:
-			if not "is_default_char" in char_to_possess:
-				push_error("load_level: found '%s' for group '%s' but it is not a character (type: %s). Check the scene — InventoryComponent/EquipmentComponent children must be plain Node, not CharacterBody2D." % [char_to_possess.name, initial_possess_group, char_to_possess.get_class()])
+			if not char_to_possess is CharacterBase:
+				push_error("load_level: found '%s' for '%s' but it is not a character (type: %s). Check the scene — InventoryComponent/EquipmentComponent children must be plain Node, not CharacterBody2D." % [char_to_possess.name, initial_possess_group, char_to_possess.get_class()])
 				char_to_possess = null
 			else:
 				char_to_possess.add_to_group("player")
-				char_to_possess.is_default_char = true
+				char_to_possess.is_level_default_character = true
 				Global.controlled_char = char_to_possess
 				char_to_possess.get_parent().remove_child(char_to_possess)
 				add_child(char_to_possess)
@@ -175,7 +176,7 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 		if not door_found:
 			push_warning("Portal %s is not in the level %s" % [door_name, level_path])
 
-	await load_mainchar(spawn_position, Vector2.ZERO)
+	await place_controlled_character(spawn_position, Vector2.ZERO)
 	
 # Per-node state carried in the save, beyond position and visibility.
 const SAVED_PROPERTIES = ["health", "switch_state", "was_used", "activated", "current_index"]

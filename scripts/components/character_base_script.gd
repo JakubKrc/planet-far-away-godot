@@ -39,7 +39,12 @@ func _set_health(new_health):
 @export var character_id: String = ""
 
 var home_level: String = ""
-var is_default_char: bool = false
+
+# True when this character is the one its level hands you on arrival, false when
+# you are wearing it through possession. Switches read it to decide whether to
+# show their "possessed" animation. Nothing to do with being the main character —
+# any level's declared character sets this.
+var is_level_default_character: bool = false
 
 var components = {}
 var method_cache: Dictionary = {}  # method_name -> [component, ...]
