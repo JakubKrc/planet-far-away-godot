@@ -293,7 +293,15 @@ func _act_new_game():
 	Global.main.load_level(start_level_path, "", 10000, 0.1)
 
 # Tears down whatever run is still in progress before another level is loaded.
+#
+# Unloading here matters for a resume: load_game() has already replaced the
+# roster with the saved one, and load_level() snapshots the live characters into
+# the roster before it swaps levels. Leaving the old level standing let that
+# snapshot overwrite the saved records with wherever you happened to be, so the
+# character the save named was recorded in the wrong level and never spawned —
+# you arrived to an empty room.
 func _leave_current_run():
+	Global.main.unload_level()
 	if Global.death_menu:
 		Global.death_menu.hide()
 	Global.main.clear_persistent_characters()

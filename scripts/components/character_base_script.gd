@@ -122,8 +122,6 @@ func _update_interact_target():
 		var handler = _interact_handler(area)
 		if handler == null:
 			continue
-		if handler.has_method("can_interact_with") and not handler.can_interact_with(self):
-			continue
 		var priority: int = handler.interact_priority if "interact_priority" in handler else 0
 		var distance := global_position.distance_squared_to(area.global_position)
 		if priority < best_priority:
@@ -143,17 +141,30 @@ func _update_interact_target():
 
 # The node implementing interact(). The "interactable" group sits on the Area2D,
 # which depending on the scene is the script's own node, its parent (switches) or
-# its child (dialogue triggers).
+# a child (dialogue triggers).
+#
+# Anything that declines via can_interact_with() is passed over rather than
+# chosen and then thrown away: one Area2D can hold several candidates — an NPC
+# ships an empty dialogue trigger and a room may add a second carrying the actual
+# conversation — and picking the first one found left Doguon unable to talk.
 func _interact_handler(area: Area2D) -> Node:
+	for candidate in _interact_candidates(area):
+		if candidate.has_method("can_interact_with") and not candidate.can_interact_with(self):
+			continue
+		return candidate
+	return null
+
+func _interact_candidates(area: Area2D) -> Array:
+	var candidates = []
 	if area.has_method("interact"):
-		return area
+		candidates.append(area)
 	var parent = area.get_parent()
 	if parent != null and parent.has_method("interact"):
-		return parent
+		candidates.append(parent)
 	for child in area.get_children():
 		if child.has_method("interact"):
-			return child
-	return null
+			candidates.append(child)
+	return candidates
 
 func _unhandled_input(event: InputEvent):
 	if Global.controlled_char != self or not Global.can_player_move:

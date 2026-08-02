@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://ch0qojlyeh1fm" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simple_robot.tscn" id="5_24f11"]
 [ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="5_pdfq7"]
 [ext_resource type="PackedScene" uid="uid://c6naps2b2bqa4" path="res://audio/music/technical/backgroundmusic.tscn" id="6_8ns0c"]
-[ext_resource type="PackedScene" uid="uid://bi3g5mk5xpocy" path="res://scripts/components/inventory_component.tscn" id="7_8mi6y"]
 [ext_resource type="AudioStream" uid="uid://cnyp4fhd7uuqa" path="res://audio/music/kubogametest.mp3" id="7_12l3o"]
 [ext_resource type="Texture2D" uid="uid://igao1f1ht28l" path="res://scenes/environment/castle_zone/misc/castle_door_3.png" id="7_nx4kr"]
 [ext_resource type="PackedScene" uid="uid://cij5tx6qfvw5w" path="res://scenes/environment/castle_zone/rooms/plarform_1.tscn" id="9_xgupj"]
@@ -15,7 +14,6 @@
 [ext_resource type="PackedScene" uid="uid://cwmsp2t8tgg5x" path="res://scenes/environment/castle_zone/misc/switch.tscn" id="11_8th2v"]
 [ext_resource type="Texture2D" uid="uid://dan32lb0ledsp" path="res://scenes/environment/castle_zone/misc/switch.png" id="12_fyvvh"]
 [ext_resource type="PackedScene" uid="uid://c0rxygo0mnmuj" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.tscn" id="13_lrlf8"]
-[ext_resource type="Script" uid="uid://bbs7mlyheen3u" path="res://items/item_data.gd" id="14_s4iuh"]
 [ext_resource type="PackedScene" uid="uid://bsbbsbc1rea6q" path="res://scenes/common/characters/main_char/main_char.tscn" id="15_o5tj0"]
 [ext_resource type="PackedScene" path="res://scenes/common/npc/npc.tscn" id="16_8reqi"]
 [ext_resource type="PackedScene" uid="uid://dnx8hvlj8wdf0" path="res://scripts/components/dialogue_trigger.tscn" id="17_5tq3k"]
@@ -25,7 +23,6 @@
 [ext_resource type="Texture2D" uid="uid://dxisagjlm5yps" path="res://scenes/common/chest/drawer1.png" id="18_vmr5f"]
 [ext_resource type="Texture2D" uid="uid://hywg6ikatolh" path="res://scenes/environment/castle_zone/characters/doguon.png" id="19_voqjw"]
 [ext_resource type="Resource" uid="uid://jvao2rj0qist" path="res://items/test_potion.tres" id="20_juh4p"]
-[ext_resource type="Resource" uid="uid://dtxm7ljtc6sh5" path="res://items/spare_part.tres" id="21_spare"]
 
 [sub_resource type="Animation" id="Animation_lrlf8"]
 length = 0.001
@@ -178,8 +175,8 @@ position = Vector2(-1, -2)
 texture = ExtResource("5_pdfq7")
 
 [node name="simpleRobot" parent="." unique_id=754998774 instance=ExtResource("5_24f11")]
-character_id = "room1_enemy1"
 position = Vector2(147, 215)
+character_id = "room1_enemy1"
 
 [node name="portal" parent="." unique_id=1094825659 instance=ExtResource("4_hribm")]
 position = Vector2(3, 208)
@@ -221,11 +218,8 @@ vframes = 2
 libraries/ = SubResource("AnimationLibrary_o5tj0")
 
 [node name="PlayableRobot" parent="." unique_id=1279495027 groups=["robot1"] instance=ExtResource("13_lrlf8")]
-character_id = "room1_robot"
 position = Vector2(-12, -77)
-
-[node name="InventoryComponent" parent="PlayableRobot"]
-starting_items = Array[ExtResource("14_s4iuh")]([ExtResource("21_spare")])
+character_id = "room1_robot"
 
 [node name="Chest" parent="PlayableRobot" unique_id=1336411612 instance=ExtResource("17_k2e8i")]
 position = Vector2(322, 293)
@@ -309,13 +303,13 @@ position = Vector2(0, -3)
 texture = ExtResource("17_78vun")
 
 [node name="NPC2" parent="." unique_id=740059605 instance=ExtResource("16_8reqi")]
-position = Vector2(63, 200)
+position = Vector2(63, 196)
 
 [node name="DialogueTrigger2" parent="NPC2" unique_id=1694577474 instance=ExtResource("17_5tq3k")]
 dialogue_file = "res://dialogue/give_keycard.json"
 
 [node name="Doguon" type="Sprite2D" parent="NPC2" unique_id=100736548]
-position = Vector2(0, -3)
+position = Vector2(0, -4)
 texture = ExtResource("19_voqjw")
 
 [node name="GroundItem" parent="." unique_id=552460302 instance=ExtResource("18_grnd")]

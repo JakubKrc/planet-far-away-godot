@@ -13,6 +13,11 @@ func _ready():
 
 # Talking mid-jump looks wrong, so the icon waits until the player lands.
 func can_interact_with(player) -> bool:
+	# An NPC can carry more than one trigger — npc.tscn ships an empty one and a
+	# room may add a second with the actual dialogue. A trigger with no file has
+	# nothing to say and steps aside so the one that does gets picked.
+	if dialogue_file == "":
+		return false
 	return player.is_on_floor()
 
 func interact(_player):
