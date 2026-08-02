@@ -310,6 +310,62 @@ func clear_persistent_characters():
 		child.queue_free()
 	Global.controlled_char = null
 
+# ── Test helpers ──────────────────────────────────────────────────
+# Unreachable during normal play: nothing binds input to them and every one
+# refuses unless test mode is on (`--testmode`). They exist so an automated
+# run can reach a place the way the game itself would, rather than assigning
+# global_position by hand — which drops the character inside the tilemap, where
+# move_and_slide cannot free it and gravity piles up until it falls through.
+
+func _test_mode_guard(helper_name: String) -> bool:
+	if not Global.isTest:
+		push_error("%s is a test helper; launch with --testmode to use it." % helper_name)
+		return false
+	return true
+
+func test_find_door(door_name: String) -> Node:
+	for door in get_tree().get_nodes_in_group("door"):
+		if door.door_name == door_name:
+			return door
+	return null
+
+# Moves the controlled character, clearing the fall speed it had built up so it
+# does not arrive already punching through the floor.
+func test_teleport(target: Vector2) -> bool:
+	if not _test_mode_guard("test_teleport"):
+		return false
+	var character = Global.controlled_char
+	if character == null:
+		push_warning("test_teleport: no controlled character yet.")
+		return false
+	character.velocity = Vector2.ZERO
+	character.global_position = target
+	Global.camera.global_position = target
+	return true
+
+# Doors are the positions the game itself spawns players on, so they are the
+# safest teleport targets in any room.
+func test_teleport_to_door(door_name: String) -> bool:
+	if not _test_mode_guard("test_teleport_to_door"):
+		return false
+	var door = test_find_door(door_name)
+	if door == null:
+		push_error("test_teleport_to_door: no door '%s' in %s" % [door_name, Global.current_level])
+		return false
+	return test_teleport(door.global_position)
+
+# Level change equivalent to walking through a portal. A door name is required:
+# load_level() falls back to Vector2.ZERO without one, which in most rooms is
+# solid tile.
+func test_goto_level(level_path: String, door_name: String) -> bool:
+	if not _test_mode_guard("test_goto_level"):
+		return false
+	if door_name == "":
+		push_error("test_goto_level: a door name is required, or the character spawns inside the tilemap.")
+		return false
+	load_level(level_path, door_name)
+	return true
+
 func disable_node(node: Node):
 	node.visible = false
 	node.set_process(false)

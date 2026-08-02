@@ -1,7 +1,24 @@
 extends Node
 
 var G_STAT_TestLabel
-var isTest = false
+
+# Test mode. Always off for players — launch with `--testmode` to turn it on. It
+# enables the state HUD, unlocks the test_* helpers on main, and stops the focus
+# watcher pausing a run that nobody is sitting in front of. It can also be set at
+# runtime from a debug console, which is how a live editor session enables it.
+# The flag is spelled --testmode rather than --test because Godot reserves
+# --test for its own unit-test runner and aborts before the project ever loads.
+var isTest: bool = false
+
+func _detect_test_mode() -> bool:
+	for arg in OS.get_cmdline_args():
+		if arg == "--testmode":
+			return true
+	# Args after a bare `--` land here instead of in get_cmdline_args().
+	for arg in OS.get_cmdline_user_args():
+		if arg == "--testmode":
+			return true
+	return false
 
 signal level_transition_started
 signal level_transition_finished
@@ -223,6 +240,11 @@ func _deserialize_save(dict: Dictionary) -> Dictionary:
 	return out
 
 func _ready():
+	isTest = _detect_test_mode()
+	if isTest:
+		# Loud on purpose: test mode changes pause behaviour and unlocks the
+		# teleport helpers, so it should never be a surprise.
+		print("[PlanetFarAway] TEST MODE ON — test_* helpers unlocked, focus pausing disabled.")
 	level_transition_started.connect(_on_transition_started)
 	level_transition_finished.connect(_on_transition_finished)
 

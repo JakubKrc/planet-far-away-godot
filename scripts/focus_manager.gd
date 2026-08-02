@@ -12,6 +12,11 @@ func _ready():
 func _notification(what):
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		has_focus = false
+		# An automated run never holds window focus. Pausing there freezes the whole
+		# tree mid-transition and only a mouse click can release it, so a test would
+		# stall forever waiting for a level that never finishes loading.
+		if Global.isTest:
+			return
 		overlay.visible = true
 		get_tree().paused = true
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
