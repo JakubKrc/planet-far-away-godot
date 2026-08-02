@@ -6,6 +6,6 @@ var state : Global.States :
 	set (setting_state):
 		if (state != setting_state):
 			state = setting_state
-			label_test_status.text = Global.states_names[state]
+			label_test_status.text = Global.States.keys()[state]
 	get:
 		return state

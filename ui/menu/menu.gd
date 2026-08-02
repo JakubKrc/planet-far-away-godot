@@ -379,9 +379,8 @@ func _apply_music_volume(v: float):
 func _load_settings():
 	var cfg = ConfigFile.new()
 	var vol: float = 1.0
-	var font_name := "default"
+	var font_name := "press_start_2p"
 	var size_scale := 1.0
-	font_name = "press_start_2p"
 	if cfg.load(SETTINGS_PATH) == OK:
 		vol        = float(cfg.get_value("audio", "music_volume", 1.0))
 		font_name  = str(cfg.get_value("ui", "font_name", "press_start_2p"))

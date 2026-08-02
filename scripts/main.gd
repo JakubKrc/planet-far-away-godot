@@ -35,15 +35,22 @@ func _ready():
 	set_ingame_ui_visible(false)
 	Global.ui_text_settings_changed.connect(_apply_notification_font)
 	_apply_notification_font()
+	_setup_test_hud()
 
 func _apply_notification_font():
 	Global.apply_to_label(_notification_label, 10)
-	if Global.isTest==true:
-		OStestLabel.visible = true
-		OStestLabel.text = OS.get_name()
-		Global.G_STAT_TestLabel = $CanvasLayerForTestLabel/G_STAT_TestLabel
-		Global.G_STAT_TestLabel.visible = true
-		Global.G_STAT_TestLabel.text = Global.game_state_names[Global.game_state]
+
+# The debug HUD in the top corner: OS name and current game state. Set up once,
+# not on every font change — it used to live inside _apply_notification_font(),
+# which re-ran it each time the player touched the text settings.
+func _setup_test_hud():
+	if not Global.isTest:
+		return
+	OStestLabel.visible = true
+	OStestLabel.text = OS.get_name()
+	Global.G_STAT_TestLabel = $CanvasLayerForTestLabel/G_STAT_TestLabel
+	Global.G_STAT_TestLabel.visible = true
+	Global.G_STAT_TestLabel.text = Global.GameState.keys()[Global.game_state]
 
 func _on_item_thrown(item: ItemData, world_pos: Vector2):
 	var gi = GROUND_ITEM_SCENE.instantiate()
@@ -140,15 +147,15 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 
 	var spawn_position := spawn_override
 	if spawn_position == Vector2.ZERO:
-		var print_warning: bool = true
+		var door_found: bool = false
 		for door in get_tree().get_nodes_in_group("door"):
 			if door.door_name == door_name:
 				door.need_to_be_exited_before_activating = true
 				spawn_position = door.global_position
-				print_warning = false
+				door_found = true
 				break
-		if print_warning:
-			print("Portal %s are not in the level %s" % [door_name, level_path])
+		if not door_found:
+			push_warning("Portal %s is not in the level %s" % [door_name, level_path])
 
 	await load_mainchar(spawn_position, Vector2.ZERO)
 	

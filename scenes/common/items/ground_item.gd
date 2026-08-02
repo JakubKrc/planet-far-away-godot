@@ -18,9 +18,6 @@ extends Area2D
 var interact_priority: int = 30
 
 func _ready():
-	# Duplicate the shape so each instance gets its own copy
-	if has_node("CollisionShape2D") and $CollisionShape2D.shape != null:
-		$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate()
 	_update_sprite()
 	_update_collision()
 	if Engine.is_editor_hint():
@@ -39,6 +36,8 @@ func _update_collision():
 	var shape = $CollisionShape2D.shape
 	if not (shape is CircleShape2D):
 		return
+	# Own copy per instance: every ground item loaded from the scene shares one
+	# shape resource, so setting the radius on one would resize all of them.
 	var own_shape = shape.duplicate() as CircleShape2D
 	own_shape.radius = pickup_radius
 	$CollisionShape2D.shape = own_shape

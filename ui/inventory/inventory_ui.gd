@@ -559,21 +559,22 @@ func _draw_equipped():
 
 func _draw_item_in_rect(item: ItemData, rect: Rect2):
 	var tex = item.get_icon()
-	if tex:
-		var icon_size = tex.get_size()
-		if icon_size.x <= rect.size.x and icon_size.y <= rect.size.y:
-			var pos = (rect.position + (rect.size - icon_size) / 2.0).floor()
-			_control.draw_texture(tex, pos)
-		else:
-			_control.draw_texture_rect(tex, rect, false)
-	else:
+	# No icon: fall back to a plain block with the item's name truncated onto it.
+	if tex == null:
 		_control.draw_rect(rect.grow(-1), C_ITEM)
-	if not tex:
 		var max_chars = int(rect.size.x / 5)
 		var label = item.item_name.substr(0, max_chars)
 		_control.draw_string(_font(),
 			rect.position + Vector2(1, 8),
 			label, HORIZONTAL_ALIGNMENT_LEFT, -1, 6, C_TXT)
+		return
+	# Centre the icon if it fits the cell, otherwise stretch it to fill.
+	var icon_size = tex.get_size()
+	if icon_size.x <= rect.size.x and icon_size.y <= rect.size.y:
+		var pos = (rect.position + (rect.size - icon_size) / 2.0).floor()
+		_control.draw_texture(tex, pos)
+	else:
+		_control.draw_texture_rect(tex, rect, false)
 
 func _draw_drag_ghost():
 	if _drag_item == null:

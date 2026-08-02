@@ -134,9 +134,9 @@ func _physics_process(delta):
 	if Global.controlled_char != self:
 		return
 	
-	if (Global.is_method_on_target(components, 'idle_anim')):
-		Global.call_method_on_target(components, 'idle_anim', {'delta':delta} )
-	if (Global.is_method_on_target(components, 'falling_and_floor_memory')):
-		Global.call_method_on_target(components, 'falling_and_floor_memory', {'delta':delta} )
+	# do() is a no-op when no component implements the method, so characters
+	# without these components need no guard here.
+	do('idle_anim', {'delta': delta})
+	do('falling_and_floor_memory', {'delta': delta})
 
 	_update_interact_target()

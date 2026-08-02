@@ -6,13 +6,15 @@ var isTest = false
 signal level_transition_started
 signal level_transition_finished
 
+# The test HUD prints these enums by name. Use EnumName.keys()[value] rather than
+# a hand-written name list — the lists silently drifted out of order whenever a
+# state was inserted rather than appended.
 enum GameState {
-	MAIN_MENU, 
-	PLAYING, 
-	PAUSE_MENU, 
+	MAIN_MENU,
+	PLAYING,
+	PAUSE_MENU,
 	GAME_OVER,
 }
-const game_state_names = ['MAIN_MENU','PLAYING','PAUSE_MENU','GAME_OVER']
 
 enum States {
 	IDLE,
@@ -25,18 +27,15 @@ enum States {
 	FLYING,
 	DEATH,
 }
-const states_names = ['IDLE','MOVING_RIGHT','MOVING_LEFT','JUMPING','FALLING','SHOOTING','CHASING','FLYING','DEATH']
-	
+
 enum BehaviorStates {
 	IDLE,
 	CHASE,
 }
-const behavior_states_names = ['IDLE','CHASE']
 
 enum ActionStates {
 	ATTACK,
 }
-const action_states_names = ['ATTACK']
 
 enum CollisionLayer {
 	WORLD = 1,
@@ -51,11 +50,9 @@ var game_state = GameState.MAIN_MENU :
 	set (value):
 		game_state = value
 		if G_STAT_TestLabel != null:
-			G_STAT_TestLabel.text = game_state_names[game_state]
+			G_STAT_TestLabel.text = GameState.keys()[game_state]
 	get:
 		return game_state
-var main_menu
-var pause_menu
 var menu
 
 # ── Text / font settings ──────────────────────────────────────────
@@ -200,11 +197,9 @@ func notify(text: String, duration: float = 2.5):
 
 func inv_add(id: String, amount: int = 1):
 	inventory[id] = inventory.get(id, 0) + amount
-	print("[INV] +%d %s  (total: %d)" % [amount, id, inventory[id]])
 
 func inv_remove(id: String, amount: int = 1):
 	inventory[id] = max(0, inventory.get(id, 0) - amount)
-	print("[INV] -%d %s  (total: %d)" % [amount, id, inventory[id]])
 	if inventory[id] == 0:
 		inventory.erase(id)
 
@@ -278,21 +273,3 @@ func handle_ingame_input():
 		if Input.is_action_pressed("attack"):
 			controlled_char.do('attack')
 	
-func call_method_on_target(components, method_name, params: Dictionary = {}):
-	var has_component:bool = false
-	for component in components.values():
-		if component.has_method(method_name):
-			has_component = true
-			if params.is_empty():
-				component.call(method_name)
-			else:
-				component.call(method_name, params)
-	if !has_component:
-		push_error('Component dont have method %s' % method_name)
-			
-func is_method_on_target(components: Dictionary, method_name: String) -> bool:
-	for component in components.values():
-		if component.has_method(method_name):
-			return true
-		
-	return false

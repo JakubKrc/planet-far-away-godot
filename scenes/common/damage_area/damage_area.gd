@@ -7,11 +7,7 @@ extends Area2D
 # Limits who this area hurts. Empty means anything that has health.
 @export var damage_group: String = ""
 
-#@onready var visual_template = $Visual
 @export var visual_scene: PackedScene
-
-#@onready var anim = $AnimationPlayer
-#@onready var sprite = $Sprite2D
 
 var damage_timer: Timer = null
 var players_in_area := []
@@ -71,14 +67,6 @@ func _on_body_entered(body):
 
 	players_in_area.append(body)
 
-	#var visual = visual_template.duplicate()
-	#add_child(visual)
-#
-	#visuals[body] = visual
-	#visuals[body].visible = true
-	#var anim: AnimationPlayer = visuals[body].get_node("AnimationPlayer")
-	#anim.play(show_animation)
-	
 	if visual_scene:
 		var visual = visual_scene.instantiate()
 		add_child(visual)

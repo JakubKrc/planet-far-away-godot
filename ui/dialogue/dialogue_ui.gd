@@ -15,7 +15,6 @@ var _current_id: String = ""
 var _choices: Array = []
 var _selection: int = 0
 var _in_dialogue: bool = false
-var _log_entries: Array = []   # plain strings, for clearing/recreating on font change
 var _dialogue_scroll_anchor: int = 0  # scroll y where current dialogue begins
 var _bottom_spacer: Control = null    # padding to allow scroll past last line
 
@@ -65,7 +64,6 @@ func start(json_path: String):
 func append_log(text: String, color: Color = C_TEXT):
 	if text == "":
 		return
-	_log_entries.append([text, color])
 	var lbl = Label.new()
 	lbl.text = text
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -85,7 +83,6 @@ func append_notification(text: String):
 		_auto_hide_after(2.5)
 
 func clear_log():
-	_log_entries.clear()
 	for c in log_box.get_children():
 		c.queue_free()
 	_bottom_spacer = Control.new()
