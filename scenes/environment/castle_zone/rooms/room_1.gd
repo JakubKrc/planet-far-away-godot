@@ -1,4 +1,4 @@
-extends Node2D
+extends Level
 
 @onready var switch_a = $MovingPlatform_2/Switch3
 @onready var switch_b = $Switch4

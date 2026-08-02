@@ -2,9 +2,10 @@ extends CanvasLayer
 
 enum State { MAIN, PAUSE, SETTINGS }
 
+# The only thing the menu decides is which level opens. That level declares who
+# you play as and where you appear, so the first level is not a special case —
+# any level can open a new game.
 @export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room1.tscn"
-@export var start_level_portal_name: String = "portal_1"
-@export var start_possessed_char: String = "main_char"
 
 const SETTINGS_PATH = "user://settings.cfg"
 const MUSIC_BUS = "music"   # defined in audio/default_bus_layout.tres
@@ -288,7 +289,7 @@ func _act_new_game():
 	# live with its character parked under /root/main.
 	_leave_current_run()
 	Global.main.set_ingame_ui_visible(true)
-	Global.main.load_level(start_level_path, start_level_portal_name, 10000, 0.1, start_possessed_char)
+	Global.main.load_level(start_level_path, "", 10000, 0.1)
 
 # Tears down whatever run is still in progress before another level is loaded.
 func _leave_current_run():
@@ -310,9 +311,12 @@ func _act_continue():
 	get_tree().paused = false
 	# Prefer the stable character_id; saves written before ids existed only carry
 	# the node name, which load_level still accepts as a last resort.
+	# Prefer the stable character_id; saves written before ids existed only carry
+	# the node name, which load_level still accepts as a last resort. If the save
+	# names nobody, the level's own declaration decides.
 	var possessed = str(save.get("possessed_character_id", ""))
 	if possessed == "":
-		possessed = str(save.get("possessed_char_name", start_possessed_char))
+		possessed = str(save.get("possessed_char_name", ""))
 	var spawn_pos = _saved_position(save.get("spawn_position", null))
 	var home_level: String = str(save.get("possessed_char_home_level", ""))
 	music_player.stop()

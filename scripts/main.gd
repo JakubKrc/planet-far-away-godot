@@ -125,6 +125,14 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 		if str(node.get_path()).contains("/main2D/") and "home_level" in node:
 			node.home_level = level_path
 
+	# A level may declare who you control here and where you arrive. The caller
+	# still wins — a save restores as the character it recorded, not the level's
+	# default — and a level that declares nothing keeps whoever walked in.
+	if initial_possess_group == "":
+		initial_possess_group = _level_declares("default_character")
+	if door_name == "":
+		door_name = _level_declares("default_spawn_door")
+
 	if initial_possess_group != "":
 		# Accepts a group name, a character_id, or (for saves written before ids
 		# existed) a node name.
@@ -209,6 +217,15 @@ func _carried_copy_of(level_character: Node) -> Node:
 		elif str(child.name) == str(level_character.name):
 			return child
 	return null
+
+# Reads a declaration off the loaded level. Duck-typed rather than requiring the
+# Level base script, so a room that has nothing to declare needs no script at all.
+func _level_declares(property_name: String) -> String:
+	if level_instance == null:
+		return ""
+	if not _has_property(level_instance, property_name):
+		return ""
+	return str(level_instance.get(property_name))
 
 func _find_character_by_id(character_id: String) -> Node:
 	if character_id == "":

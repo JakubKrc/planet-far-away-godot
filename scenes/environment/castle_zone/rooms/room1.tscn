@@ -135,6 +135,8 @@ _data = {
 
 [node name="level1" type="Node2D" unique_id=2117354330]
 script = ExtResource("1_tmi8d")
+default_character = "main_char"
+default_spawn_door = "portal_1"
 
 [node name="bg" type="TileMapLayer" parent="." unique_id=2069123507]
 use_parent_material = true
