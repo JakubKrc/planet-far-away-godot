@@ -20,6 +20,10 @@ var _interact_anchor: Node2D = null
 
 func _set_health(new_health):
 	var was_alive: bool = health > 0
+	# Test helper: the player shrugs off damage but can still be healed, so combat
+	# stops derailing runs that are really testing saves or possession.
+	if Global.test_invulnerable and int(new_health) < health and is_in_group("player"):
+		return
 	# Clamp before reacting: health used to be stored raw, so it drifted negative
 	# and the max_health cap was applied after die() had already run.
 	health = clampi(int(new_health), 0, int(max_health))
@@ -57,6 +61,34 @@ func _build_method_cache():
 
 func can_do(method_name: String) -> bool:
 	return method_cache.has(method_name)
+
+# Read by godot-mcp's runtime-state digest. Identifies characters by scene path
+# rather than node name: possession reparents characters into /root/main, where a
+# name collision silently renames one to "@CharacterBody2D@40", and counting by
+# name then misses the duplicate entirely.
+func _mcp_state() -> Dictionary:
+	var state = {
+		"scene": scene_file_path,
+		"node_name": str(name),
+		"health": health,
+		"max_health": max_health,
+		"is_controlled": Global.controlled_char == self,
+		"is_player": is_in_group("player"),
+		"home_level": home_level,
+		"position": [global_position.x, global_position.y],
+		"on_floor": is_on_floor(),
+		"interact_target": str(interact_target.name) if interact_target != null else "",
+	}
+	var state_component := get_node_or_null("State") as State
+	if state_component != null:
+		state["state"] = Global.States.keys()[state_component.state]
+	var inventory := get_node_or_null("InventoryComponent") as InventoryComponent
+	if inventory != null:
+		var carried = []
+		for item in inventory.all_items():
+			carried.append(item.id)
+		state["inventory"] = carried
+	return state
 
 func do(method_name: String, params: Dictionary = {}):
 	for c in method_cache.get(method_name, []):

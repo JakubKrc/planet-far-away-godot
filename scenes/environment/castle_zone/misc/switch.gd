@@ -109,6 +109,20 @@ func switch_switch(set_to: bool):
 
 	signal_was_used = false
 
+# Read by godot-mcp's runtime-state digest: enough to tell why a switch did or
+# did not fire without scripting a probe for each field.
+func _mcp_state() -> Dictionary:
+	return {
+		"switch_state": switch_state,
+		"what_to_posses": what_to_posses,
+		"interact_group": interact_group,
+		"requires_item_id": requires_item_id,
+		"repeatable_action": repeatable_action,
+		"was_used": was_used,
+		"player_inside": player_inside,
+		"position": [global_position.x, global_position.y],
+	}
+
 func play_animation(anim_name: String):
 	if has_node("AnimationPlayer"):
 		var anim = get_node("AnimationPlayer")

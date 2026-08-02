@@ -10,6 +10,10 @@ var G_STAT_TestLabel
 # --test for its own unit-test runner and aborts before the project ever loads.
 var isTest: bool = false
 
+# Set by main.test_set_invulnerable(). Only shields whoever is currently in the
+# "player" group, so enemy deaths can still be tested while it is on.
+var test_invulnerable: bool = false
+
 func _detect_test_mode() -> bool:
 	for arg in OS.get_cmdline_args():
 		if arg == "--testmode":
@@ -131,9 +135,15 @@ var _saved_inventory_data: Array = []
 var _saved_equipment_data: Array = []
 
 const SAVE_PATH = "user://save.json"
+const TEST_SAVE_PATH = "user://save_test.json"
+
+# Test runs write their own slot so an automated save/load never overwrites the
+# player's real progress.
+func save_path() -> String:
+	return TEST_SAVE_PATH if isTest else SAVE_PATH
 
 func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+	return FileAccess.file_exists(save_path())
 
 func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(INF, INF)):
 	active_checkpoint_position = checkpoint_position if checkpoint_position != Vector2(INF, INF) else spawn_position
@@ -159,9 +169,10 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"inventory_component": inv_data,
 		"equipment_component": equip_data,
 	}
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var path := save_path()
+	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
-		push_error("Could not write save file %s (error %d)" % [SAVE_PATH, FileAccess.get_open_error()])
+		push_error("Could not write save file %s (error %d)" % [path, FileAccess.get_open_error()])
 		notify("Saving failed!")
 		return
 	file.store_string(JSON.stringify(data))
@@ -170,16 +181,17 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		JavaScriptBridge.eval("Module['FS'].syncfs(false, function(err) {})")
 
 func load_game() -> Dictionary:
-	if not FileAccess.file_exists(SAVE_PATH):
+	var path := save_path()
+	if not FileAccess.file_exists(path):
 		return {}
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var file = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		push_error("Could not read save file %s (error %d)" % [SAVE_PATH, FileAccess.get_open_error()])
+		push_error("Could not read save file %s (error %d)" % [path, FileAccess.get_open_error()])
 		return {}
 	var result = JSON.parse_string(file.get_as_text())
 	file.close()
 	if not result is Dictionary:
-		push_error("Save file %s is not valid JSON — ignoring it." % SAVE_PATH)
+		push_error("Save file %s is not valid JSON — ignoring it." % path)
 		return {}
 	per_level_save = _deserialize_save(result.get("per_level_save", {}))
 	var cp = result.get("checkpoint_position", null)
@@ -205,6 +217,26 @@ func apply_inventory_save():
 func notify(text: String, duration: float = 2.5):
 	if main:
 		main.notify(text, duration)
+
+# Read by godot-mcp's runtime-state digest, so a test can pull global state in
+# one call instead of scripting a tree walk for every question.
+func _mcp_state() -> Dictionary:
+	# An unset checkpoint is (INF, INF), which JSON renders as null — report the
+	# flag instead so "no checkpoint yet" is not mistaken for a broken value.
+	var checkpoint_set: bool = active_checkpoint_position != Vector2(INF, INF)
+	return {
+		"game_state": GameState.keys()[game_state],
+		"current_level": current_level,
+		"controlled_char": str(controlled_char.name) if controlled_char != null else "",
+		"can_player_move": can_player_move,
+		"movement_blockers": _movement_blockers.keys(),
+		"checkpoint_set": checkpoint_set,
+		"checkpoint": [active_checkpoint_position.x, active_checkpoint_position.y] if checkpoint_set else [],
+		"is_test": isTest,
+		"test_invulnerable": test_invulnerable,
+		"save_path": save_path(),
+		"has_save": has_save(),
+	}
 
 func _serialize_save(dict: Dictionary) -> Dictionary:
 	var out = {}

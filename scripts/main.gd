@@ -82,12 +82,19 @@ func load_mainchar(where_to_set_character: Vector2, direction_vector: Vector2):
 	Global.camera.position_smoothing_enabled = true
 	Global.apply_inventory_save()
 
+# Portals may store their target as a uid:// reference. Level keys in the save
+# are plain res:// paths, so everything is normalized to those.
+func _resolve_level_path(level_path: String) -> String:
+	if not level_path.begins_with("uid://"):
+		return level_path
+	var uid_int = ResourceUID.text_to_id(level_path)
+	if not ResourceUID.has_id(uid_int):
+		return level_path
+	return ResourceUID.get_id_path(uid_int)
+
 func load_level(level_path : String, door_name : String, fadeIn: float = 1, fadeOut: float = 1, initial_possess_group: String = "", spawn_override: Vector2 = Vector2.ZERO):
 	# Normalize UID paths to file paths so keys are consistent
-	if level_path.begins_with("uid://"):
-		var uid_int = ResourceUID.text_to_id(level_path)
-		if ResourceUID.has_id(uid_int):
-			level_path = ResourceUID.get_id_path(uid_int)
+	level_path = _resolve_level_path(level_path)
 
 	if level_path=='':
 		return
@@ -328,6 +335,69 @@ func test_find_door(door_name: String) -> Node:
 		if door.door_name == door_name:
 			return door
 	return null
+
+# Doors in the room right now: which name to hand test_goto_level, and where each
+# one leads.
+func test_list_doors() -> Array:
+	var doors = []
+	for door in get_tree().get_nodes_in_group("door"):
+		doors.append({
+			"door_name": door.door_name,
+			"position": [door.global_position.x, door.global_position.y],
+			"leads_to": door.level_to_load if "level_to_load" in door else "",
+			"arrives_at_door": door.door_to_spam if "door_to_spam" in door else "",
+		})
+	return doors
+
+# Every room's doors and where they lead, read from the scene files rather than a
+# hand-kept list so it cannot drift. Lets a test plan a route instead of walking
+# into rooms to discover their exits.
+func test_level_map() -> Dictionary:
+	if not _test_mode_guard("test_level_map"):
+		return {}
+	var rooms_dir = "res://scenes/environment/castle_zone/rooms"
+	var listing = DirAccess.open(rooms_dir)
+	if listing == null:
+		push_error("test_level_map: cannot open %s" % rooms_dir)
+		return {}
+	var map = {}
+	for file_name in listing.get_files():
+		if not file_name.ends_with(".tscn"):
+			continue
+		var room_path = "%s/%s" % [rooms_dir, file_name]
+		var room_scene = load(room_path) as PackedScene
+		if room_scene == null:
+			continue
+		var room = room_scene.instantiate()
+		var exits = []
+		for node in _collect_descendants(room):
+			if "door_name" in node and "level_to_load" in node:
+				exits.append({
+					"door_name": node.door_name,
+					"leads_to": _resolve_level_path(str(node.level_to_load)).get_file(),
+					"arrives_at_door": node.door_to_spam if "door_to_spam" in node else "",
+				})
+		map[file_name] = exits
+		room.free()
+	return map
+
+func _collect_descendants(root_node: Node) -> Array:
+	var found = []
+	var pending = [root_node]
+	while pending.size() > 0:
+		var node = pending.pop_back()
+		found.append(node)
+		for child in node.get_children():
+			pending.append(child)
+	return found
+
+# Stops enemies and hazards killing the player mid-run. Healing still applies, and
+# only the "player" group is shielded so enemy deaths remain testable.
+func test_set_invulnerable(enabled: bool) -> bool:
+	if not _test_mode_guard("test_set_invulnerable"):
+		return false
+	Global.test_invulnerable = enabled
+	return true
 
 # Moves the controlled character, clearing the fall speed it had built up so it
 # does not arrive already punching through the floor.
