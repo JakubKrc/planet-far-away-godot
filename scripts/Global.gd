@@ -143,7 +143,8 @@ func has_save() -> bool:
 	return FileAccess.file_exists(save_path())
 
 func _controlled_character_id() -> String:
-	if controlled_char == null:
+	# The node can already be freed when a level was torn down under us.
+	if controlled_char == null or not is_instance_valid(controlled_char):
 		return ""
 	if "character_id" in controlled_char:
 		return str(controlled_char.character_id)
@@ -213,7 +214,12 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		main.save_current_level()
 	# Characters live in the roster, so their state is captured there rather than
 	# alongside the level's switches and platforms.
-	if main != null:
+	#
+	# Not during a level transition: load_level has already moved the travelling
+	# character's record to the level being entered, while the tree still holds the
+	# old level's copies. Capturing then writes the stale ones back over it, and the
+	# traveller is never spawned in the level you arrive at.
+	if main != null and not _movement_blockers.has("level_transition"):
 		main.capture_characters_to_roster()
 	active_checkpoint_position = checkpoint_position if checkpoint_position != Vector2(INF, INF) else spawn_position
 	var data = {

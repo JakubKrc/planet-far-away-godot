@@ -267,6 +267,10 @@ func _spawn_character_from_record(character_id: String, record: Dictionary):
 		return
 	var character = (load(scene_path) as PackedScene).instantiate()
 	character.character_id = character_id
+	# Name it after its id. Identity no longer depends on the node name, but a
+	# traveller whose scene root shares a name with a resident would otherwise be
+	# renamed to something like "@CharacterBody2D@32" and be unreadable in the tree.
+	character.name = character_id
 	level_instance.add_child(character)
 	Global.apply_character_record(character, record)
 
