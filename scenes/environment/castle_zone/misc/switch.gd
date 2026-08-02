@@ -116,20 +116,26 @@ func play_animation(anim_name: String):
 			anim.play(anim_name)
 			
 func change_controlled_char():
-	if what_to_posses != "":
-		var old_char = Global.controlled_char
-		old_char.remove_from_group("player")
-		old_char.velocity = Vector2.ZERO
-		await get_tree().process_frame;
-		var what_possesing = get_tree().get_first_node_in_group(what_to_posses)
-		if what_possesing:
-			Global.controlled_char = what_possesing
-			Global.controlled_char.add_to_group("player")
-					
-		Global.controlled_char.get_parent().remove_child(Global.controlled_char)
-		get_node("/root/main").add_child(Global.controlled_char)
-		Global.main.enable_node(Global.controlled_char)
-		which_anim_to_play()
+	if what_to_posses == "":
+		return
+	var old_char = Global.controlled_char
+	old_char.remove_from_group("player")
+	old_char.velocity = Vector2.ZERO
+	await get_tree().process_frame
+	var what_possesing = get_tree().get_first_node_in_group(what_to_posses)
+	# Nothing to possess: give the old character back its "player" group and stop.
+	# The reparenting below used to run regardless, which tore the character the
+	# player was still controlling out of the level and stranded it under /root/main.
+	if what_possesing == null:
+		push_warning("Switch %s: no node in group '%s' to possess." % [name, what_to_posses])
+		old_char.add_to_group("player")
+		return
+	Global.controlled_char = what_possesing
+	Global.controlled_char.add_to_group("player")
+	Global.controlled_char.get_parent().remove_child(Global.controlled_char)
+	get_node("/root/main").add_child(Global.controlled_char)
+	Global.main.enable_node(Global.controlled_char)
+	which_anim_to_play()
 
 func which_anim_to_play():
 	if what_to_posses != "":

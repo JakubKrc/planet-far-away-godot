@@ -223,13 +223,22 @@ func restore_current_level():
 	# Restore level-local nodes (enemies, switches, platforms)
 	if not level_data.is_empty():
 		for node in get_tree().get_nodes_in_group("save"):
-			if node.is_in_group("player") or not node.is_inside_tree():
+			if not node.is_inside_tree():
 				continue
 			if not str(node.get_path()).contains("/main2D/"):
 				continue
 			if not level_data.has(node.name):
 				continue
 			var data = level_data[node.name]
+			# The controlled character takes its position and enabled state from the
+			# spawn/possession path, not from here. Its bag still lives in this record
+			# though, and skipping the whole entry used to throw the items away — you
+			# would walk back into a room possessing someone else and find it empty.
+			if node.is_in_group("player"):
+				if data.has("inventory"):
+					var player_inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
+					if player_inv: player_inv.deserialize(data["inventory"])
+				continue
 			if data.get("disabled", false):
 				disable_node(node)
 			else:
