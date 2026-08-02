@@ -213,6 +213,7 @@ level_to_load = "uid://b6ypfg171dyt"
 door_to_spam = "portal_2"
 
 [node name="simpleRobot" parent="." unique_id=592901954 instance=ExtResource("4_yk6qp")]
+character_id = "room6_enemy1"
 position = Vector2(476, -88)
 
 [node name="Switch2" parent="." unique_id=1539569194 instance=ExtResource("5_eoeij")]
@@ -263,12 +264,15 @@ position = Vector2(-6, 1)
 shape = SubResource("RectangleShape2D_71kt3")
 
 [node name="simpleRobot2" parent="." unique_id=1889722053 groups=["simple_robot_1"] instance=ExtResource("4_yk6qp")]
+character_id = "room6_enemy2"
 position = Vector2(630, -136)
 
 [node name="simpleRobot3" parent="." unique_id=1797426061 instance=ExtResource("4_yk6qp")]
+character_id = "room6_enemy3"
 position = Vector2(521, -88)
 
 [node name="simpleRobot4" parent="." unique_id=1297777135 instance=ExtResource("4_yk6qp")]
+character_id = "room6_enemy4"
 position = Vector2(453, -184)
 
 [node name="Switch" parent="." unique_id=807899667 instance=ExtResource("5_eoeij")]

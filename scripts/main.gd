@@ -126,8 +126,11 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 			node.home_level = level_path
 
 	if initial_possess_group != "":
+		# Accepts a group name, a character_id, or (for saves written before ids
+		# existed) a node name.
 		var char_to_possess = get_tree().get_first_node_in_group(initial_possess_group)
-		# Fallback: find by node name in the save group (in case char isn't in a named group)
+		if char_to_possess == null:
+			char_to_possess = _find_character_by_id(initial_possess_group)
 		if char_to_possess == null:
 			for node in get_tree().get_nodes_in_group("save"):
 				if str(node.name) == initial_possess_group:
@@ -179,6 +182,42 @@ func _has_property(node: Node, property_name: String) -> bool:
 			return true
 	return false
 
+# What a node is filed under in per_level_save. Characters use their stable
+# character_id; everything else — switches, platforms, chests — uses its node
+# name, which is unique within its own level.
+func _save_key(node: Node) -> String:
+	if _has_property(node, "character_id") and node.character_id != "":
+		return node.character_id
+	return str(node.name)
+
+func _character_id_of(node: Node) -> String:
+	if _has_property(node, "character_id"):
+		return node.character_id
+	return ""
+
+# The already-carried copy of the same character, if one is parked at /root/main.
+# Matched on character_id, falling back to node name only for characters that
+# have not been given an id yet.
+func _carried_copy_of(level_character: Node) -> Node:
+	var wanted_id := _character_id_of(level_character)
+	for child in get_children():
+		if child == level_character:
+			continue
+		if wanted_id != "":
+			if _character_id_of(child) == wanted_id:
+				return child
+		elif str(child.name) == str(level_character.name):
+			return child
+	return null
+
+func _find_character_by_id(character_id: String) -> Node:
+	if character_id == "":
+		return null
+	for node in get_tree().get_nodes_in_group("save"):
+		if _character_id_of(node) == character_id:
+			return node
+	return null
+
 func save_current_level():
 	var level_path = Global.current_level
 	if level_path == "":
@@ -225,7 +264,7 @@ func save_current_level():
 		var equipment = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
 		if equipment:                data["equipment"]      = equipment.serialize()
 
-		Global.per_level_save[target_level][node.name] = data
+		Global.per_level_save[target_level][_save_key(node)] = data
 	
 func restore_current_level():
 	var level_path = Global.current_level
@@ -236,7 +275,7 @@ func restore_current_level():
 			continue
 		if not ("home_level" in node):
 			continue
-		if get_node_or_null("/root/main/" + node.name) != null:
+		if _carried_copy_of(node) != null:
 			node.remove_from_group("player")
 			node.get_parent().remove_child(node)
 			node.queue_free()
@@ -250,9 +289,9 @@ func restore_current_level():
 				continue
 			if not str(node.get_path()).contains("/main2D/"):
 				continue
-			if not level_data.has(node.name):
+			if not level_data.has(_save_key(node)):
 				continue
-			var data = level_data[node.name]
+			var data = level_data[_save_key(node)]
 			# The controlled character takes its position and enabled state from the
 			# spawn/possession path, not from here. Its bag still lives in this record
 			# though, and skipping the whole entry used to throw the items away — you
@@ -310,7 +349,7 @@ func restore_current_level():
 			disable_node(node)
 			continue
 		# Belongs to this level — restore using saved state
-		var char_data = level_data.get(node.name, {})
+		var char_data = level_data.get(_save_key(node), {})
 		if char_data.get("disabled", false):
 			disable_node(node)
 		else:

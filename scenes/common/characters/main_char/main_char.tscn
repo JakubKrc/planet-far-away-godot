@@ -122,11 +122,12 @@ _data = {
 &"walk_right": SubResource("Animation_xxngs")
 }
 
-[node name="MainChar" type="CharacterBody2D" unique_id=1323154113 groups=["main_char", "player", "save"]]
+[node name="MainChar" type="CharacterBody2D" unique_id=1323154113 groups=["main_char", "save"]]
 z_index = 10
 collision_layer = 2
 collision_mask = 13
 script = ExtResource("1_rx7st")
+character_id = "main_char"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=908680439]
 position = Vector2(0, 0.5)

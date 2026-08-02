@@ -145,6 +145,13 @@ func save_path() -> String:
 func has_save() -> bool:
 	return FileAccess.file_exists(save_path())
 
+func _controlled_character_id() -> String:
+	if controlled_char == null:
+		return ""
+	if "character_id" in controlled_char:
+		return str(controlled_char.character_id)
+	return ""
+
 func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(INF, INF)):
 	# Snapshot the room the player is standing in first. per_level_save is only
 	# refreshed when a level is left, so without this a checkpoint stores the room
@@ -169,6 +176,7 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"current_level": current_level,
 		"spawn_position": [spawn_position.x, spawn_position.y],
 		"checkpoint_position": [active_checkpoint_position.x, active_checkpoint_position.y],
+		"possessed_character_id": _controlled_character_id(),
 		"possessed_char_name": str(controlled_char.name) if controlled_char != null else "",
 		"possessed_char_home_level": char_home_level,
 		"per_level_save": _serialize_save(per_level_save),

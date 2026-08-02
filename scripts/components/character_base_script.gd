@@ -32,6 +32,12 @@ func _set_health(new_health):
 	if health == 0 and was_alive:
 		do('die')
 
+# Stable identity, unique across the whole game. Node names are NOT unique —
+# rooms 1, 4 and 7 each contain a node called "PlayableRobot" — and using the
+# name as identity let a character carried into a room delete the one already
+# living there, taking its inventory with it.
+@export var character_id: String = ""
+
 var home_level: String = ""
 var is_default_char: bool = false
 
@@ -69,6 +75,7 @@ func can_do(method_name: String) -> bool:
 func _mcp_state() -> Dictionary:
 	var state = {
 		"scene": scene_file_path,
+		"character_id": character_id,
 		"node_name": str(name),
 		"health": health,
 		"max_health": max_health,

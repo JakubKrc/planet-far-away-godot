@@ -126,6 +126,7 @@ position = Vector2(-16, -40)
 position = Vector2(-16, -96)
 
 [node name="PlayableRobot" parent="." groups=["robot_1"] instance=ExtResource("8_d6kmt")]
+character_id = "room4_robot"
 position = Vector2(455, 180)
 
 [node name="Switch2" parent="." instance=ExtResource("5_d6kmt")]
@@ -161,6 +162,7 @@ libraries = {
 }
 
 [node name="simpleRobot" parent="." instance=ExtResource("9_gl08x")]
+character_id = "room4_enemy1"
 position = Vector2(278, -120)
 
 [node name="Platform2" parent="." node_paths=PackedStringArray("waypoints") instance=ExtResource("4_3004v")]

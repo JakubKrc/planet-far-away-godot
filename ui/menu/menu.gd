@@ -308,7 +308,11 @@ func _act_continue():
 		return
 	Global.game_state = Global.GameState.PLAYING
 	get_tree().paused = false
-	var possessed = save.get("possessed_char_name", start_possessed_char)
+	# Prefer the stable character_id; saves written before ids existed only carry
+	# the node name, which load_level still accepts as a last resort.
+	var possessed = str(save.get("possessed_character_id", ""))
+	if possessed == "":
+		possessed = str(save.get("possessed_char_name", start_possessed_char))
 	var spawn_pos = _saved_position(save.get("spawn_position", null))
 	var home_level: String = str(save.get("possessed_char_home_level", ""))
 	music_player.stop()

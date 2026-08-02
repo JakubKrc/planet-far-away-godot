@@ -176,6 +176,7 @@ position = Vector2(-1, -2)
 texture = ExtResource("5_pdfq7")
 
 [node name="simpleRobot" parent="." unique_id=754998774 instance=ExtResource("5_24f11")]
+character_id = "room1_enemy1"
 position = Vector2(147, 215)
 
 [node name="portal" parent="." unique_id=1094825659 instance=ExtResource("4_hribm")]
@@ -218,6 +219,7 @@ vframes = 2
 libraries/ = SubResource("AnimationLibrary_o5tj0")
 
 [node name="PlayableRobot" parent="." unique_id=1279495027 groups=["robot1"] instance=ExtResource("13_lrlf8")]
+character_id = "room1_robot"
 position = Vector2(-12, -77)
 
 [node name="InventoryComponent" parent="PlayableRobot" unique_id=107406968 instance=ExtResource("7_8mi6y")]

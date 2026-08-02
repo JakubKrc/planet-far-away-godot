@@ -99,12 +99,14 @@ scale = Vector2(0.997852, 0.973695)
 texture = ExtResource("3_g6gj7")
 
 [node name="simpleRobot" parent="." unique_id=1326429421 instance=ExtResource("3_1e0ut")]
+character_id = "room2_enemy1"
 position = Vector2(70, 184)
 
 [node name="backgroundmusic" parent="." unique_id=1042046415 instance=ExtResource("4_25f15")]
 song = ExtResource("5_1467s")
 
 [node name="simpleRobot2" parent="." unique_id=10283614 instance=ExtResource("3_1e0ut")]
+character_id = "room2_enemy2"
 position = Vector2(346, 23)
 
 [node name="Checkpoint" parent="." unique_id=264132082 instance=ExtResource("7_t7isk")]
