@@ -146,6 +146,12 @@ func has_save() -> bool:
 	return FileAccess.file_exists(save_path())
 
 func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(INF, INF)):
+	# Snapshot the room the player is standing in first. per_level_save is only
+	# refreshed when a level is left, so without this a checkpoint stores the room
+	# as it was on entry and everything done since — items dropped, enemies killed,
+	# chests filled, platforms moved — is silently lost on reload.
+	if main != null:
+		main.save_current_level()
 	active_checkpoint_position = checkpoint_position if checkpoint_position != Vector2(INF, INF) else spawn_position
 	var char_home_level := ""
 	if controlled_char != null and "home_level" in controlled_char:
