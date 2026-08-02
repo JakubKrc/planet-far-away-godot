@@ -13,7 +13,11 @@ extends Node2D
 @onready var area2d = $Switch_area
 
 var player_inside: bool = false
-var was_used: bool = false
+# Saved and restored, so the setter — not switch_switch() — owns keeping the
+# interact prompt in sync. Restoring the flag alone would leave a spent one-shot
+# switch still advertising an "E" that does nothing, because switch_switch()
+# bails on `!repeatable_action && was_used` before it can hide anything.
+var was_used: bool = false : set = _set_was_used
 var interact_priority: int = 0   # lowest: anything lying on a switch is taken first
 # Re-entrancy guard. Switches and platforms are wired in a loop: the switch emits
 # `activated` -> Platform.activate() -> the platform emits `started_running` ->
@@ -30,10 +34,28 @@ var signal_was_used = false
 signal activated
 signal deactivated
 
+func _set_was_used(value: bool):
+	was_used = value
+	# The setter runs before _ready() when the scene sets the value, and the area
+	# is not available yet; _ready() syncs once it is.
+	if is_node_ready():
+		_sync_interact_prompt()
+
+# A one-shot switch that has already fired stops offering an interact prompt.
+func _sync_interact_prompt():
+	var area = get_node_or_null("Switch_area")
+	if area == null:
+		return
+	if was_used and not repeatable_action:
+		area.remove_from_group("interactable")
+	elif not area.is_in_group("interactable"):
+		area.add_to_group("interactable")
+
 func _ready():
 	area2d.body_entered.connect(_on_body_entered)
 	area2d.body_exited.connect(_on_body_exited)
 	which_anim_to_play()
+	_sync_interact_prompt()
 	if use_signal && switch_state:
 		call_deferred("_emit_initial")
 
@@ -79,10 +101,8 @@ func switch_switch(set_to: bool):
 		var target = get_tree().get_first_node_in_group(what_to_posses)
 		if target != null and target.is_in_group("player"):
 			return
-	was_used=true
-	if !repeatable_action:
-		get_node("Switch_area").remove_from_group("interactable")
-	
+	was_used = true   # the setter hides the prompt on one-shot switches
+
 	if set_to==true:
 		switch_state=true
 		which_anim_to_play()

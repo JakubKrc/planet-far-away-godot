@@ -166,6 +166,19 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 
 	await load_mainchar(spawn_position, Vector2.ZERO)
 	
+# Per-node state carried in the save, beyond position and visibility.
+const SAVED_PROPERTIES = ["health", "switch_state", "was_used", "activated", "current_index"]
+
+# Deliberately not the `in` operator: `"activated" in switch` is TRUE because
+# switch.gd declares an `activated` SIGNAL, and that would store a Signal object
+# in the save and then try to assign to a signal on restore. get_property_list()
+# reports only real properties.
+func _has_property(node: Node, property_name: String) -> bool:
+	for property in node.get_property_list():
+		if property["name"] == property_name:
+			return true
+	return false
+
 func save_current_level():
 	var level_path = Global.current_level
 	if level_path == "":
@@ -201,13 +214,16 @@ func save_current_level():
 			Global.per_level_save[target_level] = {}
 
 		var data = {"position": node.global_position, "disabled": !node.visible}
-		if "health" in node:         data["health"]         = node.health
-		if "switch_state" in node:   data["switch_state"]   = node.switch_state
-		if "was_used" in node:       data["was_used"]       = node.was_used
-		if "activated" in node:      data["activated"]      = node.activated
-		if "current_index" in node:  data["current_index"]  = node.current_index
+		for property_name in SAVED_PROPERTIES:
+			if _has_property(node, property_name):
+				data[property_name] = node.get(property_name)
 		var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
 		if inv:                      data["inventory"]      = inv.serialize()
+		# Only the controlled character's equipment reaches the save file via
+		# Global.save_game, so without this anyone you are not currently playing
+		# loses what they had equipped.
+		var equipment = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
+		if equipment:                data["equipment"]      = equipment.serialize()
 
 		Global.per_level_save[target_level][node.name] = data
 	
@@ -245,6 +261,9 @@ func restore_current_level():
 				if data.has("inventory"):
 					var player_inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
 					if player_inv: player_inv.deserialize(data["inventory"])
+				if data.has("equipment"):
+					var player_eq = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
+					if player_eq: player_eq.deserialize(data["equipment"])
 				continue
 			if data.get("disabled", false):
 				disable_node(node)
@@ -255,12 +274,16 @@ func restore_current_level():
 				if data.has("inventory"):
 					var inv = node.get_node_or_null("InventoryComponent") as InventoryComponent
 					if inv: inv.deserialize(data["inventory"])
-				if data.has("switch_state"):
-					node.switch_state = data["switch_state"]
-					if node.has_method("which_anim_to_play"): node.which_anim_to_play()
-				if data.has("was_used"):      node.was_used      = data["was_used"]
-				if data.has("activated"):     node.activated     = data["activated"]
-				if data.has("current_index"): node.current_index = data["current_index"]
+				if data.has("equipment"):
+					var equipment = node.get_node_or_null("EquipmentComponent") as EquipmentComponent
+					if equipment: equipment.deserialize(data["equipment"])
+				for property_name in SAVED_PROPERTIES:
+					if property_name == "health":
+						continue   # already applied above
+					if data.has(property_name) and _has_property(node, property_name):
+						node.set(property_name, data[property_name])
+				if data.has("switch_state") and node.has_method("which_anim_to_play"):
+					node.which_anim_to_play()
 
 	# Restore ground items — only when level has been visited before
 	if level_data.has("__ground_items__"):

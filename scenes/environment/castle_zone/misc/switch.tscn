@@ -5,7 +5,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ngpbo"]
 size = Vector2(4, 11)
 
-[node name="Switch" type="Node2D"]
+[node name="Switch" type="Node2D" groups=["save"]]
 script = ExtResource("1_qhcdf")
 
 [node name="Switch_area" type="Area2D" parent="." groups=["interactable"]]
