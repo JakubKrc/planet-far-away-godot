@@ -10,7 +10,9 @@ const SEP         = 6    # gap between equip and grid; between dual grids
 const TITLE_H     = 13   # title bar, including the rule under it
 const LANE_H      = 10   # header above each grid, dual mode only
 const DROP_H      = 12   # height of the drop-to-ground strip
-const KEYS_W      = 76   # room for the key hints beside the drop strip
+const HINT_TEXT   = "RMB drop  I close"
+const HINT_GAP    = 5    # gap between the drop strip and the key hints
+const TEXT_SIZE   = 7
 
 # Colors
 const C_BG        = Color(0.08, 0.08, 0.12, 0.96)
@@ -122,6 +124,12 @@ func _compute_layout():
 		panel_w += SEP + _secondary.cols * CELL
 	var panel_h = TITLE_H + PAD + body_h + PAD + DROP_H + PAD
 
+	# The hints are measured, not guessed, or they run off the panel edge.
+	var hint_w = ceili(_font().get_string_size(
+		HINT_TEXT, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x)
+	var footer_reserve = HINT_GAP + hint_w
+	panel_w = maxi(panel_w, PAD * 2 + EQUIP_SLOT + footer_reserve)
+
 	var vp = get_viewport().get_visible_rect().size
 	var panel_origin = ((vp - Vector2(panel_w, panel_h)) / 2.0).floor()
 	_panel = Rect2(panel_origin, Vector2(panel_w, panel_h))
@@ -145,7 +153,7 @@ func _compute_layout():
 		_sec_origin = _pri_origin + Vector2(grid_w + SEP, 0.0)
 
 	# The drop strip runs along the bottom, leaving room for the key hints.
-	var drop_w = maxi(panel_w - PAD * 2 - KEYS_W, EQUIP_SLOT)
+	var drop_w = panel_w - PAD * 2 - footer_reserve
 	_drop_rect = Rect2(Vector2(panel_origin.x + PAD, _panel.end.y - PAD - DROP_H),
 					   Vector2(drop_w, DROP_H))
 
@@ -555,11 +563,11 @@ func _draw_footer():
 	_control.draw_rect(_drop_rect, C_BORDER, false)
 	_control.draw_string(_font(),
 		_drop_rect.position + Vector2(0, 9),
-		"DROP TO GROUND", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), 7,
+		"DROP TO GROUND", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), TEXT_SIZE,
 		C_TXT * Color(1, 1, 1, 0.75))
 	_control.draw_string(_font(),
-		Vector2(_drop_rect.end.x + 5, _drop_rect.position.y + 9),
-		"RMB drop  I close", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, C_TXT_DIM)
+		Vector2(_drop_rect.end.x + HINT_GAP, _drop_rect.position.y + 9),
+		HINT_TEXT, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, C_TXT_DIM)
 
 func _draw_equip_slots():
 	for i in _equip_rects.size():
