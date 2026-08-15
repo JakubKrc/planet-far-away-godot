@@ -7,14 +7,21 @@ const PAD         = 8
 const EQUIP_GAP   = 4
 const EQUIP_GRID_COLS = 2  # equip slots are laid out two per row
 const SEP         = 6    # gap between equip and grid; between dual grids
-const DROP_H      = CELL # height of the drop-to-ground strip
+const TITLE_H     = 13   # title bar, including the rule under it
+const LANE_H      = 10   # header above each grid, dual mode only
+const DROP_H      = 12   # height of the drop-to-ground strip
+const KEYS_W      = 76   # room for the key hints beside the drop strip
 
 # Colors
 const C_BG        = Color(0.08, 0.08, 0.12, 0.96)
 const C_BORDER    = Color(0.45, 0.45, 0.55)
+const C_BORDER_DIM = Color(0.24, 0.24, 0.30)
 const C_CELL      = Color(0.18, 0.18, 0.25)
+const C_CELL_EMPTY = Color(0.13, 0.13, 0.19)
 const C_CELL_OK   = Color(0.25, 0.40, 0.30)
 const C_CELL_BAD  = Color(0.40, 0.20, 0.20)
+const C_DROP      = Color(0.28, 0.18, 0.18)
+const C_DROP_HOT  = Color(0.55, 0.25, 0.25)
 const C_EQUIP     = Color(0.22, 0.22, 0.32)
 const C_EQUIP_HOV = Color(0.32, 0.42, 0.52)
 const C_ITEM      = Color(0.45, 0.65, 0.45)
@@ -97,52 +104,54 @@ func _compute_layout():
 	var slot_count = _equip_slot_count()
 	var equip_cols = mini(slot_count, EQUIP_GRID_COLS)
 	var equip_rows = ceili(float(slot_count) / EQUIP_GRID_COLS)
-	var eq_w = 0
-	var eq_h = 0
+	var equip_w = 0
+	var equip_h = 0
 	if slot_count > 0:
-		eq_w = equip_cols * EQUIP_SLOT + (equip_cols - 1) * EQUIP_GAP
-		eq_h = equip_rows * EQUIP_SLOT + (equip_rows - 1) * EQUIP_GAP
-	# The drop-to-ground strip lives under the slots and is always shown, so the
-	# left column keeps a width even when there are no equip slots at all.
-	var side_w = maxi(eq_w, EQUIP_SLOT)
-	var gap_below_slots = EQUIP_GAP if eq_h > 0 else 0
-	var equip_block_h = eq_h + gap_below_slots + DROP_H
+		equip_w = equip_cols * EQUIP_SLOT + (equip_cols - 1) * EQUIP_GAP
+		equip_h = equip_rows * EQUIP_SLOT + (equip_rows - 1) * EQUIP_GAP
+	# A character with no equip slots gets no left column and no separator.
+	var equip_gap_right = SEP if equip_w > 0 else 0
+
+	var lane_h = LANE_H if _dual else 0
 	var grid_w = _primary.cols * CELL
 	var grid_h = _primary.rows * CELL
-	var panel_h = max(equip_block_h, grid_h) + PAD * 2
+	var body_h = maxi(equip_h, grid_h + lane_h)
 
-	var panel_w: int
+	var panel_w = PAD + equip_w + equip_gap_right + grid_w + PAD
 	if _dual:
-		var sec_w = _secondary.cols * CELL
-		panel_w = PAD + side_w + SEP + grid_w + SEP + sec_w + PAD
-	else:
-		panel_w = PAD + side_w + SEP + grid_w + PAD
+		panel_w += SEP + _secondary.cols * CELL
+	var panel_h = TITLE_H + PAD + body_h + PAD + DROP_H + PAD
 
 	var vp = get_viewport().get_visible_rect().size
-	var pp = ((vp - Vector2(panel_w, panel_h)) / 2.0).floor()
-	_panel = Rect2(pp, Vector2(panel_w, panel_h))
+	var panel_origin = ((vp - Vector2(panel_w, panel_h)) / 2.0).floor()
+	_panel = Rect2(panel_origin, Vector2(panel_w, panel_h))
 
-	var eq_origin = pp + Vector2(PAD, (panel_h - equip_block_h) / 2.0).floor()
+	var body_top = panel_origin.y + TITLE_H + PAD
+	var equip_origin = Vector2(panel_origin.x + PAD,
+							   body_top + (body_h - equip_h) / 2.0).floor()
 	_equip_rects = []
 	for i in slot_count:
 		@warning_ignore("integer_division")
 		var row = i / EQUIP_GRID_COLS
 		var col = i % EQUIP_GRID_COLS
 		_equip_rects.append(Rect2(
-			eq_origin + Vector2(col * (EQUIP_SLOT + EQUIP_GAP),
-								row * (EQUIP_SLOT + EQUIP_GAP)),
+			equip_origin + Vector2(col * (EQUIP_SLOT + EQUIP_GAP),
+								   row * (EQUIP_SLOT + EQUIP_GAP)),
 			Vector2(EQUIP_SLOT, EQUIP_SLOT)))
 
-	_drop_rect = Rect2(eq_origin + Vector2(0, eq_h + gap_below_slots), Vector2(side_w, DROP_H))
-
-	var cb = 9
-	_close_rect = Rect2(Vector2(_panel.end.x - cb - 2, _panel.position.y + 2), Vector2(cb, cb))
-
-	_pri_origin = pp + Vector2(PAD + side_w + SEP,
-							   (panel_h - grid_h) / 2.0).floor()
-
+	_pri_origin = Vector2(panel_origin.x + PAD + equip_w + equip_gap_right,
+						  body_top + lane_h + (body_h - lane_h - grid_h) / 2.0).floor()
 	if _dual:
 		_sec_origin = _pri_origin + Vector2(grid_w + SEP, 0.0)
+
+	# The drop strip runs along the bottom, leaving room for the key hints.
+	var drop_w = maxi(panel_w - PAD * 2 - KEYS_W, EQUIP_SLOT)
+	_drop_rect = Rect2(Vector2(panel_origin.x + PAD, _panel.end.y - PAD - DROP_H),
+					   Vector2(drop_w, DROP_H))
+
+	var close_size = 9
+	_close_rect = Rect2(Vector2(_panel.end.x - close_size - 3, panel_origin.y + 2),
+						Vector2(close_size, close_size))
 
 # ── Pickup (from ground) ──────────────────────────────────────────
 
@@ -459,8 +468,10 @@ func _on_draw():
 	if _primary == null:
 		return
 	_draw_panel()
+	_draw_title_bar()
 	_draw_equip_slots()
-	_draw_drop_zone()
+	_draw_footer()
+	_draw_lane_headers()
 	_draw_grid(_primary, _pri_origin)
 	if _dual:
 		_draw_grid(_secondary, _sec_origin)
@@ -475,20 +486,59 @@ func _on_draw():
 func _draw_panel():
 	_control.draw_rect(_panel, C_BG)
 	_control.draw_rect(_panel, C_BORDER, false)
-	# Separator after the left column. Drawn even with no equip slots, because
-	# the drop-to-ground strip still occupies that column.
-	var sep_x = _pri_origin.x - SEP / 2.0
-	_control.draw_line(
-		Vector2(sep_x, _panel.position.y + PAD),
-		Vector2(sep_x, _panel.end.y - PAD),
-		C_BORDER)
-	# Separator between dual grids
+	var body_top = _panel.position.y + TITLE_H + PAD
+	var body_bottom = _drop_rect.position.y - PAD
+	# Separator after the equip column, which is absent for characters with no slots.
+	if not _equip_rects.is_empty():
+		var sep_x = _pri_origin.x - SEP / 2.0
+		_control.draw_line(Vector2(sep_x, body_top), Vector2(sep_x, body_bottom), C_BORDER)
 	if _dual:
 		var sep_x2 = _sec_origin.x - SEP / 2.0
-		_control.draw_line(
-			Vector2(sep_x2, _panel.position.y + PAD),
-			Vector2(sep_x2, _panel.end.y - PAD),
-			C_BORDER)
+		_control.draw_line(Vector2(sep_x2, body_top), Vector2(sep_x2, body_bottom), C_BORDER)
+
+# Names whose bag this is. Matters now that you can possess other characters and
+# open their inventory instead of your own.
+func _draw_title_bar():
+	var rule_y = _panel.position.y + TITLE_H
+	_control.draw_line(Vector2(_panel.position.x, rule_y), Vector2(_panel.end.x, rule_y), C_BORDER)
+	_control.draw_string(_font(),
+		_panel.position + Vector2(PAD / 2.0, 9),
+		_display_name(_primary), HORIZONTAL_ALIGNMENT_LEFT, -1, 7, C_TXT)
+	# In dual mode each grid carries its own count, so the bar would only repeat it.
+	if _dual:
+		return
+	_control.draw_string(_font(),
+		Vector2(_panel.position.x, _panel.position.y + 9),
+		_capacity_text(_primary), HORIZONTAL_ALIGNMENT_RIGHT,
+		int(_panel.size.x - 16), 7, C_TXT_DIM)
+
+func _draw_lane_headers():
+	if not _dual:
+		return
+	_draw_lane_header(_primary, _pri_origin)
+	_draw_lane_header(_secondary, _sec_origin)
+
+func _draw_lane_header(inv: InventoryComponent, origin: Vector2):
+	var baseline = origin.y - 3
+	_control.draw_string(_font(), Vector2(origin.x, baseline),
+		_display_name(inv), HORIZONTAL_ALIGNMENT_LEFT, -1, 7, C_TXT)
+	_control.draw_string(_font(), Vector2(origin.x, baseline),
+		_capacity_text(inv), HORIZONTAL_ALIGNMENT_RIGHT, inv.cols * CELL, 7, C_TXT_DIM)
+
+func _display_name(inv: InventoryComponent) -> String:
+	var owner_node = inv.get_parent()
+	if owner_node == null:
+		return ""
+	var label = str(owner_node.name)
+	if owner_node is CharacterBase and owner_node.character_id != "":
+		label = owner_node.character_id
+	return label.to_upper().replace("_", " ")
+
+func _capacity_text(inv: InventoryComponent) -> String:
+	var cells_used = 0
+	for item in inv.all_items():
+		cells_used += item.grid_size.x * item.grid_size.y
+	return "%d / %d" % [cells_used, inv.cols * inv.rows]
 
 func _draw_close_button():
 	var hov = _close_rect.has_point(_mouse)
@@ -499,15 +549,17 @@ func _draw_close_button():
 	_control.draw_line(p + Vector2(2, 2), p + s - Vector2(2, 2), C_TXT, 1.0)
 	_control.draw_line(p + Vector2(s.x - 2, 2), p + Vector2(2, s.y - 2), C_TXT, 1.0)
 
-func _draw_drop_zone():
-	var hov = _drag_item != null and _drop_rect.has_point(_mouse)
-	var col = Color(0.55, 0.25, 0.25) if hov else Color(0.28, 0.18, 0.18)
-	_control.draw_rect(_drop_rect, col)
+func _draw_footer():
+	var hovered = _drag_item != null and _drop_rect.has_point(_mouse)
+	_control.draw_rect(_drop_rect, C_DROP_HOT if hovered else C_DROP)
 	_control.draw_rect(_drop_rect, C_BORDER, false)
 	_control.draw_string(_font(),
-		_drop_rect.position + Vector2(0, 11),
-		"DROP", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), 7,
-		C_TXT * Color(1, 1, 1, 0.7))
+		_drop_rect.position + Vector2(0, 9),
+		"DROP TO GROUND", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), 7,
+		C_TXT * Color(1, 1, 1, 0.75))
+	_control.draw_string(_font(),
+		Vector2(_drop_rect.end.x + 5, _drop_rect.position.y + 9),
+		"RMB drop  I close", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, C_TXT_DIM)
 
 func _draw_equip_slots():
 	for i in _equip_rects.size():
@@ -533,13 +585,17 @@ func _draw_grid(inv: InventoryComponent, origin: Vector2):
 	for gy in inv.rows:
 		for gx in inv.cols:
 			var rect = Rect2(origin + Vector2(gx * CELL, gy * CELL), Vector2(CELL, CELL))
-			var col = C_CELL
+			# Empty cells sit back so what you are carrying reads at a glance.
+			var is_empty = inv.get_at(Vector2i(gx, gy)) == null
+			var col = C_CELL_EMPTY if is_empty else C_CELL
+			var border = C_BORDER_DIM if is_empty else C_BORDER
 			if _drag_item != null and tl != Vector2i(-1, -1):
 				if gx >= tl.x and gx < tl.x + _drag_item.grid_size.x and \
 				   gy >= tl.y and gy < tl.y + _drag_item.grid_size.y:
 					col = C_CELL_OK if inv.can_place(_drag_item, tl) else C_CELL_BAD
+					border = C_BORDER
 			_control.draw_rect(rect, col)
-			_control.draw_rect(rect, C_BORDER, false)
+			_control.draw_rect(rect, border, false)
 
 func _draw_items_in_inv(inv: InventoryComponent, origin: Vector2):
 	for item in inv.all_items():
