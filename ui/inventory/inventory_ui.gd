@@ -563,7 +563,7 @@ func _draw_footer():
 	_control.draw_rect(_drop_rect, C_BORDER, false)
 	_control.draw_string(_font(),
 		_drop_rect.position + Vector2(0, 9),
-		"DROP TO GROUND", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), TEXT_SIZE,
+		"DROP", HORIZONTAL_ALIGNMENT_CENTER, int(_drop_rect.size.x), TEXT_SIZE,
 		C_TXT * Color(1, 1, 1, 0.75))
 	_control.draw_string(_font(),
 		Vector2(_drop_rect.end.x + HINT_GAP, _drop_rect.position.y + 9),
