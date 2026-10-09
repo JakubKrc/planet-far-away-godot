@@ -175,7 +175,20 @@ func _check_conditions(choice: Dictionary) -> bool:
 		var has = inv.has_id(item_id, amount) if inv else false
 		if has:
 			return false
+	for flag_name in _flag_names(choice.get("requires_flag", [])):
+		if not Global.has_quest_flag(flag_name):
+			return false
+	for flag_name in _flag_names(choice.get("requires_not_flag", [])):
+		if Global.has_quest_flag(flag_name):
+			return false
 	return true
+
+# Flag keys accept one name or a list, so `"sets_flag": "x"` and
+# `"sets_flag": ["x", "y"]` both work.
+func _flag_names(value) -> Array:
+	if value is String:
+		return [value]
+	return value
 
 func _update_selection():
 	var children = choices_container.get_children()
@@ -261,6 +274,8 @@ func _advance():
 	for item_id in choice.get("removes", {}):
 		if inv:
 			inv.remove_by_id(item_id, int(choice["removes"][item_id]))
+	for flag_name in _flag_names(choice.get("sets_flag", [])):
+		Global.set_quest_flag(flag_name)
 	var next = choice.get("next", null)
 	if next == null or next == "":
 		_end()

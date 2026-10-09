@@ -6,11 +6,13 @@
 			{
 				"text": "I have no idea. I want to go out!",
 				"requires_not": { "spare_part": 1 },
+				"requires_not_flag": "troguon_traded_keycard",
 				"next": "quest"
 			},
 			{
 				"text": "So i have that spare part!",
 				"requires": { "spare_part": 1 },
+				"requires_not_flag": "troguon_traded_keycard",
 				"removes": { "spare_part": 1 },
 				"next": "give_card"
 			},
@@ -45,6 +47,7 @@
 			{
 				"text": "Thank you so so much!!!!!!!",
 				"gives": { "res://items/blue_key.tres": 1 },
+				"sets_flag": "troguon_traded_keycard",
 				"next": null
 			}
 		]

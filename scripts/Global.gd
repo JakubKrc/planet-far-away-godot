@@ -158,6 +158,16 @@ func _controlled_character_id() -> String:
 # "PlayableRobot" without one silently deleting the other.
 var character_roster: Dictionary = {}
 
+# Story state that is not an item: "talked to X", "gave the key card". Belongs to
+# the run rather than a character, so possession and dropped items cannot reset it.
+var quest_flags: Dictionary = {}
+
+func set_quest_flag(flag_name: String):
+	quest_flags[flag_name] = true
+
+func has_quest_flag(flag_name: String) -> bool:
+	return quest_flags.get(flag_name, false) == true
+
 func character_record(character_id: String) -> Dictionary:
 	return character_roster.get(character_id, {})
 
@@ -231,6 +241,7 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"checkpoint_position": [active_checkpoint_position.x, active_checkpoint_position.y],
 		"possessed_character_id": _controlled_character_id(),
 		"character_roster": character_roster,
+		"quest_flags": quest_flags,
 		"per_level_save": _serialize_save(per_level_save),
 	}
 	var path := save_path()
@@ -259,6 +270,7 @@ func load_game() -> Dictionary:
 		return {}
 	per_level_save = _deserialize_save(result.get("per_level_save", {}))
 	character_roster = result.get("character_roster", {})
+	quest_flags = result.get("quest_flags", {})
 	var cp = result.get("checkpoint_position", null)
 	if cp != null:
 		active_checkpoint_position = Vector2(cp[0], cp[1])

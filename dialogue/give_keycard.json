@@ -5,12 +5,12 @@
 		"choices": [
 			{
 				"text": "Yes, can you help?",
-				"requires_not": { "blue_key": 1 },
+				"requires_not_flag": "technician_gave_keycard",
 				"next": "offer"
 			},
 			{
 				"text": "I already have your card.",
-				"requires": { "blue_key": 1 },
+				"requires_flag": "technician_gave_keycard",
 				"next": "already_have"
 			},
 			{
@@ -26,6 +26,7 @@
 			{
 				"text": "Thanks!",
 				"gives": { "res://items/blue_key.tres": 1 },
+				"sets_flag": "technician_gave_keycard",
 				"next": "given"
 			},
 			{

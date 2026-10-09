@@ -281,6 +281,7 @@ func _act_new_game():
 	Global.game_state = Global.GameState.PLAYING
 	Global.per_level_save.clear()
 	Global.character_roster.clear()
+	Global.quest_flags.clear()
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()
