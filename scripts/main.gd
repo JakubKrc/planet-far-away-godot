@@ -359,7 +359,7 @@ func restore_current_level():
 					if inv: inv.deserialize(data["inventory"])
 				for property_name in SAVED_PROPERTIES:
 					if data.has(property_name) and _has_property(node, property_name):
-						node.set(property_name, data[property_name])
+						node.set(property_name, _as_type_of(node.get(property_name), data[property_name]))
 				if data.has("switch_state") and node.has_method("which_anim_to_play"):
 					node.which_anim_to_play()
 
@@ -375,6 +375,13 @@ func restore_current_level():
 				gi.item = stored_item.make_unique_copy()
 				gi.position = Vector2(entry["pos"][0], entry["pos"][1])
 				main2D.add_child(gi)
+
+# JSON has no integers, so a saved 1 comes back as 1.0. An int property such as a
+# platform's waypoint index must get an int back, or `% size()` fails on it.
+func _as_type_of(current_value, saved_value):
+	if typeof(current_value) == TYPE_INT and typeof(saved_value) == TYPE_FLOAT:
+		return int(saved_value)
+	return saved_value
 
 func unload_level():
 	for child in main2D.get_children():

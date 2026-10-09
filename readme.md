@@ -36,3 +36,16 @@ A small 2D platformer prototype made in Godot 4, playable on itch.io.
 ## 💻 Running Locally
 
 Not really possible. The repository intentionally does **not** include graphics or audio files.
+
+---
+
+## 🧪 Tests
+
+Headless, no editor needed (run from the project folder):
+
+```bash
+godot --headless --path . -s res://tests/compile_all.gd
+godot --headless --path . -s res://tests/playthrough.gd -- --testmode
+```
+
+Both exit with 0 when everything passes. The playthrough only uses the test save slot.
