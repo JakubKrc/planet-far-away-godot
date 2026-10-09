@@ -176,6 +176,7 @@ func write_character_record(character: Node, level_path: String):
 	record["position"] = [character.global_position.x, character.global_position.y]
 	record["health"] = character.health
 	record["disabled"] = not character.visible
+	record["is_level_default_character"] = character.is_level_default_character
 	var inventory = character.get_node_or_null("InventoryComponent")
 	if inventory:
 		record["inventory"] = inventory.serialize()
@@ -190,6 +191,8 @@ func apply_character_record(character: Node, record: Dictionary):
 		character.global_position = Vector2(stored_position[0], stored_position[1])
 	if record.has("health"):
 		character.health = record["health"]
+	if record.has("is_level_default_character"):
+		character.is_level_default_character = record["is_level_default_character"]
 	if record.has("inventory"):
 		var inventory = character.get_node_or_null("InventoryComponent")
 		if inventory:

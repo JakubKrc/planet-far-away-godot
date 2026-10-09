@@ -20,7 +20,12 @@ func _notification(what):
 		overlay.visible = true
 		get_tree().paused = true
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		# Resume on return. Hiding the overlay but staying paused froze the game
+		# with no hint that a mouse click was needed.
+		has_focus = true
 		overlay.visible = false
+		if Global.game_state not in [Global.GameState.PAUSE_MENU, Global.GameState.GAME_OVER]:
+			get_tree().paused = false
 
 func _input(event):
 	if not has_focus and event is InputEventMouseButton and event.pressed:

@@ -6,15 +6,6 @@ class_name Shoot
 
 var bullet = preload("res://scenes/environment/castle_zone/characters/enemy_simplerobot/simpleBullet.tscn")
 
-#func shoot():
-	##if not parent.is_robot_chase:
-	##if not timer.is_stopped():
-		##timer.stop()
-	##return
-	#if timer.is_stopped():
-		#timer.start()
-		#attack()
-		
 func attack():
 	if !timer.is_stopped():
 		return
@@ -24,6 +15,3 @@ func attack():
 	b.position = parent.global_position + Vector2(10 * b.direction.x, 0)
 	parent.get_parent().add_child(b)
 	
-
-func _on_shoot_timer_timeout():
-	pass

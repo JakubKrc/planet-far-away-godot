@@ -4,7 +4,6 @@ extends Area2D
 @export_file var level_to_load: String = ""
 @export var door_to_spam: String = ""
 @export var need_to_interact: bool = true
-@export var direction_vector: Vector2 = Vector2.RIGHT
 @export var interactable: bool = true
 
 var need_to_be_exited_before_activating = false

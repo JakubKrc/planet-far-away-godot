@@ -1,4 +1,4 @@
-class_name FallTgroughPlatform
+class_name FallThroughPlatform
 extends Node
 
 @onready var parent = get_parent()

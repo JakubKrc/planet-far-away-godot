@@ -5,6 +5,9 @@ signal on_transition_finished
 @onready var color_rect = $ColorRect
 @onready var animation_player = $AnimationPlayer
 
+# Passed as fadeIn to skip the fade to black and cut straight to the new level.
+const INSTANT = 10000.0
+
 var stupidValueHolderForFadeOut: float = 1;
 
 func _ready():
@@ -20,7 +23,7 @@ func _on_animation_finished(anim_name):
 		color_rect.visible = false
 	
 func transition(fadeIn: float = 1, fadeOut: float = 1):
-	if(fadeIn == 10000):
+	if(fadeIn == INSTANT):
 		color_rect.visible = true
 		stupidValueHolderForFadeOut = fadeOut
 		_on_animation_finished('fade_to_black')

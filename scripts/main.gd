@@ -139,10 +139,12 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 	# The level's declaration is deliberately last: it answers "who am I when this
 	# level opens cold", which is the new-game case. A level that wants to seize
 	# control from a traveller does it by passing the character explicitly.
+	var control_from_level_declaration = false
 	if initial_possess_group == "":
 		initial_possess_group = travelling_character_id
 	if initial_possess_group == "":
 		initial_possess_group = _level_declares("default_character")
+		control_from_level_declaration = true
 	if door_name == "":
 		door_name = _level_declares("default_spawn_door")
 
@@ -157,6 +159,8 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 			push_error("load_level: found '%s' for '%s' but it is not a character (type: %s). Check the scene — InventoryComponent/EquipmentComponent children must be plain Node, not CharacterBody2D." % [char_to_possess.name, initial_possess_group, char_to_possess.get_class()])
 		else:
 			_give_control_to(char_to_possess)
+			if control_from_level_declaration:
+				char_to_possess.is_level_default_character = true
 
 	restore_current_level()
 
@@ -182,13 +186,13 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 
 # Hands the player a character. The character stays where it is in the level —
 # nothing is reparented, which is what keeps two same-named characters from
-# colliding and deleting one another.
+# colliding and deleting one another. Leaves is_level_default_character alone: it
+# belongs to the character and must survive doors and resumes.
 func _give_control_to(character: Node):
 	for previous in get_tree().get_nodes_in_group("player"):
 		if previous != character:
 			previous.remove_from_group("player")
 	character.add_to_group("player")
-	character.is_level_default_character = true
 	enable_node(character)
 	Global.controlled_char = character
 

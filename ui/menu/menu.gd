@@ -290,7 +290,7 @@ func _act_new_game():
 	# live with its character parked under /root/main.
 	_leave_current_run()
 	Global.main.set_ingame_ui_visible(true)
-	Global.main.load_level(start_level_path, "", 10000, 0.1)
+	Global.main.load_level(start_level_path, "", TransitionScreen.INSTANT, 0.1)
 
 # Tears down whatever run is still in progress before another level is loaded.
 #
@@ -302,6 +302,9 @@ func _act_new_game():
 # you arrived to an empty room.
 func _leave_current_run():
 	Global.main.unload_level()
+	# No level is live any more. Without this, the next load_level snapshots the
+	# emptied room over the loaded save and its ground items vanish.
+	Global.current_level = ""
 	if Global.death_menu:
 		Global.death_menu.hide()
 	Global.main.clear_persistent_characters()
@@ -319,8 +322,6 @@ func _act_continue():
 	Global.game_state = Global.GameState.PLAYING
 	get_tree().paused = false
 	# Prefer the stable character_id; saves written before ids existed only carry
-	# the node name, which load_level still accepts as a last resort.
-	# Prefer the stable character_id; saves written before ids existed only carry
 	# the node name, which load_level still accepts as a last resort. If the save
 	# names nobody, the level's own declaration decides.
 	var possessed = str(save.get("possessed_character_id", ""))
@@ -335,7 +336,7 @@ func _act_continue():
 	Global.main.set_ingame_ui_visible(true)
 	# One load. The roster already knows which level everyone is in, so there is no
 	# longer a detour through the character's home level to collect it.
-	await Global.main.load_level(target_level, "", 10000, 0.1, possessed, spawn_pos)
+	await Global.main.load_level(target_level, "", TransitionScreen.INSTANT, 0.1, possessed, spawn_pos)
 
 # Saved positions are [x, y] pairs. Anything else falls back to Vector2.ZERO,
 # which load_level reads as "use the level's own spawn door".

@@ -7,7 +7,6 @@ extends Node2D
 @export var speeds: Array[float]
 
 var current_index = 0
-var targets: Array[Vector2] = []
 var moves_first_time = true
 var index_before = 0
 
@@ -17,8 +16,6 @@ signal stopped_running
 func _ready() -> void:
 	if activated:
 		emit_signal("started_running")
-	for wp in waypoints:
-		targets.append(wp.global_position)
 
 func activate():
 	if(!activated):
