@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cnvdvcfcdqci3"
-path="res://.godot/imported/pixellab-gras-15-tileset.png-89e486a145a6f2730a463a5542409ce8.ctex"
+uid="uid://bi57bcoio7olj"
+path="res://.godot/imported/apartment_tiles.png-26fa802d55216eaaf6f526a2f7a05bfd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pixellab-gras-15-tileset.png"
-dest_files=["res://.godot/imported/pixellab-gras-15-tileset.png-89e486a145a6f2730a463a5542409ce8.ctex"]
+source_file="res://scenes/environment/apartment_zone/tiles/apartment_tiles.png"
+dest_files=["res://.godot/imported/apartment_tiles.png-26fa802d55216eaaf6f526a2f7a05bfd.ctex"]
 
 [params]
 

@@ -298,7 +298,7 @@ func _any_level_can_be_started():
 	var names = []
 	for level_path in levels:
 		names.append(level_path.get_file().get_basename())
-	var expected = ["room1", "room2", "room3", "room4", "room5", "room6", "room7"]
+	var expected = ["igor_apartment", "room1", "room2", "room3", "room4", "room5", "room6", "room7"]
 	_check("every room is found, platforms are not", names == expected, str(names))
 	_check("a level can be named without its path", Global.find_level("room4") == ROOMS + "room4.tscn")
 
@@ -307,6 +307,12 @@ func _any_level_can_be_started():
 	_check("main_char created where nobody was placed", _controlled_id() == "main_char", _controlled_id())
 	_check("exactly one MainChar", _count_main_chars() == 1)
 	_check("standing at a door", _distance_to_nearest_door() < 32, str(_distance_to_nearest_door()))
+
+	Global.menu.start_new_game(Global.find_level("igor_apartment"))
+	_check("Igor's apartment starts", await _wait_until_settled())
+	_check("as main_char", _controlled_id() == "main_char", _controlled_id())
+	_check("at the apartment door", Global.controlled_char.global_position.distance_to(Global.main.test_find_door("apartment_door").global_position) < 32)
+	_check("standing on the tiled floor", Global.controlled_char.is_on_floor(), str(Global.controlled_char.global_position))
 
 	Global.requested_level = "room5"
 	Global.requested_door = "portal_2"
