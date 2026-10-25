@@ -282,6 +282,7 @@ func _act_new_game():
 	Global.per_level_save.clear()
 	Global.character_roster.clear()
 	Global.quest_flags.clear()
+	Global.known_entries.clear()
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()

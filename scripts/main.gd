@@ -8,6 +8,7 @@ extends Node2D
 
 var level_instance = null
 const GROUND_ITEM_SCENE = preload("res://scenes/common/items/ground_item.tscn")
+const ENCYCLOPEDIA_UI = preload("res://ui/encyclopedia/encyclopedia_ui.gd")
 
 @onready var _notification_label: Label = $NotificationLayer/NotificationLabel
 var _notify_tween: Tween
@@ -31,6 +32,7 @@ func set_ingame_ui_visible(v: bool):
 
 func _ready():
 	Global.main = self
+	add_child(ENCYCLOPEDIA_UI.new())
 	$InventoryUI.item_thrown.connect(_on_item_thrown)
 	set_ingame_ui_visible(false)
 	Global.ui_text_settings_changed.connect(_apply_notification_font)

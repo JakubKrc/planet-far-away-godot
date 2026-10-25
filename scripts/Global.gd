@@ -98,6 +98,19 @@ func apply_to_label(label: Label, base_size: int):
 	else:
 		label.remove_theme_font_override("font")
 	label.add_theme_font_size_override("font_size", maxi(1, int(base_size * ui_font_size_scale)))
+
+# Same as apply_to_label for text with BBCode. Bold uses the same font, since the
+# pixel font has no bold face.
+func apply_to_rich_text(label: RichTextLabel, base_size: int):
+	var font = get_current_font()
+	var size = maxi(1, int(base_size * ui_font_size_scale))
+	for font_name in ["normal_font", "bold_font", "italics_font"]:
+		if font:
+			label.add_theme_font_override(font_name, font)
+		else:
+			label.remove_theme_font_override(font_name)
+	for size_name in ["normal_font_size", "bold_font_size", "italics_font_size"]:
+		label.add_theme_font_size_override(size_name, size)
 var death_menu
 var camera
 # Everything that currently wants the player held still, keyed by reason.
@@ -130,6 +143,7 @@ var active_checkpoint_position: Vector2 = Vector2(INF, INF)
 
 var dialogue
 var inventory_ui
+var encyclopedia
 
 const SAVE_PATH = "user://save.json"
 const TEST_SAVE_PATH = "user://save_test.json"
@@ -167,6 +181,17 @@ func set_quest_flag(flag_name: String):
 
 func has_quest_flag(flag_name: String) -> bool:
 	return quest_flags.get(flag_name, false) == true
+
+# Encyclopedia entries the player has come across, by entry id. Like quest flags,
+# they belong to the run and are saved with it.
+var known_entries: Dictionary = {}
+
+# Returns true the first time an entry is learned, so callers can announce it.
+func learn_entry(entry_id: String) -> bool:
+	if known_entries.has(entry_id):
+		return false
+	known_entries[entry_id] = true
+	return true
 
 func character_record(character_id: String) -> Dictionary:
 	return character_roster.get(character_id, {})
@@ -242,6 +267,7 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"possessed_character_id": _controlled_character_id(),
 		"character_roster": character_roster,
 		"quest_flags": quest_flags,
+		"known_entries": known_entries,
 		"per_level_save": _serialize_save(per_level_save),
 	}
 	var path := save_path()
@@ -271,6 +297,7 @@ func load_game() -> Dictionary:
 	per_level_save = _deserialize_save(result.get("per_level_save", {}))
 	character_roster = result.get("character_roster", {})
 	quest_flags = result.get("quest_flags", {})
+	known_entries = result.get("known_entries", {})
 	var cp = result.get("checkpoint_position", null)
 	if cp != null:
 		active_checkpoint_position = Vector2(cp[0], cp[1])

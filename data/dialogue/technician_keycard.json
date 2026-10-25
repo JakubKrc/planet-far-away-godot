@@ -5,13 +5,17 @@
 		"choices": [
 			{
 				"text": "Yes, can you help?",
-				"requires_not_flag": "technician_gave_keycard",
-				"next": "offer"
+				"next": "offer",
+				"requires_not_flag": [
+					"technician_gave_keycard"
+				]
 			},
 			{
 				"text": "I already have your card.",
-				"requires_flag": "technician_gave_keycard",
-				"next": "already_have"
+				"next": "already_have",
+				"requires_flag": [
+					"technician_gave_keycard"
+				]
 			},
 			{
 				"text": "Just browsing.",
@@ -25,9 +29,13 @@
 		"choices": [
 			{
 				"text": "Thanks!",
-				"gives": { "res://items/blue_key.tres": 1 },
-				"sets_flag": "technician_gave_keycard",
-				"next": "given"
+				"next": "given",
+				"gives": {
+					"blue_key": 1
+				},
+				"sets_flag": [
+					"technician_gave_keycard"
+				]
 			},
 			{
 				"text": "No thanks.",

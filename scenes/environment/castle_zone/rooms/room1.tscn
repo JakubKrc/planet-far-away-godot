@@ -292,7 +292,7 @@ position = Vector2(2, 208)
 
 [node name="NPC" parent="." unique_id=1159736454 instance=ExtResource("16_8reqi")]
 position = Vector2(-116, 211)
-dialogue_file = "res://dialogue/example.json"
+dialogue_file = "res://data/dialogue/troguon.json"
 
 [node name="Troguon" type="Sprite2D" parent="NPC" unique_id=1832139422]
 position = Vector2(0, -3)
@@ -302,7 +302,7 @@ texture = ExtResource("17_78vun")
 position = Vector2(63, 196)
 
 [node name="DialogueTrigger2" parent="NPC2" unique_id=1694577474 instance=ExtResource("17_5tq3k")]
-dialogue_file = "res://dialogue/give_keycard.json"
+dialogue_file = "res://data/dialogue/technician_keycard.json"
 
 [node name="Doguon" type="Sprite2D" parent="NPC2" unique_id=100736548]
 position = Vector2(0, -4)

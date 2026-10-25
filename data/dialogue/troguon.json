@@ -5,16 +5,30 @@
 		"choices": [
 			{
 				"text": "I have no idea. I want to go out!",
-				"requires_not": { "spare_part": 1 },
-				"requires_not_flag": "troguon_traded_keycard",
-				"next": "quest"
+				"next": "quest",
+				"requires_not": {
+					"spare_part": 1
+				},
+				"requires_not_flag": [
+					"troguon_traded_keycard"
+				]
 			},
 			{
 				"text": "So i have that spare part!",
-				"requires": { "spare_part": 1 },
-				"requires_not_flag": "troguon_traded_keycard",
-				"removes": { "spare_part": 1 },
-				"next": "give_card"
+				"next": "give_card",
+				"requires": {
+					"spare_part": 1
+				},
+				"requires_not_flag": [
+					"troguon_traded_keycard"
+				],
+				"removes": {
+					"spare_part": 1
+				}
+			},
+			{
+				"text": "Who is Igor?",
+				"next": "Igor"
 			},
 			{
 				"text": "What is this place?",
@@ -46,9 +60,13 @@
 		"choices": [
 			{
 				"text": "Thank you so so much!!!!!!!",
-				"gives": { "res://items/blue_key.tres": 1 },
-				"sets_flag": "troguon_traded_keycard",
-				"next": null
+				"next": null,
+				"gives": {
+					"blue_key": 1
+				},
+				"sets_flag": [
+					"troguon_traded_keycard"
+				]
 			}
 		]
 	},
@@ -65,6 +83,11 @@
 	"what": {
 		"speaker": "Troguon",
 		"text": "It seems to be eternal and boring. Doguon thinks its torture chamber, but i think its fragment of imagination of some mild mind.",
+		"choices": []
+	},
+	"Igor": {
+		"speaker": "Troguon",
+		"text": "Igor is [url=igor kozlov]Igornik[/url]",
 		"choices": []
 	}
 }

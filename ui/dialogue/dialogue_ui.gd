@@ -9,6 +9,9 @@ const C_SPEAKER  = Color(0.42, 0.46, 0.95)
 const C_TEXT     = Color(0.24, 0.60, 0.72)
 const C_NOTIF    = Color(1.0, 1.0, 0.6)
 const C_CHOSEN   = Color(0.85, 0.78, 0.40)
+const C_LINK     = Color(0.95, 0.75, 0.35)
+
+var _entry_link_pattern := RegEx.create_from_string("\\[url=([^\\]]+)\\]")
 
 var _data: Dictionary = {}
 var _current_id: String = ""
@@ -75,6 +78,49 @@ func append_log(text: String, color: Color = C_TEXT):
 		log_box.move_child(_bottom_spacer, -1)
 	_scroll_to_bottom.call_deferred()
 
+# Dialogue lines come from the vault as BBCode with [url] links to encyclopedia
+# entries, so they need a RichTextLabel. Plain notices keep using append_log.
+func append_rich_log(bbcode: String, color: Color = C_TEXT):
+	var label = RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_color_override("default_color", color)
+	label.meta_clicked.connect(_on_link_clicked)
+	Global.apply_to_rich_text(label, 8)
+	label.text = _colour_links(bbcode)
+	log_box.add_child(label)
+	if _bottom_spacer:
+		log_box.move_child(_bottom_spacer, -1)
+	_scroll_to_bottom.call_deferred()
+
+func _colour_links(bbcode: String) -> String:
+	var link_colour = "[color=#%s]" % C_LINK.to_html(false)
+	var coloured = _entry_link_pattern.sub(bbcode, "[url=$1]" + link_colour, true)
+	return coloured.replace("[/url]", "[/color][/url]")
+
+func _on_link_clicked(meta):
+	if Global.encyclopedia:
+		Global.encyclopedia.open(str(meta))
+
+# Seeing a link in conversation is how the player discovers an entry.
+func _learn_linked_entries(bbcode: String):
+	for found in _entry_link_pattern.search_all(bbcode):
+		_discover_entry(found.get_string(1))
+
+func _discover_entry(entry_id: String):
+	var already_known = Global.encyclopedia != null and Global.encyclopedia.is_known(entry_id)
+	if already_known or not Global.learn_entry(entry_id):
+		return
+	var title = entry_id
+	if Global.encyclopedia:
+		title = Global.encyclopedia.title_of(entry_id)
+	append_log("New in encyclopedia: " + title, C_NOTIF)
+
+func _encyclopedia_is_open() -> bool:
+	return Global.encyclopedia != null and Global.encyclopedia.visible
+
 func append_notification(text: String):
 	append_log(text, C_NOTIF)
 	# Briefly flash the panel so player sees it
@@ -94,6 +140,8 @@ func _rebuild_log_fonts():
 	for c in log_box.get_children():
 		if c is Label:
 			Global.apply_to_label(c, 8)
+		elif c is RichTextLabel:
+			Global.apply_to_rich_text(c, 8)
 
 # ── Dialogue flow ─────────────────────────────────────────────────
 
@@ -105,8 +153,11 @@ func _show_node(id: String):
 		return
 	var speaker = str(node.get("speaker", ""))
 	var text    = str(node.get("text", ""))
-	var line = (speaker + ": " + text) if speaker != "" else text
-	append_log(line, C_TEXT)
+	var line = text
+	if speaker != "":
+		line = speaker.replace("[", "[lb]") + ": " + text
+	append_rich_log(line, C_TEXT)
+	_learn_linked_entries(text)
 	# Filter choices by inventory conditions
 	_choices = []
 	for choice in node.get("choices", []):
@@ -224,6 +275,8 @@ func _unhandled_input(event: InputEvent):
 			_scroll_to_bottom.call_deferred()
 		get_viewport().set_input_as_handled()
 		return
+	if _encyclopedia_is_open():
+		return
 	if _in_dialogue and visible:
 		var count = choices_container.get_child_count()
 		if count == 0:
@@ -241,7 +294,7 @@ func _unhandled_input(event: InputEvent):
 			get_viewport().set_input_as_handled()
 
 func _input(event: InputEvent):
-	if not _in_dialogue or not visible:
+	if not _in_dialogue or not visible or _encyclopedia_is_open():
 		return
 	var children = choices_container.get_children()
 	if event is InputEventMouseMotion:
@@ -276,6 +329,8 @@ func _advance():
 			inv.remove_by_id(item_id, int(choice["removes"][item_id]))
 	for flag_name in _flag_names(choice.get("sets_flag", [])):
 		Global.set_quest_flag(flag_name)
+	for entry_id in choice.get("reveals", []):
+		_discover_entry(entry_id)
 	var next = choice.get("next", null)
 	if next == null or next == "":
 		_end()

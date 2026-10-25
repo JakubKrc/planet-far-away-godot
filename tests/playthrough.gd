@@ -12,7 +12,9 @@ extends SceneTree
 const TEST_SAVE = "user://save_test.json"
 const ROOMS = "res://scenes/environment/castle_zone/rooms/"
 const MAIN_CHAR_SCENE = "res://scenes/common/characters/main_char/main_char.tscn"
-const KEY_CARD_DIALOGUE = "res://dialogue/give_keycard.json"
+const KEY_CARD_DIALOGUE = "res://data/dialogue/technician_keycard.json"
+const FIXTURE_VAULT = "res://tests/fixtures/vault"
+const FIXTURE_DATA = "user://vault_export_playthrough"
 
 var Global: Node
 var failures: int = 0
@@ -31,6 +33,7 @@ func _run():
 
 	await _new_game_starts_as_main_char()
 	await _technician_remembers_the_key_card()
+	await _dialogue_links_unlock_encyclopedia_entries()
 	var possessed_id = await _possession_switch_in_room1()
 	await _inventory_screen_fits_its_panel()
 	await _possessed_character_walks_to_room2(possessed_id)
@@ -73,6 +76,54 @@ func _technician_remembers_the_key_card():
 	_pick("Just browsing.")
 	await _frames(2)
 	_check("movement unblocked after dialogue", Global.can_player_move)
+
+func _dialogue_links_unlock_encyclopedia_entries():
+	_section("encyclopedia: links in dialogue")
+	var exporter = VaultExporter.new()
+	var exported = exporter.export_vault(ProjectSettings.globalize_path(FIXTURE_VAULT), FIXTURE_DATA)
+	_check("fixture vault exports", exported, str(exporter.errors))
+	var encyclopedia = Global.encyclopedia
+	encyclopedia.load_entries(FIXTURE_DATA + "/encyclopedia.json")
+
+	await _talk(FIXTURE_DATA + "/dialogue/guard.json")
+	_check("linked entry discovered", Global.known_entries.has("old tower"))
+	_check("entry not linked yet stays unknown", not Global.known_entries.has("guard captain"))
+	_check("discovery announced in the log", _log_contains("New in encyclopedia: Old Tower"))
+
+	Global.dialogue._on_link_clicked("old tower")
+	await _frames(2)
+	_check("clicking a link opens the encyclopedia", encyclopedia.visible)
+	_check("it shows the clicked entry", encyclopedia._current_id == "old tower", encyclopedia._current_id)
+	_check("#known_at_start entry listed from the start", encyclopedia._listed_ids == ["old tower", "world"], str(encyclopedia._listed_ids))
+	_check("entry not revealed yet", not Global.known_entries.has("tower key"))
+	_check("link to an undiscovered entry is plain text", not encyclopedia._text.text.contains("[url=guard captain]"))
+	encyclopedia._on_link_clicked("guard captain")
+	_check("clicking it does not discover it", not Global.known_entries.has("guard captain"))
+	encyclopedia.close()
+	_check("dialogue still holds the player", not Global.can_player_move)
+
+	_pick("Tell me about the tower.")
+	await _frames(2)
+	_check("discovered from the next line", Global.known_entries.has("guard captain"))
+	_check("choice reveals an entry", Global.known_entries.has("tower key"))
+	_check("revealed entry announced", _log_contains("New in encyclopedia: Tower Key"))
+	_check("known-at-start entry not announced", not _log_contains("New in encyclopedia: World"))
+	encyclopedia.open("old tower")
+	_check("the link is active once discovered", encyclopedia._text.text.contains("[url=guard captain]"))
+	encyclopedia.close()
+	Global.dialogue._advance()
+	await _frames(2)
+	_check("movement unblocked", Global.can_player_move)
+
+	_press_key(KEY_J)
+	await _frames(3)
+	_check("J opens the encyclopedia", encyclopedia.visible)
+	_check("encyclopedia blocks movement", not Global.can_player_move)
+	_press_key(KEY_ESCAPE)
+	await _frames(3)
+	_check("Esc closes it", not encyclopedia.visible)
+	_check("Esc did not open the pause menu", Global.game_state == Global.GameState.PLAYING)
+	_check("movement back after closing", Global.can_player_move)
 
 func _possession_switch_in_room1() -> String:
 	_section("possession via switch")
@@ -146,6 +197,7 @@ func _ground_items_survive_continue(possessed_id: String):
 	var restored = get_nodes_in_group("ground_item").size()
 	_check("ground items restored", restored == items_on_ground, "%d vs %d" % [restored, items_on_ground])
 	_check("quest flag survived", Global.has_quest_flag("technician_gave_keycard"))
+	_check("encyclopedia discoveries survived", Global.known_entries.has("old tower"))
 	_check("one player after resume", get_nodes_in_group("player").size() == 1)
 
 func _back_to_room1_without_duplicates(possessed_id: String):
@@ -166,6 +218,9 @@ func _new_game_resets_the_run():
 	_check("settles", await _wait_until_settled())
 	_check("main_char again", _controlled_id() == "main_char")
 	_check("quest flags cleared", Global.quest_flags.is_empty(), str(Global.quest_flags))
+	_check("encyclopedia discoveries cleared", Global.known_entries.is_empty(), str(Global.known_entries))
+	_check("known-at-start entry still known", Global.encyclopedia.is_known("world"))
+	_check("discovered entry forgotten", not Global.encyclopedia.is_known("old tower"))
 	_check("one MainChar", _count_main_chars() == 1)
 
 func _room7_key_switch_opens_the_blocker():
@@ -308,6 +363,26 @@ func _pick(choice_text: String):
 			Global.dialogue._advance()
 			return
 	print("  !! no choice '", choice_text, "' in ", _choice_texts())
+
+func _log_contains(fragment: String) -> bool:
+	for line in Global.dialogue.log_box.get_children():
+		var text = ""
+		if line is Label:
+			text = line.text
+		elif line is RichTextLabel:
+			text = line.get_parsed_text()
+		if text.contains(fragment):
+			return true
+	return false
+
+# A real key press and release, delivered through the normal input path.
+func _press_key(keycode: Key):
+	for pressed in [true, false]:
+		var event = InputEventKey.new()
+		event.keycode = keycode
+		event.physical_keycode = keycode
+		event.pressed = pressed
+		Input.parse_input_event(event)
 
 func _end_dialogue():
 	if Global.dialogue._in_dialogue:
