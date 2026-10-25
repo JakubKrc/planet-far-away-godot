@@ -10,6 +10,11 @@ var level_instance = null
 const GROUND_ITEM_SCENE = preload("res://scenes/common/items/ground_item.tscn")
 const ENCYCLOPEDIA_UI = preload("res://ui/encyclopedia/encyclopedia_ui.gd")
 
+# Who you play in a level that names nobody and that nobody walked into — a room
+# opened for testing. Created at the spawn door if the level has no copy of them.
+const FALLBACK_CHARACTER_ID = "main_char"
+const FALLBACK_CHARACTER_SCENE = "res://scenes/common/characters/main_char/main_char.tscn"
+
 @onready var _notification_label: Label = $NotificationLayer/NotificationLabel
 var _notify_tween: Tween
 
@@ -147,6 +152,8 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 	if initial_possess_group == "":
 		initial_possess_group = _level_declares("default_character")
 		control_from_level_declaration = true
+	if initial_possess_group == "":
+		initial_possess_group = FALLBACK_CHARACTER_ID
 	if door_name == "":
 		door_name = _level_declares("default_spawn_door")
 
@@ -155,6 +162,8 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 		var char_to_possess = _find_character_by_id(initial_possess_group)
 		if char_to_possess == null:
 			char_to_possess = get_tree().get_first_node_in_group(initial_possess_group)
+		if char_to_possess == null and initial_possess_group == FALLBACK_CHARACTER_ID:
+			char_to_possess = _spawn_fallback_character(level_path)
 		if char_to_possess == null:
 			push_warning("load_level: no character '%s' in %s." % [initial_possess_group, level_path])
 		elif not char_to_possess is CharacterBase:
@@ -181,6 +190,13 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 				spawn_position = door.global_position
 				door_found = true
 				break
+		# No door named at all: the level's first door, rather than (0, 0), which
+		# in most rooms is inside solid tiles.
+		var doors = get_tree().get_nodes_in_group("door")
+		if not door_found and door_name == "" and not doors.is_empty():
+			doors[0].need_to_be_exited_before_activating = true
+			spawn_position = doors[0].global_position
+			door_found = true
 		if not door_found:
 			push_warning("Portal %s is not in the level %s" % [door_name, level_path])
 
@@ -190,6 +206,14 @@ func load_level(level_path : String, door_name : String, fadeIn: float = 1, fade
 # nothing is reparented, which is what keeps two same-named characters from
 # colliding and deleting one another. Leaves is_level_default_character alone: it
 # belongs to the character and must survive doors and resumes.
+func _spawn_fallback_character(level_path: String) -> Node:
+	var record = {"scene": FALLBACK_CHARACTER_SCENE, "level": level_path}
+	_spawn_character_from_record(FALLBACK_CHARACTER_ID, record)
+	var character = _find_character_by_id(FALLBACK_CHARACTER_ID)
+	if character != null:
+		Global.write_character_record(character, level_path)
+	return character
+
 func _give_control_to(character: Node):
 	for previous in get_tree().get_nodes_in_group("player"):
 		if previous != character:

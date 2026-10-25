@@ -1,4 +1,4 @@
-extends Node2D
+extends Level
 
 @onready var switch1 = $Switch
 @onready var platform1 = $Platform
@@ -10,6 +10,7 @@ extends Node2D
 @onready var switch3 = $Switch3
 
 func _ready():
+	super()
 	switch1.activated.connect(platform1.activate)
 	switch1.deactivated.connect(platform1.deactivate)
 	

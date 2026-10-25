@@ -1,10 +1,9 @@
 [gd_scene format=4 uid="uid://ci7ok1mwmooi1"]
 
 [ext_resource type="TileSet" uid="uid://bcu1103yoouvr" path="res://scenes/environment/castle_zone/rooms/room1.tres" id="1_8rf3l"]
-[ext_resource type="Script" uid="uid://bwy2fbbgrrtyd" path="res://scenes/environment/castle_zone/rooms/room_7.gd" id="1_wvuok"]
+[ext_resource type="Script" uid="uid://bwy2fbbgrrtyd" path="res://scenes/environment/castle_zone/rooms/room7.gd" id="1_wvuok"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_a6qhx"]
 [ext_resource type="Texture2D" uid="uid://igao1f1ht28l" path="res://scenes/environment/castle_zone/misc/castle_door_3.png" id="3_oiflo"]
-[ext_resource type="PackedScene" uid="uid://bsbbsbc1rea6q" path="res://scenes/common/characters/main_char/main_char.tscn" id="4_oiflo"]
 [ext_resource type="PackedScene" uid="uid://c0rxygo0mnmuj" path="res://scenes/environment/castle_zone/characters/playable_robot/playable_robot.tscn" id="5_hp53b"]
 [ext_resource type="PackedScene" uid="uid://cwmsp2t8tgg5x" path="res://scenes/environment/castle_zone/misc/switch.tscn" id="6_wvuok"]
 [ext_resource type="Texture2D" uid="uid://di7u6bcnncvpp" path="res://scenes/environment/castle_zone/misc/char_switch.png" id="7_84qpa"]
@@ -216,9 +215,6 @@ interactable = false
 [node name="Sprite2D" type="Sprite2D" parent="portal" unique_id=1344652871]
 position = Vector2(0, -15)
 texture = ExtResource("3_oiflo")
-
-[node name="MainChar" parent="." unique_id=1323154113 instance=ExtResource("4_oiflo")]
-position = Vector2(-434, 352)
 
 [node name="PlayableRobot" parent="." unique_id=1675268947 groups=["playable_robot"] instance=ExtResource("5_hp53b")]
 character_id = "room7_robot"

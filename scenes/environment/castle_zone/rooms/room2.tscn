@@ -1,5 +1,6 @@
 [gd_scene format=4 uid="uid://4wl2fd3oq41l"]
 
+[ext_resource type="Script" uid="uid://bu42haaqs7wym" path="res://scripts/level.gd" id="1_ljnch"]
 [ext_resource type="Texture2D" uid="uid://d3g0t17agsqde" path="res://scenes/environment/castle_zone/tilesets/tilesbrick.png" id="1_q5ksc"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_ggesn"]
 [ext_resource type="PackedScene" uid="uid://ch0qojlyeh1fm" path="res://scenes/environment/castle_zone/characters/enemy_simplerobot/simple_robot.tscn" id="3_1e0ut"]
@@ -76,6 +77,7 @@ physics_layer_0/collision_layer = 1
 sources/1 = SubResource("TileSetAtlasSource_jcil4")
 
 [node name="level2" type="Node2D" unique_id=1941635527]
+script = ExtResource("1_ljnch")
 
 [node name="bg" type="TileMapLayer" parent="." unique_id=1449071805]
 use_parent_material = true
@@ -99,15 +101,15 @@ scale = Vector2(0.997852, 0.973695)
 texture = ExtResource("3_g6gj7")
 
 [node name="simpleRobot" parent="." unique_id=1326429421 instance=ExtResource("3_1e0ut")]
-character_id = "room2_enemy1"
 position = Vector2(70, 184)
+character_id = "room2_enemy1"
 
 [node name="backgroundmusic" parent="." unique_id=1042046415 instance=ExtResource("4_25f15")]
 song = ExtResource("5_1467s")
 
 [node name="simpleRobot2" parent="." unique_id=10283614 instance=ExtResource("3_1e0ut")]
-character_id = "room2_enemy2"
 position = Vector2(346, 23)
+character_id = "room2_enemy2"
 
 [node name="Checkpoint" parent="." unique_id=264132082 instance=ExtResource("7_t7isk")]
 position = Vector2(205, 134)

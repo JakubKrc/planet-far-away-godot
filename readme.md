@@ -47,7 +47,14 @@ Headless, no editor needed (run from the project folder):
 godot --headless --path . -s res://tests/compile_all.gd
 godot --headless --path . -s res://tests/playthrough.gd -- --testmode
 godot --headless --path . -s res://tests/vault_export.gd
+godot --headless --path . -s res://tests/standalone_level.gd -- --testmode
 ```
+
+## ▶️ Playing any level
+
+- In the editor: open a room and press **F6**.
+- From the main menu: **Levels** (development builds only).
+- From a terminal: `godot --path . -- --level=room4 --door=portal_2` (`--door` is optional).
 
 Both exit with 0 when everything passes. The playthrough only uses the test save slot.
 

@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-enum State { MAIN, PAUSE, SETTINGS }
+enum State { MAIN, PAUSE, SETTINGS, LEVELS }
 
 # The only thing the menu decides is which level opens. That level declares who
 # you play as and where you appear, so the first level is not a special case —
@@ -49,6 +49,16 @@ func _ready():
 	Global.ui_text_settings_changed.connect(_apply_own_fonts)
 	_apply_own_fonts()
 	open_main()
+	if Global.requested_level != "":
+		_start_requested_level.call_deferred()
+
+# `-- --level=room4 --door=portal_2` on the command line skips the menu.
+func _start_requested_level():
+	var level_path = Global.find_level(Global.requested_level)
+	if level_path == "":
+		push_error("--level=%s: no such level. Levels: %s" % [Global.requested_level, Global.find_levels()])
+		return
+	start_new_game(level_path, Global.requested_door)
 
 func _apply_own_fonts():
 	Global.apply_to_label(title, 16)
@@ -66,12 +76,16 @@ func open_main():
 	bg_image.visible = bg_image.texture != null
 	settings_panel.hide()
 	items.show()
-	_rebuild_items([
+	var entries = [
 		["Last checkpoint",  "_act_continue",  _has_save],
 		["New Game",  "_act_new_game",  true],
-		["Settings",  "_act_open_settings", true],
-		["Quit",      "_act_quit", true],
-	])
+	]
+	# Development builds only: exported games for players never show it.
+	if OS.is_debug_build():
+		entries.append(["Levels", "open_levels", true])
+	entries.append(["Settings",  "_act_open_settings", true])
+	entries.append(["Quit",      "_act_quit", true])
+	_rebuild_items(entries)
 	_selection = 0 if _has_save else 1
 	_update_highlight()
 	show()
@@ -92,6 +106,19 @@ func open_pause():
 		["Main Menu",              "_act_main_menu",  true],
 		["Quit",                   "_act_quit",       true],
 	])
+	_selection = 0
+	_update_highlight()
+	show()
+
+# Lists every level; picking one starts a new game there.
+func open_levels():
+	state = State.LEVELS
+	title.text = "Levels"
+	var entries = []
+	for level_path in Global.find_levels():
+		entries.append([level_path.get_file().get_basename(), "start_new_game", true, level_path])
+	entries.append(["Back", "open_main", true])
+	_rebuild_items(entries)
 	_selection = 0
 	_update_highlight()
 	show()
@@ -144,6 +171,9 @@ func _rebuild_items(entries: Array):
 			lbl.modulate = Color(0.5, 0.5, 0.5)
 		lbl.set_meta("action", entry[1])
 		lbl.set_meta("enabled", entry[2])
+		# An optional fourth value is passed to the action, e.g. a level path.
+		if entry.size() > 3:
+			lbl.set_meta("argument", entry[3])
 		items.add_child(lbl)
 		Global.apply_to_label(lbl, 10)
 
@@ -198,6 +228,9 @@ func _input(event: InputEvent):
 				return
 	elif state == State.PAUSE and (event.is_action_pressed("escape") or event.is_action_pressed("pause")):
 		_act_resume()
+	elif state == State.LEVELS and event.is_action_pressed("escape"):
+		open_main()
+		get_viewport().set_input_as_handled()
 
 func _step(dir: int, live: Array):
 	var n = live.size()
@@ -211,7 +244,10 @@ func _activate(live: Array):
 	var l: Label = live[_selection]
 	if not l.get_meta("enabled"):
 		return
-	call(l.get_meta("action"))
+	if l.has_meta("argument"):
+		call(l.get_meta("action"), l.get_meta("argument"))
+	else:
+		call(l.get_meta("action"))
 
 func _settings_input(event: InputEvent):
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("escape"):
@@ -278,6 +314,11 @@ func _close_dialogue_if_open():
 		Global.unblock_player_movement("dialogue")
 
 func _act_new_game():
+	start_new_game(start_level_path)
+
+# A fresh run in any level. The level decides who you play and where you appear
+# unless a door is given.
+func start_new_game(level_path: String, door_name: String = ""):
 	Global.game_state = Global.GameState.PLAYING
 	Global.per_level_save.clear()
 	Global.character_roster.clear()
@@ -292,7 +333,7 @@ func _act_new_game():
 	# live with its character parked under /root/main.
 	_leave_current_run()
 	Global.main.set_ingame_ui_visible(true)
-	Global.main.load_level(start_level_path, "", TransitionScreen.INSTANT, 0.1)
+	Global.main.load_level(level_path, door_name, TransitionScreen.INSTANT, 0.1)
 
 # Tears down whatever run is still in progress before another level is loaded.
 #

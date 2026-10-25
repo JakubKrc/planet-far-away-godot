@@ -4,6 +4,7 @@ extends Level
 @onready var switch_b = $Switch4
 @onready var platform1 = $MovingPlatform_2
 func _ready():
+	super()
 	switch_a.activated.connect(platform1.activate)
 	switch_b.activated.connect(platform1.activate)
 	

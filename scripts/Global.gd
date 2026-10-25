@@ -24,6 +24,75 @@ func _detect_test_mode() -> bool:
 			return true
 	return false
 
+# ── Playing any level ─────────────────────────────────────────────
+# Three ways in, all ending in menu.start_new_game(): F6 on a room in the editor,
+# `-- --level=room4 --door=portal_2` on the command line, and the menu's Levels list.
+
+const MAIN_SCENE = "res://scripts/main.tscn"
+const LEVELS_FOLDER = "res://scenes"
+
+# Set from --level / --door; the menu starts this level instead of showing itself.
+var requested_level: String = ""
+var requested_door: String = ""
+
+func _read_level_arguments():
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--level="):
+			requested_level = arg.trim_prefix("--level=")
+		elif arg.begins_with("--door="):
+			requested_door = arg.trim_prefix("--door=")
+
+# Called by a level that was run on its own: swaps in the main scene and opens the
+# level from there, so it plays exactly as if the player had walked in.
+func play_level_standalone(level_path: String):
+	get_tree().change_scene_to_file(MAIN_SCENE)
+	while menu == null or main == null:
+		await get_tree().process_frame
+	menu.start_new_game(level_path)
+
+# Every scene whose root script is a Level, sorted by path. Read from the scene
+# files, so a new room shows up without being registered anywhere.
+func find_levels() -> Array:
+	var level_paths = []
+	_collect_levels(LEVELS_FOLDER, level_paths)
+	level_paths.sort()
+	return level_paths
+
+func _collect_levels(dir_path: String, level_paths: Array):
+	for sub_dir in DirAccess.get_directories_at(dir_path):
+		_collect_levels(dir_path.path_join(sub_dir), level_paths)
+	for file_name in DirAccess.get_files_at(dir_path):
+		if not file_name.ends_with(".tscn"):
+			continue
+		var scene_path = dir_path.path_join(file_name)
+		if _is_level_scene(load(scene_path) as PackedScene):
+			level_paths.append(scene_path)
+
+# Reads the root node's script from the packed scene without instancing it.
+func _is_level_scene(scene: PackedScene) -> bool:
+	if scene == null:
+		return false
+	var state = scene.get_state()
+	for i in state.get_node_property_count(0):
+		if state.get_node_property_name(0, i) != "script":
+			continue
+		var script = state.get_node_property_value(0, i) as Script
+		while script != null:
+			if script.get_global_name() == "Level":
+				return true
+			script = script.get_base_script()
+	return false
+
+# Accepts a full res:// path or a file name like "room4" / "room4.tscn".
+func find_level(name_or_path: String) -> String:
+	if name_or_path.begins_with("res://"):
+		return name_or_path
+	var wanted = name_or_path.trim_suffix(".tscn")
+	for level_path in find_levels():
+		if level_path.get_file().get_basename() == wanted:
+			return level_path
+	return ""
+
 signal level_transition_started
 signal level_transition_finished
 
@@ -362,6 +431,7 @@ func _deserialize_save(dict: Dictionary) -> Dictionary:
 
 func _ready():
 	isTest = _detect_test_mode()
+	_read_level_arguments()
 	if isTest:
 		# Loud on purpose: test mode changes pause behaviour and unlocks the
 		# teleport helpers, so it should never be a surprise.

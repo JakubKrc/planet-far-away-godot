@@ -1,7 +1,7 @@
 [gd_scene load_steps=15 format=4 uid="uid://dxvqsse58eyqb"]
 
 [ext_resource type="TileSet" uid="uid://bcu1103yoouvr" path="res://scenes/environment/castle_zone/rooms/room1.tres" id="1_8ojs1"]
-[ext_resource type="Script" uid="uid://ylgn3s6ttloo" path="res://scenes/environment/castle_zone/rooms/room_4.gd" id="1_3004v"]
+[ext_resource type="Script" uid="uid://ylgn3s6ttloo" path="res://scenes/environment/castle_zone/rooms/room4.gd" id="1_3004v"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_mxjlw"]
 [ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="3_r5f72"]
 [ext_resource type="PackedScene" uid="uid://cij5tx6qfvw5w" path="res://scenes/environment/castle_zone/rooms/plarform_1.tscn" id="4_3004v"]

@@ -42,6 +42,7 @@ func _run():
 	await _new_game_resets_the_run()
 	await _room7_key_switch_opens_the_blocker()
 	await _possession_chain_through_rooms_4_to_6()
+	await _any_level_can_be_started()
 
 	print("RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
@@ -251,7 +252,7 @@ func _possession_chain_through_rooms_4_to_6():
 	await _use_switch("Switch3")
 	_check("possessed room7_robot", _controlled_id() == "room7_robot", _controlled_id())
 
-	_check("to room4", await _use_door_to("room_4.tscn"))
+	_check("to room4", await _use_door_to("room4.tscn"))
 	_check("room7_robot came along", _controlled_id() == "room7_robot", _controlled_id())
 	_check("main_char stayed in room7", Global.character_level("main_char") == ROOMS + "room7.tscn")
 
@@ -264,7 +265,7 @@ func _possession_chain_through_rooms_4_to_6():
 	var moved_position = platform.global_position
 
 	_check("resume settles", await _save_and_continue())
-	var saved_platform = Global.per_level_save[ROOMS + "room_4.tscn"].get("Platform", {})
+	var saved_platform = Global.per_level_save[ROOMS + "room4.tscn"].get("Platform", {})
 	var saved_position = saved_platform.get("position", Vector2.INF)
 	_check("platform position was saved", saved_position.distance_to(moved_position) < 1.0, "%s vs %s" % [saved_position, moved_position])
 	platform = Global.main.level_instance.get_node("Platform")
@@ -274,22 +275,57 @@ func _possession_chain_through_rooms_4_to_6():
 
 	await _use_switch("Switch2")
 	_check("possessed room4_robot", _controlled_id() == "room4_robot", _controlled_id())
-	_check("to room5", await _use_door_to("room_5.tscn"))
-	_check("to room6", await _use_door_to("room_6.tscn"))
+	_check("to room5", await _use_door_to("room5.tscn"))
+	_check("to room6", await _use_door_to("room6.tscn"))
 	_check("room4_robot came along", _controlled_id() == "room4_robot", _controlled_id())
 	await _use_switch("Switch2")
 	_check("possessed room6_enemy2", _controlled_id() == "room6_enemy2", _controlled_id())
 
 	_check("resume settles", await _save_and_continue())
 	_check("resumed as room6_enemy2", _controlled_id() == "room6_enemy2", _controlled_id())
-	_check("room4_robot left in room6", Global.character_level("room4_robot") == ROOMS + "room_6.tscn", Global.character_level("room4_robot"))
-	_check("room7_robot left in room4", Global.character_level("room7_robot") == ROOMS + "room_4.tscn", Global.character_level("room7_robot"))
+	_check("room4_robot left in room6", Global.character_level("room4_robot") == ROOMS + "room6.tscn", Global.character_level("room4_robot"))
+	_check("room7_robot left in room4", Global.character_level("room7_robot") == ROOMS + "room4.tscn", Global.character_level("room7_robot"))
 	_check("main_char left in room7", Global.character_level("main_char") == ROOMS + "room7.tscn", Global.character_level("main_char"))
 
-	_check("back to room4", await _use_door_to("room_4.tscn"))
+	_check("back to room4", await _use_door_to("room4.tscn"))
 	var ids = _ids_in_tree()
 	_check("room7_robot is waiting in room4", ids.has("room7_robot"), str(ids))
 	_check("room4_robot is not in room4", not ids.has("room4_robot"), str(ids))
+
+func _any_level_can_be_started():
+	_section("starting any level")
+	var levels = Global.find_levels()
+	var names = []
+	for level_path in levels:
+		names.append(level_path.get_file().get_basename())
+	var expected = ["room1", "room2", "room3", "room4", "room5", "room6", "room7"]
+	_check("every room is found, platforms are not", names == expected, str(names))
+	_check("a level can be named without its path", Global.find_level("room4") == ROOMS + "room4.tscn")
+
+	Global.menu.start_new_game(ROOMS + "room4.tscn")
+	_check("room4 starts", await _wait_until_settled())
+	_check("main_char created where nobody was placed", _controlled_id() == "main_char", _controlled_id())
+	_check("exactly one MainChar", _count_main_chars() == 1)
+	_check("standing at a door", _distance_to_nearest_door() < 32, str(_distance_to_nearest_door()))
+
+	Global.requested_level = "room5"
+	Global.requested_door = "portal_2"
+	Global.menu._start_requested_level()
+	_check("--level=room5 starts", await _wait_until_settled())
+	_check("in room5", Global.current_level == ROOMS + "room5.tscn", Global.current_level)
+	var door = Global.main.test_find_door("portal_2")
+	_check("at the --door it named", Global.controlled_char.global_position.distance_to(door.global_position) < 32)
+	Global.requested_level = ""
+	Global.requested_door = ""
+
+	Global.menu.open_levels()
+	var rows = Global.menu.items.get_children()
+	_check("Levels list shows every level plus Back", rows.size() == levels.size() + 1, str(rows.size()))
+	Global.menu._selection = names.find("room6")
+	Global.menu._activate(rows)
+	_check("picking room6 starts it", await _wait_until_settled())
+	_check("in room6", Global.current_level == ROOMS + "room6.tscn", Global.current_level)
+	_check("menu closed", not Global.menu.visible)
 
 # ── Helpers ───────────────────────────────────────────────────────
 
@@ -405,6 +441,12 @@ func _ids_in_tree() -> Array:
 	for character in Global.main.characters_in_tree():
 		ids.append(character.character_id)
 	return ids
+
+func _distance_to_nearest_door() -> float:
+	var nearest = INF
+	for door in get_nodes_in_group("door"):
+		nearest = minf(nearest, door.global_position.distance_to(Global.controlled_char.global_position))
+	return nearest
 
 func _count_main_chars() -> int:
 	var count = 0

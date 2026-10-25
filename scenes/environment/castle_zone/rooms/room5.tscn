@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=4 uid="uid://b6ypfg171dyt"]
 
 [ext_resource type="TileSet" uid="uid://bcu1103yoouvr" path="res://scenes/environment/castle_zone/rooms/room1.tres" id="1_3pn2f"]
-[ext_resource type="Script" uid="uid://ctd6njo5dgjec" path="res://scenes/environment/castle_zone/rooms/room_5.gd" id="1_76qyu"]
+[ext_resource type="Script" uid="uid://ctd6njo5dgjec" path="res://scenes/environment/castle_zone/rooms/room5.gd" id="1_76qyu"]
 [ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="2_px777"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="3_fgoc7"]
 [ext_resource type="PackedScene" uid="uid://840gjvm2viku" path="res://scenes/common/damage_area/DamageArea.tscn" id="4_px777"]

@@ -1,5 +1,6 @@
-[gd_scene load_steps=8 format=4 uid="uid://clr15t64hymoc"]
+[gd_scene format=4 uid="uid://clr15t64hymoc"]
 
+[ext_resource type="Script" uid="uid://bu42haaqs7wym" path="res://scripts/level.gd" id="1_0nnnt"]
 [ext_resource type="Texture2D" uid="uid://cclylt5e7qjgk" path="res://scenes/environment/castle_zone/tilesets/testtiles.png" id="1_u7b2h"]
 [ext_resource type="PackedScene" uid="uid://bfnj6k4i271ee" path="res://scenes/environment/castle_zone/misc/door.tscn" id="2_l1wea"]
 [ext_resource type="Texture2D" uid="uid://dpp1xndrmpbuy" path="res://scenes/environment/castle_zone/misc/castle_door_2.png" id="3_pihpe"]
@@ -39,41 +40,42 @@ texture = ExtResource("1_u7b2h")
 physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_n73uc")
 
-[node name="Room3" type="Node2D"]
+[node name="Room3" type="Node2D" unique_id=1824697235]
+script = ExtResource("1_0nnnt")
 
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1284031099]
 tile_map_data = PackedByteArray("AAACAAgAAAABAAEAAAADAAgAAAABAAEAAAAEAAgAAAABAAEAAAAFAAgAAAABAAEAAAAGAAgAAAABAAEAAAAHAAgAAAABAAEAAAAIAAgAAAABAAEAAAAJAAgAAAABAAEAAAAKAAgAAAABAAEAAAALAAgAAAABAAEAAAALAAcAAAABAAAAAAAMAAcAAAABAAAAAAAMAAgAAAABAAEAAAANAAgAAAABAAEAAAAOAAgAAAABAAEAAAACAAcAAAABAAAAAAADAAcAAAABAAAAAAAEAAcAAAABAAAAAAAFAAcAAAABAAAAAAAGAAcAAAABAAAAAAAHAAcAAAABAAAAAAAIAAcAAAABAAAAAAAJAAcAAAABAAAAAAAKAAcAAAABAAAAAAANAAcAAAABAAAAAAAOAAcAAAABAAAAAAAPAAcAAAABAAAAAAAQAAcAAAABAAAAAAARAAcAAAABAAAAAAASAAcAAAABAAAAAADp/xQAAAABAAQAAADq/xQAAAABAAQAAADr/xQAAAABAAQAAADs/xQAAAABAAQAAADt/xQAAAABAAQAAADu/xQAAAABAAQAAADv/xQAAAABAAQAAADw/xQAAAABAAQAAADx/xQAAAABAAQAAADy/xQAAAABAAQAAADz/xQAAAABAAQAAAAHABQAAAABAAQAAAAIABQAAAABAAQAAAAJABQAAAABAAQAAAAKABQAAAABAAQAAAALABQAAAABAAQAAAAMABQAAAABAAQAAAANABQAAAABAAQAAAAOABQAAAABAAQAAAAPABQAAAABAAQAAAAGABQAAAABAAQAAAAFABQAAAABAAQAAAAEABQAAAABAAQAAAADABQAAAABAAQAAAACABQAAAABAAQAAAABABQAAAABAAQAAAAAABQAAAABAAQAAAD//xQAAAABAAQAAAD+/xQAAAABAAQAAAD9/xQAAAABAAQAAAD8/xQAAAABAAQAAAD7/xQAAAABAAQAAAD6/xQAAAABAAQAAAD5/xQAAAABAAQAAAD4/xQAAAABAAQAAAD3/xQAAAABAAQAAAD2/xQAAAABAAQAAAD1/xQAAAABAAQAAAD0/xQAAAABAAQAAAA=")
 tile_set = SubResource("TileSet_2t10n")
 
-[node name="portal" parent="." instance=ExtResource("2_l1wea")]
+[node name="portal" parent="." unique_id=1172572225 instance=ExtResource("2_l1wea")]
 position = Vector2(50, 96)
 door_name = "level_3"
 level_to_load = "res://scenes/environment/castle_zone/rooms/room1.tscn"
 door_to_spam = "to_level_3"
 
-[node name="Sprite2D" type="Sprite2D" parent="portal"]
+[node name="Sprite2D" type="Sprite2D" parent="portal" unique_id=2118782622]
 position = Vector2(0, -2)
 texture = ExtResource("3_pihpe")
 
-[node name="Parallax2D" type="Parallax2D" parent="."]
+[node name="Parallax2D" type="Parallax2D" parent="." unique_id=795447897]
 z_index = -1
 scroll_scale = Vector2(0.5, 0)
 repeat_size = Vector2(400, 0)
 
-[node name="Sprite2D" type="Sprite2D" parent="Parallax2D"]
+[node name="Sprite2D" type="Sprite2D" parent="Parallax2D" unique_id=153935205]
 position = Vector2(168, 97)
 texture = ExtResource("3_uu55f")
 
-[node name="Parallax2D2" type="Parallax2D" parent="."]
+[node name="Parallax2D2" type="Parallax2D" parent="." unique_id=1469791185]
 z_index = -1
 scroll_scale = Vector2(0.7, 0.8)
 repeat_size = Vector2(400, 0)
 autoscroll = Vector2(10, 0)
 
-[node name="Sprite2D" type="Sprite2D" parent="Parallax2D2"]
+[node name="Sprite2D" type="Sprite2D" parent="Parallax2D2" unique_id=245606040]
 position = Vector2(14, 42)
 texture = ExtResource("4_4qtrf")
 
-[node name="Sprite2D2" type="Sprite2D" parent="Parallax2D2"]
+[node name="Sprite2D2" type="Sprite2D" parent="Parallax2D2" unique_id=1426617232]
 position = Vector2(240, 1)
 texture = ExtResource("4_4qtrf")
