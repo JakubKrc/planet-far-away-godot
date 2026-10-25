@@ -14,12 +14,7 @@ export_presets.cfg
 data_*/
 mono_crash.*.json
 
-audio/
-*.png
 *.zip
-*.png.import
-*.aseprite
-*.ttf
 
 .vscode
 addons
