@@ -1,5 +1,6 @@
 # Turns Obsidian notes tagged #in_game into game data: notes in dialogue/ become
 # dialogues, all others encyclopedia entries. Format guide: vault "_how to write for the game".
+@tool
 class_name VaultExporter
 extends RefCounted
 

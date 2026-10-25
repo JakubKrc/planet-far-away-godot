@@ -17,4 +17,6 @@ mono_crash.*.json
 *.zip
 
 .vscode
-addons
+# Third-party plugins are installed per machine; our own are kept.
+addons/*
+!addons/vault_export/
