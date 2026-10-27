@@ -40,6 +40,8 @@ func _good_vault_exports_correctly():
 		_check("reveals lists entry ids", choices[0].get("reveals") == ["tower key"], str(choices[0].get("reveals")))
 		_check("'-> end' ends the talk", choices[1]["next"] == null)
 		_check("no arrow ends the talk", choices[2]["next"] == null)
+		_check("ends_memory read as true", choices[2].get("ends_memory") == true, str(choices[2]))
+		_check("other choices do not end a memory", not choices[0].has("ends_memory"))
 		var gives = choices[1].get("gives", {})
 		_check("item amount parsed", gives.keys() == ["test_potion"] and int(gives["test_potion"]) == 2, str(gives))
 		_check("flag list parsed", choices[1].get("sets_flag") == ["guard_gave_potions", "met_guard"], str(choices[1].get("sets_flag")))
@@ -70,6 +72,7 @@ func _broken_vault_writes_nothing():
 	_check("missing item reported", _any_contains(exporter.errors, "no item 'no_such_item'"), str(exporter.errors))
 	_check("unknown setting reported", _any_contains(exporter.errors, "unknown setting 'colour'"), str(exporter.errors))
 	_check("reveal of a missing entry reported", _any_contains(exporter.errors, "reveals 'Nobody'"), str(exporter.errors))
+	_check("ends_memory other than yes reported", _any_contains(exporter.errors, "write 'ends_memory: yes'"), str(exporter.errors))
 	_check("nothing written", not DirAccess.dir_exists_absolute(BROKEN_OUT))
 
 # ── Helpers ───────────────────────────────────────────────────────

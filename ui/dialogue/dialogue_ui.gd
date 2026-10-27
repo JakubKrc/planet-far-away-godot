@@ -174,6 +174,7 @@ func _show_node(id: String):
 		for choice in _choices:
 			var lbl = Label.new()
 			lbl.text = choice["text"]
+			lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART   # long choices fold
 			choices_container.add_child(lbl)
 			Global.apply_to_label(lbl, 7)
 	_selection = 0
@@ -331,6 +332,11 @@ func _advance():
 		Global.set_quest_flag(flag_name)
 	for entry_id in choice.get("reveals", []):
 		_discover_entry(entry_id)
+	# A memory that ends with this talk takes Igor back to where it began.
+	if choice.get("ends_memory", false) == true:
+		_end()
+		Global.end_memory()
+		return
 	var next = choice.get("next", null)
 	if next == null or next == "":
 		_end()

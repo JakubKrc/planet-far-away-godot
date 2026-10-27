@@ -1,0 +1,57 @@
+{
+	"start": {
+		"speaker": "Gardener",
+		"text": "Evening, Igor. Back from the outskirts again?",
+		"choices": [
+			{
+				"text": "You know they used to grow food in fields? Outside, in the open.",
+				"next": "fields"
+			},
+			{
+				"text": "Good night.",
+				"next": null
+			}
+		]
+	},
+	"fields": {
+		"speaker": "Gardener",
+		"text": "Outside? In the dirt, with nothing filtering the water?",
+		"choices": [
+			{
+				"text": "Miles of it. Then trucks drove it into the cities, every single day.",
+				"next": "trucks"
+			},
+			{
+				"text": "Good night.",
+				"next": null
+			}
+		]
+	},
+	"trucks": {
+		"speaker": "Gardener",
+		"text": "That's a lot of driving for a tomato.",
+		"choices": [
+			{
+				"text": "And nobody lived in an arcology. Every family had its own little house, spread out for miles.",
+				"next": "houses",
+				"reveals": [
+					"arcology"
+				]
+			},
+			{
+				"text": "Good night.",
+				"next": null
+			}
+		]
+	},
+	"houses": {
+		"speaker": "Gardener",
+		"text": "A whole building for one family? Who looked after their gardens? Here the [url=arcology]arcology[/url] does it all. You read too many old things, [url=igor kozlov]Igor[/url].",
+		"choices": [
+			{
+				"text": "Some people grow tomatoes. I dig up old things.",
+				"next": null
+			}
+		]
+	}
+}

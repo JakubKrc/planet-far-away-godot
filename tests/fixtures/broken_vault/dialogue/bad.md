@@ -5,3 +5,4 @@ Bad: Hello.
 	- requires: no_such_item
 	- colour: red
 	- reveals: Nobody
+	- ends_memory: maybe

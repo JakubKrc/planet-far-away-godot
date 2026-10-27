@@ -29,4 +29,9 @@ func _on_text_settings_changed():
 # height to 0 lets the wrapped text grow it back to exactly what it needs.
 func place_bottom_centre_at(point: Vector2):
 	size = Vector2(_max_width, 0)
-	global_position = point - Vector2(size.x / 2.0, size.y)
+	# Grows as the camera pulls back, so it stays the same size on screen.
+	var camera_zoom = 1.0
+	if Global.camera != null:
+		camera_zoom = Global.camera.zoom.x
+	scale = Vector2.ONE / camera_zoom
+	global_position = point - Vector2(size.x / 2.0, size.y) * scale

@@ -11,6 +11,8 @@ extends SceneTree
 
 const TEST_SAVE = "user://save_test.json"
 const ROOMS = "res://scenes/environment/castle_zone/rooms/"
+const LOBBY = "res://scenes/environment/apartment_zone/arcology_lobby.tscn"
+const APARTMENT = "res://scenes/environment/apartment_zone/igor_apartment.tscn"
 const MAIN_CHAR_SCENE = "res://scenes/common/characters/main_char/main_char.tscn"
 const KEY_CARD_DIALOGUE = "res://data/dialogue/technician_keycard.json"
 const FIXTURE_VAULT = "res://tests/fixtures/vault"
@@ -43,6 +45,8 @@ func _run():
 	await _room7_key_switch_opens_the_blocker()
 	await _possession_chain_through_rooms_4_to_6()
 	await _any_level_can_be_started()
+	await _lobby_leads_home()
+	await _memory_of_home()
 
 	print("RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)
@@ -53,11 +57,17 @@ func _new_game_starts_as_main_char():
 	_section("new game")
 	Global.menu._act_new_game()
 	_check("level settles", await _wait_until_settled())
-	_check("in room1", Global.current_level == ROOMS + "room1.tscn", Global.current_level)
+	_check("in the ruins, room4", Global.current_level == ROOMS + "room4.tscn", Global.current_level)
+	_check("not in a memory yet", not Global.is_in_memory())
 	_check("controlling main_char", _controlled_id() == "main_char", _controlled_id())
 	_check("main_char is the level's own character", Global.controlled_char.is_level_default_character)
 	_check("exactly one MainChar", _count_main_chars() == 1)
 	_check("one node in player group", get_nodes_in_group("player").size() == 1)
+
+	# The castle test rooms come next; they start the old way, from room1.
+	Global.menu.start_new_game(ROOMS + "room1.tscn")
+	_check("room1 settles", await _wait_until_settled())
+	_check("in room1", Global.current_level == ROOMS + "room1.tscn", Global.current_level)
 
 func _technician_remembers_the_key_card():
 	_section("quest flags: technician key card")
@@ -213,6 +223,141 @@ func _back_to_room1_without_duplicates(possessed_id: String):
 	await _use_switch("Switch2")
 	_check("switch back to main_char", _controlled_id() == "main_char", _controlled_id())
 
+func _lobby_leads_home():
+	_section("the arcology lobby")
+	Global.menu.start_new_game(LOBBY)
+	_check("lobby settles", await _wait_until_settled())
+	var level = Global.main.level_instance
+	var walker = Global.controlled_char
+	_check("standing on the lobby floor", walker.is_on_floor(), str(walker.global_position))
+	await _frames(20)
+	var entrance_thought = level.get_node("ThoughtAtEntrance")
+	Global.main.test_teleport(Vector2(72, 208))
+	await _frames(20)
+	_check("coming in, Igor thinks of his day", entrance_thought.current_text() == "Another shift done.", entrance_thought.current_text())
+	entrance_thought.stop()
+
+	var bot = level.get_node("Residents/CleaningBot")
+	var bot_x = bot.position.x
+	var view = level.get_node("AtriumView")
+	await _hold_until("right", func(): return walker.global_position.x > 300)
+	await _wait_seconds(1.5)
+	_check("walked into the atrium", view.is_active(), str(walker.global_position))
+	_check("the camera pulls back to show the floors above", Global.camera.zoom.x < 0.7, str(Global.camera.zoom))
+	_check("the cleaning robot is on its rounds", not is_equal_approx(bot.position.x, bot_x))
+	var garden_thought = level.get_node("ThoughtInGarden")
+	_check("the garden starts its own thought", garden_thought.was_used)
+	garden_thought.stop()
+
+	var gardener_text = level.get_node("Residents/Gardener/PlaceText")
+	Global.main.test_teleport(Vector2(470, 208))
+	await _frames(5)
+	_check("near the racks, the gardener greets Igor", gardener_text.visibility() > 0.9, str(gardener_text.visibility()))
+	var zoom = Global.camera.zoom.x
+	_check("with the camera pulled back, text keeps its size on screen", is_equal_approx(gardener_text._label.scale.x * zoom, 1.0), "%s at zoom %s" % [gardener_text._label.scale.x, zoom])
+	_check("the man at the lift keeps to himself", level.get_node_or_null("Residents/Commuter/PlaceText") == null)
+
+	var gardener_talk = level.get_node("Residents/Gardener/Talk/DialogueTrigger")
+	_check("the gardener can be talked to", gardener_talk.can_interact_with(walker))
+	gardener_talk.interact(walker)
+	await _frames(3)
+	var steps = 0
+	while Global.dialogue._in_dialogue and steps < 20:
+		_pick_first_choice()
+		await _frames(2)
+		steps += 1
+	_check("the gardener's talk ends", not Global.dialogue._in_dialogue)
+	_check("and Igor learns about arcologies", Global.known_entries.has("arcology"), str(Global.known_entries))
+	Global.main.test_teleport_to_door("lobby_elevator")
+	await _wait_seconds(1.5)
+	_check("out of the atrium, the camera is back to normal", Global.camera.zoom.is_equal_approx(Vector2.ONE), str(Global.camera.zoom))
+
+	_check("the lift goes up to the apartment", await _use_door_to("igor_apartment.tscn"))
+	_check("arriving at the apartment door", _standing_at_door("apartment_door"))
+	_check("the apartment door goes back down to the lobby", await _use_door_to("arcology_lobby.tscn"))
+	_check("arriving at the lift", _standing_at_door("lobby_elevator"))
+
+func _memory_of_home():
+	_section("a memory of home")
+	Global.menu._act_new_game()
+	_check("new game settles in room4", await _wait_until_settled())
+	var walker = Global.controlled_char
+	var trigger = Global.main.level_instance.get_node("MemoryOfHome")
+	var exit_door = Global.main.test_find_door("portal_2")
+	_check("the memory waits just before the exit door", trigger.global_position.distance_to(exit_door.global_position) < 48, str(trigger.global_position))
+	# Up on the ledge, a few steps from the door, walking toward it.
+	Global.main.test_teleport(trigger.global_position + Vector2(48, 8))
+	await _frames(10)
+	await _hold_until("left", func(): return _thought_on_screen() != "")
+	_check("in the ruins Igor stops to think", _thought_on_screen() == "Why do I even do this?", _thought_on_screen())
+	_check("and cannot walk on while he thinks", not Global.can_player_move)
+	var stood_at = walker.global_position
+	_check("then he remembers home: the lobby", await _wait_for_level(LOBBY, 15.0), Global.current_level)
+	_check("the lobby settles", await _wait_until_settled())
+	_check("in a memory", Global.is_in_memory())
+	_check("arriving at the lobby entrance", _standing_at_door("lobby_entrance"))
+
+	_check("up the lift to the apartment", await _use_door_to("igor_apartment.tscn"))
+	var kristin = Global.main.level_instance.get_node("Kristin")
+	var kristin_talk = kristin.get_node("DialogueTrigger")
+	_check("Kristin has something to say", kristin_talk.dialogue_file == "res://data/dialogue/kristin.json", kristin_talk.dialogue_file)
+	kristin_talk.interact(Global.controlled_char)
+	await _frames(3)
+	_check("talking to Kristin", Global.dialogue._in_dialogue)
+	var steps = 0
+	while Global.dialogue._in_dialogue and steps < 20:
+		_pick_first_choice()
+		await _frames(2)
+		steps += 1
+	_check("the talk ends", not Global.dialogue._in_dialogue)
+	_check("and the memory ends with it", not Global.is_in_memory())
+	_check("back in the ruins", await _wait_for_level(ROOMS + "room4.tscn", 15.0), Global.current_level)
+	_check("room4 settles", await _wait_until_settled())
+	var back_at = Global.controlled_char.global_position
+	_check("right where the memory began", back_at.distance_to(stood_at) < 16, "%s vs %s" % [back_at, stood_at])
+	await _wait_seconds(2.0)
+	_check("the memory does not start again", Global.current_level == ROOMS + "room4.tscn" and _thought_on_screen() == "")
+	_check("and the exit door is right there", await _use_door_to("room5.tscn"))
+
+	_section("a memory started from code")
+	Global.menu.start_new_game(ROOMS + "room1.tscn")
+	_check("room1 settles", await _wait_until_settled())
+	Global.remember(["Test thought."], LOBBY, "lobby_entrance")
+	await _frames(20)
+	_check("Global.remember thinks first", _thought_on_screen() == "Test thought.", _thought_on_screen())
+	_check("then goes into the memory", await _wait_for_level(LOBBY, 15.0), Global.current_level)
+	_check("which knows its way back", Global.is_in_memory() and Global.memory_return["level"] == ROOMS + "room1.tscn", str(Global.memory_return))
+	_check("the lobby settles", await _wait_until_settled())
+	Global.end_memory()
+	_check("Global.end_memory goes back", await _wait_for_level(ROOMS + "room1.tscn", 15.0), Global.current_level)
+	_check("room1 settles again", await _wait_until_settled())
+
+# Whatever thought is on screen right now, from any thought bubble.
+func _thought_on_screen() -> String:
+	for bubble in get_nodes_in_group("thought_bubble"):
+		if bubble.is_showing():
+			return bubble.current_text()
+	return ""
+
+func _pick_first_choice():
+	if Global.dialogue._choices.is_empty():
+		Global.dialogue._advance()
+		return
+	Global.dialogue._selection = 0
+	Global.dialogue._advance()
+
+func _wait_for_level(level_path: String, seconds: float) -> bool:
+	var frames = int(seconds * 60)
+	for i in frames:
+		if Global.current_level == level_path:
+			return true
+		await process_frame
+	return false
+
+func _standing_at_door(door_name: String) -> bool:
+	var door = Global.main.test_find_door(door_name)
+	return Global.controlled_char.global_position.distance_to(door.global_position) < 32
+
 func _new_game_resets_the_run():
 	_section("new game resets the run")
 	Global.menu._act_new_game()
@@ -298,7 +443,7 @@ func _any_level_can_be_started():
 	var names = []
 	for level_path in levels:
 		names.append(level_path.get_file().get_basename())
-	var expected = ["igor_apartment", "room1", "room2", "room3", "room4", "room5", "room6", "room7"]
+	var expected = ["arcology_lobby", "igor_apartment", "room1", "room2", "room3", "room4", "room5", "room6", "room7"]
 	_check("every room is found, platforms are not", names == expected, str(names))
 	_check("a level can be named without its path", Global.find_level("room4") == ROOMS + "room4.tscn")
 

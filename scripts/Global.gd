@@ -262,6 +262,44 @@ func learn_entry(entry_id: String) -> bool:
 	known_entries[entry_id] = true
 	return true
 
+# ── Memories ──────────────────────────────────────────────────────
+# Igor, somewhere in the ruins, remembers home: the game slips into another level
+# and, when the memory ends, brings him back to the spot where it began.
+
+const MEMORY_FADE_SPEED = 0.4   # slower than a door; drifting in and out of a memory
+
+# Where to come back to: {"level", "x", "y"}. Empty while not remembering. Saved.
+var memory_return: Dictionary = {}
+
+func is_in_memory() -> bool:
+	return not memory_return.is_empty()
+
+# The whole thing from code: Igor stops, thinks the lines, then drifts into the
+# memory. MemoryTrigger calls this; any script can too.
+func remember(lines: Array, memory_level: String, memory_door: String = ""):
+	block_player_movement("memory")
+	var bubble = ThoughtBubble.new()
+	add_child(bubble)
+	await bubble.think(lines)
+	bubble.queue_free()
+	unblock_player_movement("memory")
+	start_memory(memory_level, memory_door)
+
+# Straight into the memory, no thought first.
+func start_memory(memory_level: String, memory_door: String):
+	var here = controlled_char.global_position
+	memory_return = {"level": current_level, "x": here.x, "y": here.y}
+	main.load_level(memory_level, memory_door, MEMORY_FADE_SPEED, MEMORY_FADE_SPEED)
+
+func end_memory():
+	if not is_in_memory():
+		push_warning("end_memory: not in a memory, so there is nowhere to go back to.")
+		return
+	var back = memory_return
+	memory_return = {}
+	var spot = Vector2(back["x"], back["y"])
+	main.load_level(back["level"], "", MEMORY_FADE_SPEED, MEMORY_FADE_SPEED, "", spot)
+
 func character_record(character_id: String) -> Dictionary:
 	return character_roster.get(character_id, {})
 
@@ -337,6 +375,7 @@ func save_game(spawn_position: Vector2, checkpoint_position: Vector2 = Vector2(I
 		"character_roster": character_roster,
 		"quest_flags": quest_flags,
 		"known_entries": known_entries,
+		"memory_return": memory_return,
 		"per_level_save": _serialize_save(per_level_save),
 	}
 	var path := save_path()
@@ -367,6 +406,7 @@ func load_game() -> Dictionary:
 	character_roster = result.get("character_roster", {})
 	quest_flags = result.get("quest_flags", {})
 	known_entries = result.get("known_entries", {})
+	memory_return = result.get("memory_return", {})
 	var cp = result.get("checkpoint_position", null)
 	if cp != null:
 		active_checkpoint_position = Vector2(cp[0], cp[1])

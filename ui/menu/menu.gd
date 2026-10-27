@@ -5,7 +5,7 @@ enum State { MAIN, PAUSE, SETTINGS, LEVELS }
 # The only thing the menu decides is which level opens. That level declares who
 # you play as and where you appear, so the first level is not a special case —
 # any level can open a new game.
-@export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room1.tscn"
+@export_file("*.tscn") var start_level_path: String = "res://scenes/environment/castle_zone/rooms/room4.tscn"
 
 const SETTINGS_PATH = "user://settings.cfg"
 const MUSIC_BUS = "music"   # defined in audio/default_bus_layout.tres
@@ -324,6 +324,7 @@ func start_new_game(level_path: String, door_name: String = ""):
 	Global.character_roster.clear()
 	Global.quest_flags.clear()
 	Global.known_entries.clear()
+	Global.memory_return.clear()
 	music_player.stop()
 	close()
 	_close_dialogue_if_open()

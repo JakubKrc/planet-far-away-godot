@@ -1,12 +1,17 @@
 {
 	"igor kozlov": {
 		"title": "Igor Kozlov",
-		"text": "Igor is a resourceful and resilient family man, middle aged 67 years old, living in the utopian city-state of a post-war society. Known for his poorly played guitar melodies, Igor salvages what he can from the abandoned outskirts to make ends meet. He works officially for the city-state security, but since society is relatively stable, he also has a semi-official role in surveying surrounding areas for potential threats or valuable resources.\n[url=family]family[/url] - woman partner, kid, brother and parents.\nWorks for city state security. He do it on his own - V4 city state is post scarcity society.\nSatisfied family man well established in society with bit above average knack for adventure, collecting things from before populist wars and playing guitar.",
+		"text": "Igor is a resourceful and resilient family man, middle aged 67 years old, living in the utopian city-state of a post-war society. Known for his poorly played guitar melodies, Igor salvages what he can from the abandoned outskirts to make ends meet. He works officially for the city-state security, but since society is relatively stable, he also has a semi-official role in surveying surrounding areas for potential threats or valuable resources.\n[url=family]family[/url] - woman partner, kid, brother and parents.\nWorks for city state security. He do it on his own - V4 city state is post scarcity society.\nSatisfied family man well established in society with bit above average knack for adventure, collecting things from before populist wars and playing guitar.\n\nFascinated by history: how people lived before the populist wars, in houses spread for miles, with fields, roads and trucks. It is a hobby, nothing more: he simply enjoys it, reads whatever survived and tells it to anyone who stands still long enough. Most people in the city state just shrug.",
 		"known_at_start": false
 	},
 	"family": {
 		"title": "family",
 		"text": "Good standard relationship with his wife Kristin(age 58) and daughter Rebecca(13).\nHis brother Gustav (age 98) is typical member of V4 city state post scarcity society. Enjoys life, meets with people, woman do some art. Bit suspicious about [url=igor kozlov]his brother[/url] work, cant understand why would somebody do this. Makes fun out of [url=igor kozlov]Igor's[/url] guitar playing.\nIgor's parents, at 160 years old, reside in a  virtual facility care  managed by the city-state AI, in line with the common \"mind upload\" tradition.",
+		"known_at_start": false
+	},
+	"arcology": {
+		"title": "arcology",
+		"text": "An arcology is one huge building that is a whole town: homes, gardens, workshops, schools and parks under one glass roof. It filters its own water and grows its own food on garden floors and hydroponic racks.\n\nMost people of the V4 city state live in one. They are built for comfort: big homes with floor-to-ceiling windows and balconies, gardens on every floor, and an open atrium through the middle, crossed by bridges and lifts. Skybridges link one arcology to the next.",
 		"known_at_start": false
 	}
 }

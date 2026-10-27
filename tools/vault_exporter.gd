@@ -12,6 +12,7 @@ const ITEMS_FOLDER = "res://items/"
 const ITEM_KEYS = ["requires", "requires_not", "gives", "removes"]
 const FLAG_KEYS = ["sets_flag", "requires_flag", "requires_not_flag"]
 const REVEAL_KEY = "reveals"   # encyclopedia entries a choice discovers
+const END_MEMORY_KEY = "ends_memory"   # `ends_memory: yes` takes Igor back out of a memory
 
 var errors: Array = []
 var warnings: Array = []
@@ -223,8 +224,13 @@ func _parse_choice_setting(choice: Dictionary, setting: String, place: String):
 		choice[key] = _split_list(value)
 	elif key == REVEAL_KEY:
 		choice[key] = _parse_entry_list(value, place)
+	elif key == END_MEMORY_KEY:
+		if value.to_lower() != "yes":
+			errors.append("%s: write '%s: yes' (got '%s')" % [place, key, value])
+			return
+		choice[key] = true
 	else:
-		var known_keys = ITEM_KEYS + FLAG_KEYS + [REVEAL_KEY]
+		var known_keys = ITEM_KEYS + FLAG_KEYS + [REVEAL_KEY, END_MEMORY_KEY]
 		errors.append("%s: unknown setting '%s' (known: %s)" % [place, key, ", ".join(known_keys)])
 
 # "Igor Kozlov, V4 city state" -> ["igor kozlov", "v4 city state"]

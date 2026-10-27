@@ -23,6 +23,8 @@ MID_DARK, MID, MID_LIGHT = hexcolor("#3a6aa1"), hexcolor("#5d8ac7"), hexcolor("#
 NEAR_DARK, NEAR, NEAR_LIGHT = hexcolor("#111a2e"), hexcolor("#274569"), hexcolor("#3a6aa1")
 WINDOW_COOL, WINDOW_WARM = hexcolor("#cfe6f7"), hexcolor("#faf3a0")
 TEAL_LIGHT, TEAL = hexcolor("#9ae0e0"), hexcolor("#5fb3b8")
+FAR_GREEN = hexcolor("#c9e68a")                              # gardens, faded by distance
+FAR_SHADE = hexcolor("#b5b5bc")
 GREEN, GREEN_LIGHT = hexcolor("#447835"), hexcolor("#9ec96a")
 
 
@@ -73,12 +75,14 @@ def sky():
 def far_arcologies(rng):
     # Huge, hazy, stepped megastructures on the horizon, with sky between them.
     layer = Layer()
+    arcologies = []
     x = 0
     while x < WIDTH - 40:
         width = rng.randint(40, 80)
         top = rng.randint(60, 125)
         steps = rng.randint(2, 4)
         step_height = (BOTTOM + 1 - top) // (steps * 2)
+        arcologies.append({"x": x, "width": width, "top": top, "steps": steps, "step_height": step_height})
         for step in range(steps):
             inset = (steps - 1 - step) * width // (2 * steps + 2)
             layer.box(x + inset, top + step * step_height, x + width - inset, BOTTOM, FAR)
@@ -88,7 +92,34 @@ def far_arcologies(rng):
                 if rng.random() < 0.2:
                     layer.pixel(wx, wy, FAR_LIGHT)
         x += width + rng.randint(8, 30)
+    far_bridges(layer, arcologies)
     layer.save("city_far.png")
+
+def far_bridges(layer, arcologies):
+    # Arcologies are linked: hazy skybridges between neighbours, at a few heights.
+    # Their own random numbers, so adding them does not move the buildings.
+    bridge_rng = random.Random(21)
+    first_again = dict(arcologies[0], x=arcologies[0]["x"] + WIDTH)   # the layer wraps around
+    for left, right in zip(arcologies, arcologies[1:] + [first_again]):
+        lowest_top = max(left["top"], right["top"])
+        for _ in range(bridge_rng.randint(1, 3)):
+            y = bridge_rng.randint(lowest_top + 10, BOTTOM - 40)
+            # From wall to wall at this height: the buildings step in higher up.
+            start = left["x"] + left["width"] - step_inset(left, y) + 1
+            end = right["x"] + step_inset(right, y) - 1
+            layer.box(start, y, end, y + 3, FAR)
+            layer.box(start, y, end, y, FAR_LIGHT)
+            layer.box(start, y + 3, end, y + 3, FAR_SHADE)
+            for bx in range(start, end, 3):               # a garden hanging off some
+                if bridge_rng.random() < 0.35:
+                    layer.box(bx, y + 3, bx, y + 3 + bridge_rng.randint(0, 3), FAR_GREEN)
+
+
+# How far the arcology's outline is stepped in from its full width at height y.
+def step_inset(arcology, y):
+    steps, width = arcology["steps"], arcology["width"]
+    step = min(steps - 1, (y - arcology["top"]) // arcology["step_height"])
+    return (steps - 1 - step) * width // (2 * steps + 2)
 
 
 def mid_towers(rng):
@@ -120,18 +151,26 @@ def mid_towers(rng):
     for (x0, width, top), (x1, _, top1) in zip(towers, towers[1:]):
         if rng.random() < 0.6:                                             # skybridge
             y = max(top, top1) + rng.randint(15, 40)
-            layer.box(x0 + width, y, x1, y + 2, MID_DARK)
-            layer.box(x0 + width, y, x1, y, TEAL_LIGHT)
+            layer.box(x0 + width, y - 2, x1, y + 3, MID_DARK)
+            layer.box(x0 + width, y - 2, x1, y - 2, TEAL_LIGHT)
+            for wx in range(x0 + width + 2, x1 - 1, 3):          # windows along it
+                layer.pixel(wx, y, WINDOW_COOL)
+            garden_rng = random.Random(x0)
+            for gx in range(x0 + width, x1):
+                if garden_rng.random() < 0.4:
+                    layer.box(gx, y + 4, gx, y + 4 + garden_rng.randint(0, 4), GREEN_LIGHT)
     layer.save("city_mid.png")
 
 
 def near_towers(rng):
     # Darker, closer towers whose lit windows glow warm.
     layer = Layer()
+    towers = []
     x = 0
     while x < WIDTH - 30:
         width = rng.randint(34, 56)
         top = rng.randint(150, 195)
+        towers.append((x, width, top))
         layer.box(x, top, x + width, BOTTOM, NEAR)
         layer.box(x, top, x + 1, BOTTOM, NEAR_LIGHT)
         layer.box(x, top, x + width, top + 1, NEAR_LIGHT)
@@ -142,7 +181,21 @@ def near_towers(rng):
                     layer.box(wx, wy, wx + 1, wy, WINDOW_WARM)
         layer.box(x + 3, top + 3, x + 3, BOTTOM, TEAL)                # light strip
         x += width + rng.randint(30, 60)
+    near_bridges(layer, towers)
     layer.save("city_near.png")
+
+def near_bridges(layer, towers):
+    # Close by, a covered walkway or two with lit windows along it.
+    bridge_rng = random.Random(22)
+    for (x0, width0, top0), (x1, _, top1) in zip(towers, towers[1:]):
+        if bridge_rng.random() < 0.4:
+            continue
+        y = bridge_rng.randint(max(top0, top1) + 12, BOTTOM - 30)
+        start, end = x0 + width0 + 1, x1 - 1
+        layer.box(start, y, end, y + 5, NEAR_DARK)
+        layer.box(start, y, end, y, NEAR_LIGHT)
+        for wx in range(start + 2, end - 1, 4):
+            layer.box(wx, y + 2, wx + 1, y + 3, WINDOW_WARM if bridge_rng.random() < 0.6 else TEAL)
 
 
 # ── drones ──

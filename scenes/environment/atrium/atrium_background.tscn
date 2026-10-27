@@ -1,0 +1,153 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://scenes/environment/atrium/atrium_far.png" id="1_dmgnt"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_far.png" id="2_l25on"]
+[ext_resource type="Texture2D" path="res://scenes/environment/atrium/atrium_mid.png" id="2_uvfqw"]
+[ext_resource type="Script" path="res://scenes/environment/city/drone_flight.gd" id="3_402ko"]
+[ext_resource type="Texture2D" path="res://scenes/environment/atrium/lift_capsule.png" id="3_f5lwl"]
+[ext_resource type="Script" path="res://scenes/common/back_and_forth/back_and_forth.gd" id="4_28hf6"]
+[ext_resource type="Texture2D" path="res://scenes/environment/atrium/tiny_walker.png" id="5_hw725"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_mid.png" id="8_4a6dv"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_near.png" id="9_6y4w0"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_front.png" id="10_tojqf"]
+
+[node name="AtriumBackground" type="Node2D" unique_id=1973936932]
+
+[node name="AtriumFar" type="Parallax2D" parent="." unique_id=1408275329]
+modulate = Color(0.62, 0.66, 0.8, 1)
+z_index = -100
+scroll_scale = Vector2(0.25, 0.25)
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+
+[node name="Image" type="Sprite2D" parent="AtriumFar" unique_id=1114829149]
+position = Vector2(0, -130)
+texture = ExtResource("1_dmgnt")
+centered = false
+
+[node name="Drone" type="Sprite2D" parent="AtriumFar" unique_id=1846777938]
+position = Vector2(120, -40)
+texture = ExtResource("2_l25on")
+centered = false
+script = ExtResource("3_402ko")
+speed = 4.0
+
+[node name="Drone2" type="Sprite2D" parent="AtriumFar" unique_id=2066995275]
+position = Vector2(400, 60)
+texture = ExtResource("2_l25on")
+centered = false
+script = ExtResource("3_402ko")
+speed = -5.0
+
+[node name="Drone3" type="Sprite2D" parent="AtriumFar" unique_id=1926876875]
+position = Vector2(560, 160)
+texture = ExtResource("2_l25on")
+centered = false
+script = ExtResource("3_402ko")
+speed = 3.5
+
+[node name="AtriumMid" type="Parallax2D" parent="." unique_id=643871092]
+modulate = Color(0.78, 0.81, 0.9, 1)
+z_index = -100
+scroll_scale = Vector2(0.5, 0.5)
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+
+[node name="Image" type="Sprite2D" parent="AtriumMid" unique_id=844852635]
+position = Vector2(0, -200)
+texture = ExtResource("2_uvfqw")
+centered = false
+
+[node name="Lift1" type="Sprite2D" parent="AtriumMid" unique_id=1018774520]
+position = Vector2(192, -120)
+texture = ExtResource("3_f5lwl")
+centered = false
+script = ExtResource("4_28hf6")
+travel = Vector2(0, 360)
+speed = 30.0
+rest_seconds = 2.5
+
+[node name="Lift2" type="Sprite2D" parent="AtriumMid" unique_id=877993159]
+position = Vector2(437, 220)
+texture = ExtResource("3_f5lwl")
+centered = false
+script = ExtResource("4_28hf6")
+travel = Vector2(0, -300)
+speed = 24.0
+rest_seconds = 3.0
+
+[node name="Walker1" type="Sprite2D" parent="AtriumMid" unique_id=916122373]
+position = Vector2(164, 46)
+texture = ExtResource("5_hw725")
+centered = false
+hframes = 2
+script = ExtResource("4_28hf6")
+travel = Vector2(70, 0)
+speed = 6.0
+rest_seconds = 1.5
+
+[node name="Walker2" type="Sprite2D" parent="AtriumMid" unique_id=943094072]
+position = Vector2(474, 126)
+texture = ExtResource("5_hw725")
+centered = false
+hframes = 2
+script = ExtResource("4_28hf6")
+travel = Vector2(-60, 0)
+speed = 5.0
+rest_seconds = 4.0
+
+[node name="Walker3" type="Sprite2D" parent="AtriumMid" unique_id=708126781]
+position = Vector2(164, 266)
+texture = ExtResource("5_hw725")
+centered = false
+hframes = 2
+script = ExtResource("4_28hf6")
+travel = Vector2(70, 0)
+speed = 4.0
+rest_seconds = 2.0
+
+[node name="Drone" type="Sprite2D" parent="AtriumMid" unique_id=992748572]
+position = Vector2(60, -120)
+texture = ExtResource("8_4a6dv")
+centered = false
+hframes = 2
+script = ExtResource("3_402ko")
+speed = 9.0
+
+[node name="Drone2" type="Sprite2D" parent="AtriumMid" unique_id=116842104]
+position = Vector2(300, 20)
+texture = ExtResource("8_4a6dv")
+centered = false
+hframes = 2
+script = ExtResource("3_402ko")
+speed = -12.0
+
+[node name="Drone3" type="Sprite2D" parent="AtriumMid" unique_id=1580570745]
+position = Vector2(500, 120)
+texture = ExtResource("9_6y4w0")
+centered = false
+hframes = 2
+script = ExtResource("3_402ko")
+speed = 10.0
+
+[node name="Drone4" type="Sprite2D" parent="AtriumMid" unique_id=863891775]
+position = Vector2(220, 230)
+texture = ExtResource("8_4a6dv")
+centered = false
+hframes = 2
+script = ExtResource("3_402ko")
+speed = -8.0
+
+[node name="FrontDrones" type="Parallax2D" parent="." unique_id=2066144840]
+z_index = 10
+scroll_scale = Vector2(1.15, 1)
+repeat_size = Vector2(1600, 0)
+
+[node name="CargoDrone" type="Sprite2D" parent="FrontDrones" unique_id=1874093317]
+position = Vector2(300, 30)
+texture = ExtResource("10_tojqf")
+centered = false
+hframes = 2
+script = ExtResource("3_402ko")
+speed = 35.0
+loop_width = 1600.0

@@ -9,6 +9,7 @@ Guard: Stay away from [[Old Tower|the tower]]. Ask me about the **captain** or t
 	- gives: test_potion x2
 	- sets_flag: guard_gave_potions, met_guard
 - Bye.
+	- ends_memory: yes
 
 ## tower
 Guard: The [[Guard Captain]] guards it.

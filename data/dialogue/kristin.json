@@ -1,0 +1,47 @@
+{
+	"start": {
+		"speaker": "Kristin",
+		"text": "There you are. You look tired.",
+		"choices": [
+			{
+				"text": "Long shift.",
+				"next": "shift"
+			},
+			{
+				"text": "I went to see my parents.",
+				"next": "parents"
+			}
+		]
+	},
+	"shift": {
+		"speaker": "Kristin",
+		"text": "Sit with me a bit. How are your parents?",
+		"choices": [
+			{
+				"text": "I went to see them today.",
+				"next": "parents"
+			}
+		]
+	},
+	"parents": {
+		"speaker": "Kristin",
+		"text": "In the facility? How are they?",
+		"choices": [
+			{
+				"text": "Happy, I think. Same as always.",
+				"next": "fine"
+			}
+		]
+	},
+	"fine": {
+		"speaker": "Kristin",
+		"text": "Then everything is OK, Igor. Look at the city.",
+		"choices": [
+			{
+				"text": "Yeah. Everything is OK.",
+				"next": null,
+				"ends_memory": true
+			}
+		]
+	}
+}
