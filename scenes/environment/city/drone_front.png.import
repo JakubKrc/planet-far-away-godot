@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://to7ml7el0fgg"
-path="res://.godot/imported/guitar.png-d59e3ef8a609c6ed84f79ac4122582d7.ctex"
+uid="uid://b5opg2g17pi4h"
+path="res://.godot/imported/drone_front.png-75e3b85025377f38a82d3ef4ff46a163.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/environment/apartment_zone/objects/guitar.png"
-dest_files=["res://.godot/imported/guitar.png-d59e3ef8a609c6ed84f79ac4122582d7.ctex"]
+source_file="res://scenes/environment/city/drone_front.png"
+dest_files=["res://.godot/imported/drone_front.png-75e3b85025377f38a82d3ef4ff46a163.ctex"]
 
 [params]
 

@@ -1,0 +1,184 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://scenes/environment/city/city_sky.png" id="1_b30fl"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/city_far.png" id="2_m6wvf"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_far.png" id="3_t8511"]
+[ext_resource type="Script" path="res://scenes/environment/city/drone_flight.gd" id="4_46ccl"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/city_mid.png" id="5_3oj1u"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_mid.png" id="6_8ssmf"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/city_near.png" id="7_gopfc"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_near.png" id="8_fel47"]
+[ext_resource type="Texture2D" path="res://scenes/environment/city/drone_front.png" id="9_yd5qd"]
+
+[node name="CityBackground" type="Node2D" unique_id=1902381976]
+
+[node name="CitySky" type="Parallax2D" parent="." unique_id=20415987]
+z_index = -100
+scroll_scale = Vector2(0.02, 0.02)
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+
+[node name="Image" type="Sprite2D" parent="CitySky" unique_id=1496556072]
+position = Vector2(0, -180)
+texture = ExtResource("1_b30fl")
+centered = false
+
+[node name="CityFar" type="Parallax2D" parent="." unique_id=1434664204]
+z_index = -100
+scroll_scale = Vector2(0.1, 0.1)
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+
+[node name="Image" type="Sprite2D" parent="CityFar" unique_id=1171306310]
+position = Vector2(0, -180)
+texture = ExtResource("2_m6wvf")
+centered = false
+
+[node name="Drone1" type="Sprite2D" parent="CityFar" unique_id=1405665227]
+position = Vector2(576.2578, -33.246773)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = 5.753424882888794
+
+[node name="Drone2" type="Sprite2D" parent="CityFar" unique_id=544095367]
+position = Vector2(483.63736, 12.008218)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = -6.614067
+
+[node name="Drone3" type="Sprite2D" parent="CityFar" unique_id=1704251579]
+position = Vector2(552.2596, 39.33778)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = 4.372922
+
+[node name="Drone4" type="Sprite2D" parent="CityFar" unique_id=1889553900]
+position = Vector2(235.73088, 78.191086)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = -5.575304746627808
+
+[node name="Drone5" type="Sprite2D" parent="CityFar" unique_id=423875868]
+position = Vector2(337.27985, 134.894)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = 5.7764754
+
+[node name="Drone6" type="Sprite2D" parent="CityFar" unique_id=1527911356]
+position = Vector2(613.0464, 175.82178)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = -7.193497896194458
+
+[node name="Drone7" type="Sprite2D" parent="CityFar" unique_id=1546916252]
+position = Vector2(256.06512, 219.65768)
+texture = ExtResource("3_t8511")
+centered = false
+script = ExtResource("4_46ccl")
+speed = 6.4226046
+
+[node name="CityMid" type="Parallax2D" parent="." unique_id=549713534]
+z_index = -100
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+
+[node name="Image" type="Sprite2D" parent="CityMid" unique_id=586892514]
+position = Vector2(0, -180)
+texture = ExtResource("5_3oj1u")
+centered = false
+
+[node name="Drone1" type="Sprite2D" parent="CityMid" unique_id=202519790]
+position = Vector2(207.62567, -3.647542)
+texture = ExtResource("6_8ssmf")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = 13.01453
+
+[node name="Drone2" type="Sprite2D" parent="CityMid" unique_id=1874356161]
+position = Vector2(15.99256, 61.24239)
+texture = ExtResource("6_8ssmf")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = -17.752744436264038
+
+[node name="Drone3" type="Sprite2D" parent="CityMid" unique_id=448695746]
+position = Vector2(65.28308, 125.20427)
+texture = ExtResource("6_8ssmf")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = 14.968939065933228
+
+[node name="Drone4" type="Sprite2D" parent="CityMid" unique_id=1235726974]
+position = Vector2(55.375484, 173.19191)
+texture = ExtResource("6_8ssmf")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = -12.51860761642456
+
+[node name="Drone5" type="Sprite2D" parent="CityMid" unique_id=2012897854]
+position = Vector2(222.04694, 229.17952)
+texture = ExtResource("6_8ssmf")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = 9.934173464775085
+
+[node name="CityNear" type="Parallax2D" parent="." unique_id=1207094715]
+z_index = -100
+scroll_scale = Vector2(0.55, 0.55)
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+
+[node name="Image" type="Sprite2D" parent="CityNear" unique_id=429382555]
+position = Vector2(0, -180)
+texture = ExtResource("7_gopfc")
+centered = false
+
+[node name="Drone1" type="Sprite2D" parent="CityNear" unique_id=1079246754]
+position = Vector2(196.65016, 21.170961)
+texture = ExtResource("8_fel47")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = 30.822551250457764
+
+[node name="Drone2" type="Sprite2D" parent="CityNear" unique_id=778619951]
+position = Vector2(300.52762, 124.02846)
+texture = ExtResource("8_fel47")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = -23.162532567977905
+
+[node name="Drone3" type="Sprite2D" parent="CityNear" unique_id=2072224818]
+position = Vector2(142.32756, 212.91193)
+texture = ExtResource("8_fel47")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = 33.26018
+
+[node name="FrontDrones" type="Parallax2D" parent="." unique_id=16148944]
+z_index = 10
+scroll_scale = Vector2(1.15, 1)
+repeat_size = Vector2(1600, 0)
+
+[node name="CargoDrone" type="Sprite2D" parent="FrontDrones" unique_id=555927420]
+position = Vector2(400, 70)
+texture = ExtResource("9_yd5qd")
+centered = false
+hframes = 2
+script = ExtResource("4_46ccl")
+speed = -40.0
+loop_width = 1600.0

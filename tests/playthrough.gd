@@ -313,6 +313,97 @@ func _any_level_can_be_started():
 	_check("as main_char", _controlled_id() == "main_char", _controlled_id())
 	_check("at the apartment door", Global.controlled_char.global_position.distance_to(Global.main.test_find_door("apartment_door").global_position) < 32)
 	_check("standing on the tiled floor", Global.controlled_char.is_on_floor(), str(Global.controlled_char.global_position))
+	var level = Global.main.level_instance
+	var door_thought = level.get_node("ThoughtAtDoor")
+	await _frames(20)
+	_check("arriving at the door starts Igor's thought", door_thought.is_showing() and door_thought.current_text() == "Home.", door_thought.current_text())
+	await _wait_seconds(9.0)
+	_check("the thought has played all its lines and gone", not door_thought.is_showing())
+	_check("and is remembered as played", door_thought.was_used)
+	Global.main.test_teleport(Vector2(200, 192))
+	await _frames(10)
+	Global.main.test_teleport(Vector2(40, 192))
+	await _frames(20)
+	_check("walking back to the door does not repeat it", not door_thought.is_showing())
+
+	var couch_thought = level.get_node("ThoughtAtCouch")
+	Global.main.test_teleport(Vector2(110, 192))
+	await _frames(20)
+	_check("passing the couch, Igor thinks of Kristin", couch_thought.current_text() == "Kristin is probably out on the balcony.", couch_thought.current_text())
+	couch_thought.stop()
+
+	# The apartment has no place text any more, so test one placed by the test.
+	var guitar_text = load("res://scenes/common/floating_text/place_text.tscn").instantiate()
+	guitar_text.position = Vector2(158, 98)
+	guitar_text.text = "Test text"
+	level.add_child(guitar_text)
+	Global.main.test_teleport(Vector2(158, 112))
+	await _frames(5)
+	_check("place text fully visible up close", is_equal_approx(guitar_text.visibility(), 1.0), str(guitar_text.visibility()))
+	Global.main.test_teleport(Vector2(100, 112))
+	await _frames(5)
+	var middle = guitar_text.visibility()
+	_check("place text half faded at mid distance", middle > 0.1 and middle < 0.9, str(middle))
+	Global.main.test_teleport(Vector2(290, 192))
+	await _frames(5)
+	_check("place text invisible far away", guitar_text.visibility() == 0.0, str(guitar_text.visibility()))
+	guitar_text.queue_free()
+	Global.main.test_teleport(Vector2(28, 192))
+	await _frames(20)
+
+	var walker = Global.controlled_char
+	await _hold_until("right", func(): return walker.global_position.x > 292)
+	_check("walked under the shelves to the far side", walker.global_position.y > 180, str(walker.global_position))
+	await _hold_until("left", func(): return walker.global_position.x < 274)
+	await _jump_towards("", walker, 0)
+	_check("jumped up through the lower shelf onto it", absf(walker.global_position.y - 160) < 3 and walker.is_on_floor(), str(walker.global_position))
+	await _jump_towards("left", walker, 18)
+	_check("jumped onto the upper shelf", absf(walker.global_position.y - 128) < 3 and walker.is_on_floor(), str(walker.global_position))
+	await _jump_towards("left", walker, 120)
+	_check("jumped up to the upper floor", absf(walker.global_position.y - 112) < 3 and walker.global_position.x < 208, str(walker.global_position))
+
+	var outside_cover = Global.main.level_instance.get_node("OutsideCover")
+	_check("from inside, the balcony is hidden behind the building", is_equal_approx(outside_cover.modulate.a, 1.0))
+	var apartment_cover = Global.main.level_instance.get_node("ApartmentCover")
+	_check("from inside, the apartment is not covered", is_zero_approx(apartment_cover.modulate.a))
+	var front_drones = Global.main.level_instance.get_node("CityBackground/FrontDrones")
+	_check("from inside, no drone flies in front of the room", is_zero_approx(front_drones.modulate.a))
+	var far_drone = Global.main.level_instance.get_node("CityBackground/CityFar/Drone1")
+	var far_drone_x = far_drone.position.x
+	await _hold_until("left", func(): return walker.global_position.x < -100)
+	_check("walked out through the wall onto the balcony", walker.global_position.x < -100 and walker.is_on_floor(), str(walker.global_position))
+	await _wait_seconds(1.5)
+	_check("the camera pulls back over the city", Global.camera.zoom.x < 0.8, str(Global.camera.zoom))
+	_check("on the balcony, the cover has faded away", outside_cover.modulate.a < 0.05, str(outside_cover.modulate.a))
+	_check("and the apartment is seen from outside, as facade", apartment_cover.modulate.a > 0.95, str(apartment_cover.modulate.a))
+	_check("outside, the front drone can pass by", front_drones.modulate.a > 0.95, str(front_drones.modulate.a))
+	var kristin = Global.main.level_instance.get_node("Kristin")
+	_check("Kristin stands out on the balcony", kristin.global_position.x < 0 and kristin.global_position.x > -128, str(kristin.global_position))
+	_check("background drones are flying", not is_equal_approx(far_drone.position.x, far_drone_x))
+	await _hold_until("left", func(): return false)
+	_check("the end of the balcony stops Igor", walker.global_position.x > -135 and walker.is_on_floor(), str(walker.global_position))
+	await _hold_until("right", func(): return walker.global_position.x > 40)
+	await _wait_seconds(1.5)
+	_check("back inside, the camera returns to normal", Global.camera.zoom.is_equal_approx(Vector2.ONE) and Global.camera.offset.is_zero_approx(), str(Global.camera.zoom, Global.camera.offset))
+	_check("and the balcony is hidden again", is_equal_approx(outside_cover.modulate.a, 1.0), str(outside_cover.modulate.a))
+	_check("and the apartment is open again", is_zero_approx(apartment_cover.modulate.a), str(apartment_cover.modulate.a))
+
+	var guitar = Global.main.level_instance.get_node("GuitarPlay")
+	Global.main.test_teleport(Vector2(158, 112))
+	await _frames(10)
+	_send_action("use", true)
+	await _frames(2)
+	_send_action("use", false)
+	await _frames(5)
+	_check("E at the guitar starts the solo", guitar.is_playing() and guitar.get_node("SongPlayer").playing)
+	var x_before = walker.global_position.x
+	await _hold_until("right", func(): return false)
+	_check("Igor cannot move while playing", absf(walker.global_position.x - x_before) < 1.0, str(walker.global_position.x - x_before))
+	_check("the guitar cannot be started again mid-song", not guitar.can_interact_with(walker))
+	guitar._on_song_finished()   # the song is 37 s long; skip to its end
+	await _frames(30)
+	_check("after the song Igor can move again", Global.can_player_move)
+	_check("and thinks about how it went", guitar.get_node("ThoughtBubble").current_text() == "Incredible how I still suck at this!", guitar.get_node("ThoughtBubble").current_text())
 
 	Global.requested_level = "room5"
 	Global.requested_door = "portal_2"
@@ -405,6 +496,44 @@ func _pick(choice_text: String):
 			Global.dialogue._advance()
 			return
 	print("  !! no choice '", choice_text, "' in ", _choice_texts())
+
+# Holds a movement action like a player would, until the condition holds or 6 s pass.
+func _hold_until(action: String, condition: Callable):
+	Input.action_press(action)
+	for i in 360:
+		await physics_frame
+		if condition.call():
+			break
+	Input.action_release(action)
+
+# A full jump, steering in a direction ("" for straight up) for the given number
+# of physics frames, until the character lands. Sent as input events, because the
+# jump only reacts to a fresh press, as with real keys.
+func _jump_towards(direction: String, character: Node, steer_frames: int):
+	if direction != "":
+		_send_action(direction, true)
+	_send_action("jump", true)
+	for i in 120:
+		await physics_frame
+		if i == 20:
+			_send_action("jump", false)
+		if direction != "" and i == steer_frames:
+			_send_action(direction, false)
+		if i > 10 and character.is_on_floor():
+			break
+	_send_action("jump", false)
+	if direction != "":
+		_send_action(direction, false)
+	await _frames(10)
+
+func _wait_seconds(seconds: float):
+	await create_timer(seconds).timeout
+
+func _send_action(action: String, pressed: bool):
+	var event = InputEventAction.new()
+	event.action = action
+	event.pressed = pressed
+	Input.parse_input_event(event)
 
 func _log_contains(fragment: String) -> bool:
 	for line in Global.dialogue.log_box.get_children():

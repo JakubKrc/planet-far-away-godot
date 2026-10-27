@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/common/camera_view/camera_view_area.gd" id="1_view"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_view"]
+size = Vector2(64, 48)
+
+[node name="CameraViewArea" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_view")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_view")
